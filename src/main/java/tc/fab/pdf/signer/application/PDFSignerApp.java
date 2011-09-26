@@ -54,9 +54,6 @@ import tc.fab.pdf.signer.options.SignerOptionDialog;
 import tc.fab.pdf.signer.options.SignerOptions;
 import tc.fab.security.PINDialogCallback;
 
-/**
- * The main class of the application.
- */
 public class PDFSignerApp extends SingleFrameApplication {
 
 	public static FileFilter acceptedFiles = new ExtensionFilter(
