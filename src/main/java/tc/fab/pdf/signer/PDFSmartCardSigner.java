@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
@@ -47,6 +46,7 @@ import com.itextpdf.text.pdf.PdfSignatureAppearance.RenderingMode;
 import com.itextpdf.text.pdf.PdfStamper;
 import com.itextpdf.text.pdf.PdfString;
 import com.itextpdf.text.pdf.PdfTemplate;
+import com.itextpdf.text.pdf.RandomAccessFileOrArray;
 import com.itextpdf.text.pdf.TSAClient;
 import com.itextpdf.text.pdf.TSAClientBouncyCastle;
 
@@ -87,28 +87,6 @@ public class PDFSmartCardSigner implements IPDFSigner {
 	public void sign(File inputFile) throws IOException, DocumentException,
 			GeneralSecurityException {
 
-		// TODO: remover conversão daqui
-		// if (!FilenameUtils.getExtension(inputFile.getName()).toLowerCase()
-		// .equals("pdf")) {
-		// URL serverURL = getOptions().getURL();
-		// if (PDFSignerApp.getApplication().getServerMonitor().isOnline(
-		// serverURL)) {
-		// Converter converter = Converter.getInstance();
-		// inputFile = converter.convert(inputFile, getOptions().getURL());
-		// setOutputFile(new File(getOutputFilename(inputFile)));
-		// if (getOutputFile().exists()) {
-		// FileUtils.deleteQuietly(getOutputFile());
-		// }
-		// FileUtils.moveFile(inputFile, getOutputFile());
-		// inputFile = getOutputFile();
-		// }
-		// } else {
-		// }
-
-		URL fileURL = inputFile.toURI().toURL();
-
-		// setPddoc(PDDocument.load(fileURL));
-
 		if (!getOptions().isAbsolute() || getOptions().getOutputMaskRegex()) {
 
 			tpos = new PDFTextPosition(inputFile);
@@ -117,12 +95,17 @@ public class PDFSmartCardSigner implements IPDFSigner {
 
 		setOutputFile(new File(getOutputFilename(inputFile)));
 
-		reader = new PdfReader(fileURL);
+		RandomAccessFileOrArray raf = new RandomAccessFileOrArray(
+				inputFile.getAbsolutePath(), false, true);
+
+		reader = new PdfReader(raf, null);
 
 		setOutputStream(new FileOutputStream(getOutputFile()));
 
 		FileOutputStream fout = getOutputStream();
-		PdfStamper stp = PdfStamper.createSignature(reader, fout, '\0', null, true);
+		File tmpFile = File.createTempFile("pdf", "sgn");
+		PdfStamper stp = PdfStamper.createSignature(reader, fout, '\0',
+				tmpFile, true);
 
 		ap = stp.getSignatureAppearance();
 
