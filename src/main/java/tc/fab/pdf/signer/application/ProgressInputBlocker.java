@@ -407,6 +407,8 @@ final class ProgressInputBlocker extends Task.InputBlocker {
 			showBusyGlassPane(true);
 			showBlockingDialog(true);
 			break;
+		default:
+			break;
 		}
 	}
 
@@ -423,6 +425,8 @@ final class ProgressInputBlocker extends Task.InputBlocker {
 		case APPLICATION:
 			showBusyGlassPane(false);
 			showBlockingDialog(false);
+			break;
+		default:
 			break;
 		}
 	}

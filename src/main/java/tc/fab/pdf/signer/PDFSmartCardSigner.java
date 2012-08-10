@@ -3,25 +3,20 @@ package tc.fab.pdf.signer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStoreException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 
-import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.FilenameUtils;
 
 import tc.fab.pdf.PDFTextPosition;
@@ -35,40 +30,33 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfDate;
-import com.itextpdf.text.pdf.PdfDictionary;
-import com.itextpdf.text.pdf.PdfName;
-import com.itextpdf.text.pdf.PdfPKCS7;
 import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfSignature;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.PdfSignatureAppearance.RenderingMode;
 import com.itextpdf.text.pdf.PdfStamper;
-import com.itextpdf.text.pdf.PdfString;
 import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.RandomAccessFileOrArray;
-import com.itextpdf.text.pdf.TSAClient;
-import com.itextpdf.text.pdf.TSAClientBouncyCastle;
+import com.itextpdf.text.pdf.security.CertificateInfo;
+import com.itextpdf.text.pdf.security.ExternalSignature;
+import com.itextpdf.text.pdf.security.MakeSignature;
+import com.itextpdf.text.pdf.security.PrivateKeySignature;
+import com.itextpdf.text.pdf.security.TSAClient;
+import com.itextpdf.text.pdf.security.TSAClientBouncyCastle;
 
 public class PDFSmartCardSigner implements IPDFSigner {
 
 	private SignerOptions options;
 	private KeyStoreAdapter keyStore;
-	// private PDDocument pddoc;
 	private PdfReader reader;
 	private Float signatureWidth;
 	private Float signatureHeight;
 	private PdfSignatureAppearance ap;
 	private Rectangle pCoords = null;
-
 	private File outputFile;
 	private FileOutputStream outputStream;
 	private PDFTextPosition tpos;
 	private PrivateKey pkey;
 	private Certificate[] chain;
-
-	public static void main(String args[]) throws Exception {
-	}
 
 	public PDFSmartCardSigner(CallbackHandler handler)
 			throws KeyStoreException, NoSuchAlgorithmException,
@@ -109,95 +97,24 @@ public class PDFSmartCardSigner implements IPDFSigner {
 
 		ap = stp.getSignatureAppearance();
 
-		// sap.setVisibleSignature(new Rectangle(72, 732, 144, 780), 1,
-		// "Signature");
-		ap.setCrypto(null, chain, null, PdfSignatureAppearance.SELF_SIGNED);
-
 		configAppearance();
 
-		PdfSignature dic = new PdfSignature(PdfName.ADOBE_PPKLITE, new PdfName(
-				"adbe.pkcs7.detached"));
-		dic.setReason(ap.getReason());
-		dic.setLocation(ap.getLocation());
-		dic.setContact(ap.getContact());
-		dic.setDate(new PdfDate(ap.getSignDate()));
-		ap.setCryptoDictionary(dic);
-
-		// preserve some space for the contents
-		int contentEstimated = 15000;
-		HashMap<PdfName, Integer> exc = new HashMap<PdfName, Integer>();
-		exc.put(PdfName.CONTENTS, new Integer(contentEstimated * 2 + 2));
-		ap.preClose(exc);
-
-		// make the digest
-		InputStream data = ap.getRangeStream();
-		MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
-		byte buf[] = new byte[8192];
-		int n;
-		while ((n = data.read(buf)) > 0) {
-			messageDigest.update(buf, 0, n);
-		}
-		byte hash[] = messageDigest.digest();
-		Calendar cal = Calendar.getInstance();
 		// If we add a time stamp:
 		TSAClient tsc = null;
 		boolean withTS = false;
 		if (withTS) {
+			// TODO: proxy management
+			System.getProperties().put("http.proxyHost", "localhost");
+			System.getProperties().put("http.proxyPort", "8888");
 			String tsa_url = "http://tsa.swisssign.net";
 			String tsa_login = "";
 			String tsa_passw = "";
 			tsc = new TSAClientBouncyCastle(tsa_url, tsa_login, tsa_passw);
 		}
 
-		// Create the signature
-		PdfPKCS7 sgn = new PdfPKCS7(pkey, chain, null, "SHA1",
-				keyStore.getProvider(), false);
-
-		byte sh[] = sgn.getAuthenticatedAttributeBytes(hash, cal, null);
-		sgn.update(sh, 0, sh.length);
-		byte[] encodedSig = sgn.getEncodedPKCS7(hash, cal, tsc, null);
-
-		if (contentEstimated + 2 < encodedSig.length)
-			throw new DocumentException("Not enough space");
-
-		byte[] paddedSig = new byte[contentEstimated];
-		System.arraycopy(encodedSig, 0, paddedSig, 0, encodedSig.length);
-		// Replace the contents
-		PdfDictionary dic2 = new PdfDictionary();
-		dic2.put(PdfName.CONTENTS, new PdfString(paddedSig).setHexWriting(true));
-		ap.close(dic2);
-
-		// PdfStamper stamper = PdfStamper.createSignature(reader,
-		// getOutputStream(), '\0', null, true);
-		//
-		// ap = stamper.getSignatureAppearance();
-		// ap.setCrypto(null,
-		// keyStore.getKeystore()
-		// .getCertificateChain(keyStore.getAlias(0)), null,
-		// PdfSignatureAppearance.SELF_SIGNED);
-		//
-		// configAppearance();
-		//
-		// ap.setExternalDigest(new byte[128], new byte[20], "RSA");
-		// ap.preClose();
-		//
-		// PrivateKey pkey = keyStore.getPrivateKey(keyStore.getAlias(0));
-		// Provider pr = keyStore.getKeystore().getProvider();
-		// Signature sign = Signature.getInstance("SHA1withRSA", pr);
-		// sign.initSign(pkey);
-		//
-		// byte[] content = IOUtils.toByteArray(ap.getRangeStream());
-		// sign.update(content);
-		//
-		// PdfPKCS7 signer = ap.getSigStandard().getSigner();
-		// signer.setExternalDigest(sign.sign(), null, "RSA");
-		//
-		// PdfDictionary dic = new PdfDictionary();
-		// dic.put(PdfName.CONTENTS,
-		// new PdfString(signer.getEncodedPKCS1()).setHexWriting(true));
-		// ap.close(dic);
-		//
-		// getOutputStream().close();
+		ExternalSignature es = new PrivateKeySignature(pkey, "SHA-1", null);
+		MakeSignature.signDetached(ap, es, chain, null, null, tsc, null, 15000,
+				MakeSignature.CMS);
 
 	}
 
@@ -228,12 +145,10 @@ public class PDFSmartCardSigner implements IPDFSigner {
 		signatureHeight = getOptions().getSignatureHeight();
 		signatureWidth = getOptions().getSignatureWidth();
 
-		ap.setAcro6Layers(true);
+		// ap.setAcro6Layers(true);
 
 		if (getOptions().hasGraphic()) {
-
 			img = Image.getInstance(getOptions().getImage().getAbsolutePath());
-
 		}
 
 		if (renderMode.equals(RenderMode.Graphic)) {
@@ -251,8 +166,9 @@ public class PDFSmartCardSigner implements IPDFSigner {
 				scale = -1F;
 			}
 
-			ap.setImage(img);
-			ap.setLayer2Text("");
+			ap.setSignatureGraphic(img);
+			// ap.setImage(img);
+			// ap.setLayer2Text("");
 
 			offsetSignature();
 
@@ -276,8 +192,8 @@ public class PDFSmartCardSigner implements IPDFSigner {
 			if (getOptions().getImageCustom()) {
 				name = getOptions().getImageCustomText();
 			} else {
-				name = PdfPKCS7.getSubjectFields(keyStore.getCertificate(0))
-						.getField("CN");
+				name = CertificateInfo.getSubjectFields(
+						keyStore.getCertificate(0)).getField("CN");
 			}
 
 			addTextToLayer(2, name);
@@ -300,13 +216,15 @@ public class PDFSmartCardSigner implements IPDFSigner {
 
 			PlainDescription desc = getOptions().getDescription();
 
-			String name = PdfPKCS7.getSubjectFields(keyStore.getCertificate(0))
-					.getField("CN");
+			String name = CertificateInfo.getSubjectFields(
+					keyStore.getCertificate(0)).getField("CN");
+			
 			desc.setName(name);
 
-			StringTemplate description = new StringTemplate(desc.getTemplate());
+			// StringTemplate description = new
+			// StringTemplate(desc.getTemplate());
 
-			description.setAttribute("description", desc);
+			// description.setAttribute("description", desc);
 
 			if (desc.getLocation() != null) {
 				ap.setLocation(desc.getLocation());
@@ -316,7 +234,7 @@ public class PDFSmartCardSigner implements IPDFSigner {
 				ap.setReason(desc.getReason());
 			}
 
-			ap.setLayer2Text(description.toString());
+			// ap.setLayer2Text(description.toString());
 
 		}
 
@@ -502,14 +420,6 @@ public class PDFSmartCardSigner implements IPDFSigner {
 	public KeyStoreAdapter getCard() {
 		return keyStore;
 	}
-
-	// private void setPddoc(PDDocument pddoc) {
-	// this.pddoc = pddoc;
-	// }
-	//
-	// public PDDocument getPddoc() {
-	// return pddoc;
-	// }
 
 	private void setOutputFile(File outputFile) {
 		this.outputFile = outputFile;

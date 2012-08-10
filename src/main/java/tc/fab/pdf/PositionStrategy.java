@@ -1,6 +1,5 @@
 package tc.fab.pdf;
 
-import java.awt.geom.Rectangle2D;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.itextpdf.awt.geom.Rectangle2D;
 import com.itextpdf.text.pdf.parser.ImageRenderInfo;
 import com.itextpdf.text.pdf.parser.LineSegment;
 import com.itextpdf.text.pdf.parser.RenderListener;
@@ -173,12 +173,12 @@ public class PositionStrategy implements RenderListener {
 		public final Rectangle2D.Float boundingRectange;
 
 		public TextChunk(String string, Vector startLocation,
-				Vector endLocation, float charSpaceWidth, Rectangle2D.Float rect) {
+				Vector endLocation, float charSpaceWidth, Rectangle2D.Float float1) {
 			this.text = string;
 			this.startLocation = startLocation;
 			this.endLocation = endLocation;
 			this.charSpaceWidth = charSpaceWidth;
-			this.boundingRectange = rect;
+			this.boundingRectange = float1;
 
 			orientationVector = endLocation.subtract(startLocation).normalize();
 			orientationMagnitude = (int) (Math.atan2(
