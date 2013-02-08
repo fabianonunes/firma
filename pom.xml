@@ -25,21 +25,11 @@
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
-			<id>DataNucleus</id>
-			<url>http://www.datanucleus.org/downloads/maven2/</url>
-		</pluginRepository>
-		<pluginRepository>
 			<id>Jarvana</id>
 			<url>http://repo1.maven.org/maven2/org/bluestemsoftware/open/maven</url>
 		</pluginRepository>
 	</pluginRepositories>
 
-	<distributionManagement>
-		<repository>
-			<id>fnp-mvn2-repository</id>
-			<url>ftp://ftp.happytravel.com.br/public_html/maven2</url>
-		</repository>
-	</distributionManagement>
 	<build>
 		<plugins>
 			<plugin>
@@ -111,13 +101,6 @@
 				</executions>
 			</plugin>
 		</plugins>
-		<extensions>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ftp</artifactId>
-				<version>1.0-beta-6</version>
-			</extension>
-		</extensions>
 	</build>
 
 	<dependencies>
@@ -134,18 +117,18 @@
 		<dependency>
 			<groupId>org.icepdf</groupId>
 			<artifactId>icepdf-viewer</artifactId>
-			<version>3.0</version>
+			<version>4.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.icepdf</groupId>
 			<artifactId>icepdf-core</artifactId>
-			<version>3.0</version>
+			<version>4.3.4</version>
 		</dependency>
-		<dependency>
-			<groupId>com.sun</groupId>
-			<artifactId>pdfview</artifactId>
-			<version>1.0</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>com.sun</groupId> -->
+<!-- 			<artifactId>pdfview</artifactId> -->
+<!-- 			<version>1.0</version> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>iHarder</groupId>
 			<artifactId>FileDrop</artifactId>
