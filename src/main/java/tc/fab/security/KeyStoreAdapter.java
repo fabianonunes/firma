@@ -9,33 +9,30 @@ import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Vector;
 
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 
 public interface KeyStoreAdapter {
 
-	public void login(CallbackHandler handler) throws KeyStoreException,
-			NoSuchAlgorithmException, CertificateException, IOException;
+    public KeyStore login(CallbackHandler handler) throws KeyStoreException,
+	    NoSuchAlgorithmException, CertificateException, IOException;
 
-	public void logout() throws LoginException;
+    public void logout() throws LoginException;
 
-	public KeyStore getKeystore();
+    // public KeyStore getKeystore();
 
-	public Vector<String> getAliases();
+    public String getAlias(Integer index) throws KeyStoreException;
 
-	public String getAlias(Integer index);
+    public PrivateKey getPrivateKey(String alias)
+	    throws UnrecoverableKeyException, KeyStoreException,
+	    NoSuchAlgorithmException;
 
-	public PrivateKey getPrivateKey(String alias)
-			throws UnrecoverableKeyException, KeyStoreException,
-			NoSuchAlgorithmException;
+    public PublicKey getPublicKey(String alias) throws KeyStoreException;
 
-	public PublicKey getPublicKey(String alias) throws KeyStoreException;
+    public X509Certificate getCertificate(Integer index)
+	    throws KeyStoreException;
 
-	public X509Certificate getCertificate(Integer index)
-			throws KeyStoreException;
-	
-	public String getProvider();
+    // public String getProvider();
 
 }

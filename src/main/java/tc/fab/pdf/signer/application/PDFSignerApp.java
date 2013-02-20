@@ -52,468 +52,468 @@ import tc.fab.pdf.signer.FileDropListener;
 import tc.fab.pdf.signer.PDFSmartCardSigner;
 import tc.fab.pdf.signer.options.SignerOptionDialog;
 import tc.fab.pdf.signer.options.SignerOptions;
-import tc.fab.security.PINDialogCallback;
+import tc.fab.security.pin.PINCallback;
 
 public class PDFSignerApp extends SingleFrameApplication {
 
-	public static FileFilter acceptedFiles = new ExtensionFilter(
-			new String[] { "pdf" });
+    public static FileFilter acceptedFiles = new ExtensionFilter(
+	    new String[] { "pdf" });
 
-	public static PDFSignerApp getApplication() {
-		return Application.getInstance(PDFSignerApp.class);
-	}
+    public static PDFSignerApp getApplication() {
+	return Application.getInstance(PDFSignerApp.class);
+    }
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		// TODO: bug do java: não reconhece o locale default no windows
-		Locale locale = new Locale("pt", "BR");
-		Locale.setDefault(locale);
+	// TODO: bug do java: não reconhece o locale default no windows
+	Locale locale = new Locale("pt", "BR");
+	Locale.setDefault(locale);
 
-		launch(PDFSignerApp.class, args);
+	launch(PDFSignerApp.class, args);
 
-	}
+    }
 
-	private PDFSignerView view;
+    private PDFSignerView view;
 
-	private SignerOptions options;
+    private SignerOptions options;
 
-	public PDFSignerApp() throws IOException {
-		super();
-	}
+    public PDFSignerApp() throws IOException {
+	super();
+    }
 
-	@Action
-	public void addFiles() throws FileNotFoundException, Exception {
+    @Action
+    public void addFiles() throws FileNotFoundException, Exception {
 
-		FileSelectorDialog c = new FileSelectorDialog(getApplication()
-				.getMainFrame(), true);
+	FileSelectorDialog c = new FileSelectorDialog(getApplication()
+		.getMainFrame(), true);
 
-		FileFilter extf = new ExtensionFilter(new String[] { "pdf" });
+	FileFilter extf = new ExtensionFilter(new String[] { "pdf" });
 
-		JFileChooser fileChooser = c.getJFileChooser();
-		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		fileChooser.setMultiSelectionEnabled(true);
-		fileChooser.setFileFilter(extf);
+	JFileChooser fileChooser = c.getJFileChooser();
+	fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+	fileChooser.setMultiSelectionEnabled(true);
+	fileChooser.setFileFilter(extf);
 
-		int rv = fileChooser.showOpenDialog(getApplication().getMainFrame());
+	int rv = fileChooser.showOpenDialog(getApplication().getMainFrame());
 
-		if (rv == JFileChooser.APPROVE_OPTION) {
+	if (rv == JFileChooser.APPROVE_OPTION) {
 
-			File[] files = fileChooser.getSelectedFiles();
+	    File[] files = fileChooser.getSelectedFiles();
 
-			FileSelector selector = new FileSelector();
-			selector.setFilter(new ExtensionFilter(new String[] { "pdf" }));
-			selector.addSource(files);
+	    FileSelector selector = new FileSelector();
+	    selector.setFilter(new ExtensionFilter(new String[] { "pdf" }));
+	    selector.addSource(files);
 
-			getOptions().addSelection(selector);
-
-		}
+	    getOptions().addSelection(selector);
 
 	}
 
-	public void attachFileDrop(Component c) {
+    }
 
-		new FileDrop(c, FileDropListener.getInstance());
+    public void attachFileDrop(Component c) {
 
-	}
+	new FileDrop(c, FileDropListener.getInstance());
 
-	@Action
-	public void config() throws IOException, URISyntaxException {
+    }
 
-		SignerOptionDialog configDialog = view.getOptionsDialog();
+    @Action
+    public void config() throws IOException, URISyntaxException {
 
-		configDialog.setOptions(getOptions());
+	SignerOptionDialog configDialog = view.getOptionsDialog();
 
-		getApplication().show(configDialog);
+	configDialog.setOptions(getOptions());
 
-		setOptions(configDialog.saveOptions());
+	getApplication().show(configDialog);
 
-	}
+	setOptions(configDialog.saveOptions());
 
-	@Override
-	protected void configureWindow(java.awt.Window root) {
-	}
+    }
 
-	public SignerOptions getOptions() {
-		return options;
-	}
+    @Override
+    protected void configureWindow(java.awt.Window root) {
+    }
 
-	@Action
-	public void getSelection() throws FileNotFoundException, Exception {
+    public SignerOptions getOptions() {
+	return options;
+    }
 
-		FileSelectorDialog c = new FileSelectorDialog(getApplication()
-				.getMainFrame(), true);
+    @Action
+    public void getSelection() throws FileNotFoundException, Exception {
 
-		JFileChooser fileChooser = c.getJFileChooser();
-		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		fileChooser.setMultiSelectionEnabled(false);
+	FileSelectorDialog c = new FileSelectorDialog(getApplication()
+		.getMainFrame(), true);
 
-		int rv = fileChooser.showOpenDialog(getApplication().getMainFrame());
+	JFileChooser fileChooser = c.getJFileChooser();
+	fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	fileChooser.setMultiSelectionEnabled(false);
 
-		if (rv == JFileChooser.APPROVE_OPTION) {
+	int rv = fileChooser.showOpenDialog(getApplication().getMainFrame());
 
-			DirectorySelector ds = new DirectorySelector(
-					fileChooser.getSelectedFile());
-			// TODO: human-check
-			ds.setRecursive(true);
-			FileFilter extf = new ExtensionFilter(new String[] { "pdf" });
-			ds.setFilter(extf);
+	if (rv == JFileChooser.APPROVE_OPTION) {
 
-			getOptions().addSelection(ds);
+	    DirectorySelector ds = new DirectorySelector(
+		    fileChooser.getSelectedFile());
+	    // TODO: human-check
+	    ds.setRecursive(true);
+	    FileFilter extf = new ExtensionFilter(new String[] { "pdf" });
+	    ds.setFilter(extf);
 
-		}
-
-	}
-
-	public PDFSignerView getView() {
-		return view;
-	}
-
-	@Override
-	protected void initialize(String[] args) {
-		super.initialize(args);
-		try {
-			setOptions(SignerOptions.newInstance());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Action
-	public void previewFile() {
-	}
-
-	@Action
-	public void removeSelecteds() {
-
-		JFileTable tb = getView().getFileTable();
-
-		tb.removeSelecteds();
-
-		getOptions().setFiles(tb.getDataFromColumn(1));
+	    getOptions().addSelection(ds);
 
 	}
 
-	@Action
-	public void selectImageFile() throws FileNotFoundException, Exception {
+    }
 
-		FileSelectorDialog c = new FileSelectorDialog(getApplication()
-				.getMainFrame(), true);
-		JFileChooser fileChooser = c.getJFileChooser();
+    public PDFSignerView getView() {
+	return view;
+    }
 
-		String[] acceptable = { "png", "jpg" };
-		FileFilter ffilter = new ImageFilter(acceptable);
+    @Override
+    protected void initialize(String[] args) {
+	super.initialize(args);
+	try {
+	    setOptions(SignerOptions.newInstance());
+	} catch (IOException e) {
+	    e.printStackTrace();
+	}
+    }
 
-		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		fileChooser.setMultiSelectionEnabled(false);
-		fileChooser.setFileFilter(ffilter);
+    @Action
+    public void previewFile() {
+    }
 
-		int rv = fileChooser.showOpenDialog(getApplication().getMainFrame());
+    @Action
+    public void removeSelecteds() {
 
-		if (rv == JFileChooser.APPROVE_OPTION) {
+	JFileTable tb = getView().getFileTable();
 
-			File imgFile = fileChooser.getSelectedFile();
-			getOptions().setImage(imgFile);
+	tb.removeSelecteds();
 
-		}
+	getOptions().setFiles(tb.getDataFromColumn(1));
+
+    }
+
+    @Action
+    public void selectImageFile() throws FileNotFoundException, Exception {
+
+	FileSelectorDialog c = new FileSelectorDialog(getApplication()
+		.getMainFrame(), true);
+	JFileChooser fileChooser = c.getJFileChooser();
+
+	String[] acceptable = { "png", "jpg" };
+	FileFilter ffilter = new ImageFilter(acceptable);
+
+	fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+	fileChooser.setMultiSelectionEnabled(false);
+	fileChooser.setFileFilter(ffilter);
+
+	int rv = fileChooser.showOpenDialog(getApplication().getMainFrame());
+
+	if (rv == JFileChooser.APPROVE_OPTION) {
+
+	    File imgFile = fileChooser.getSelectedFile();
+	    getOptions().setImage(imgFile);
 
 	}
 
-	public void setOptions(SignerOptions options) {
-		this.options = options;
+    }
+
+    public void setOptions(SignerOptions options) {
+	this.options = options;
+    }
+
+    public void setView(PDFSignerView view) {
+	this.view = view;
+    }
+
+    @Action
+    public void showDropBox() {
+
+	DialogDrop dd = getView().getDialogDrop();
+
+	if (dd.isVisible()) {
+
+	    dd.setVisible(false);
+
+	} else {
+
+	    Toolkit tk = Toolkit.getDefaultToolkit();
+
+	    Dimension screen = tk.getScreenSize();
+
+	    Double pTop = 30D;
+
+	    dd.setVisible(true);
+
+	    getMainFrame().setState(Frame.ICONIFIED);
+
+	    Double pLeft = screen.getWidth() - pTop - dd.getWidth();
+
+	    dd.setLocation(pLeft.intValue(), pTop.intValue());
+
 	}
 
-	public void setView(PDFSignerView view) {
-		this.view = view;
-	}
+    }
 
-	@Action
-	public void showDropBox() {
+    @Override
+    protected void shutdown() {
 
-		DialogDrop dd = getView().getDialogDrop();
+	super.shutdown();
+    }
 
-		if (dd.isVisible()) {
+    @Action(block = Task.BlockingScope.APPLICATION)
+    public Task<Object, Integer> signSelection() throws Throwable {
 
-			dd.setVisible(false);
+	class SignSelectionTask extends Task<Object, Integer> {
 
-		} else {
+	    PDFSmartCardSigner signer;
 
-			Toolkit tk = Toolkit.getDefaultToolkit();
+	    Exception ex = null;
 
-			Dimension screen = tk.getScreenSize();
+	    SignSelectionTask(Application app) {
 
-			Double pTop = 30D;
+		super(app);
 
-			dd.setVisible(true);
+		setUserCanCancel(true);
 
-			getMainFrame().setState(Frame.ICONIFIED);
+		addPropertyChangeListener(new PropertyChangeListener() {
 
-			Double pLeft = screen.getWidth() - pTop - dd.getWidth();
+		    @Override
+		    public void propertyChange(PropertyChangeEvent evt) {
 
-			dd.setLocation(pLeft.intValue(), pTop.intValue());
+			if (evt.getPropertyName().equals("state")) {
 
-		}
-
-	}
-
-	@Override
-	protected void shutdown() {
-
-		super.shutdown();
-	}
-
-	@Action(block = Task.BlockingScope.APPLICATION)
-	public Task<Object, Integer> signSelection() throws Throwable {
-
-		class SignSelectionTask extends Task<Object, Integer> {
-
-			PDFSmartCardSigner signer;
-
-			Exception ex = null;
-
-			SignSelectionTask(Application app) {
-
-				super(app);
-
-				setUserCanCancel(true);
-
-				addPropertyChangeListener(new PropertyChangeListener() {
-
-					@Override
-					public void propertyChange(PropertyChangeEvent evt) {
-
-						if (evt.getPropertyName().equals("state")) {
-
-							if (SwingWorker.StateValue.DONE.toString() == evt
-									.getNewValue().toString()) {
-
-								if (ex != null) {
-
-									ErrorInfo info = new ErrorInfo(
-											"Erro ao assinar documento",
-											"Envie o texto abaixo para https://github.com/fabianonunes/firma/issues",
-											null, null, ex, ErrorLevel.SEVERE,
-											null);
-
-									while (ex.getCause() != null) {
-										System.out.println(ex.getCause());
-										ex = (Exception) ex.getCause();
-									}
-
-									JXErrorPane
-											.showDialog(getMainFrame(), info);
-
-								} else {
-
-									JOptionPane
-											.showMessageDialog(
-													getMainFrame(),
-													"Todos os documentos foram assinados.",
-													"Documentos assinados",
-													JOptionPane.INFORMATION_MESSAGE);
-
-								}
-
-							}
-						}
-
-					}
-				});
-
-				setInputBlocker(new ProgressInputBlocker(this,
-						Task.BlockingScope.APPLICATION, PDFSignerApp
-								.getApplication().getMainFrame(), null));
-
-				CallbackHandler handler = new PINDialogCallback(getMainFrame());
-
-				try {
-					signer = new PDFSmartCardSigner(handler);
-				} catch (GeneralSecurityException e) {
-					ex = e;
-				} catch (IOException e) {
-					ex = e;
-				} catch (Exception e) {
-					ex = e;
-				} finally {
-					if (ex != null)
-						return;
-				}
-
-			}
-
-			@Override
-			protected Object doInBackground() {
+			    if (SwingWorker.StateValue.DONE.toString() == evt
+				    .getNewValue().toString()) {
 
 				if (ex != null) {
-					return null;
-				}
 
-				Set<File> files;
+				    ErrorInfo info = new ErrorInfo(
+					    "Erro ao assinar documento",
+					    "Envie o texto abaixo para https://github.com/fabianonunes/firma/issues",
+					    null, null, ex, ErrorLevel.SEVERE,
+					    null);
 
-				files = getOptions().getFiles();
+				    while (ex.getCause() != null) {
+					System.out.println(ex.getCause());
+					ex = (Exception) ex.getCause();
+				    }
 
-				Integer total = files.size();
-				Integer atual = 0, erros = 0;
+				    JXErrorPane
+					    .showDialog(getMainFrame(), info);
 
-				// TODO: "sobrescrever o original" não funciona
-				signer.setOptions(getOptions());
+				} else {
 
-				Boolean failed = false;
-
-				for (File file : files) {
-
-					++atual;
-
-					// TODO: tratar cada exceção individualmente
-
-					try {
-
-						signer.sign(file);
-
-						message("finishedMessage", atual, total, erros);
-
-						publish(atual);
-
-					} catch (Exception e) {
-
-						ex = e;
-
-						message("finishedMessage", atual, total, ++erros);
-
-						failed = true;
-
-					} finally {
-
-						if (atual < total) {
-							setProgress(atual, 1, total);
-						}
-
-						// TODO: se todos os arquivos falharem, comportamento
-						// inesperado
-						if (ex != null) {
-							if (failed) {
-								ex = new Exception(
-										"Não foi possível assinar o documento "
-												+ file.getName(), ex);
-							}
-						}
-
-						// if (signer.getPddoc() != null) {
-						//
-						// try {
-						// signer.getPddoc().close();
-						// } catch (IOException e) {
-						// e.printStackTrace();
-						// }
-						//
-						// }
-
-						if (signer.getOutputStream() != null) {
-
-							IOUtils.closeQuietly(signer.getOutputStream());
-
-							if (failed) {
-								if (getOptions().getOutputOverwriteOriginal()) {
-									// TODO: se o processo da assinatura falhar
-									// e o usuário tiver solicitado que se
-									// sobrescreva o original, o documento será
-									// perdido pra sempre.
-								} else {
-									FileUtils.deleteQuietly(signer
-											.getOutputFile());
-								}
-							}
-						}
-
-						failed = false;
-
-					}
+				    JOptionPane
+					    .showMessageDialog(
+						    getMainFrame(),
+						    "Todos os documentos foram assinados.",
+						    "Documentos assinados",
+						    JOptionPane.INFORMATION_MESSAGE);
 
 				}
 
-				try {
-					signer.logout();
-				} catch (LoginException e) {
-					e.printStackTrace();
+			    }
+			}
+
+		    }
+		});
+
+		setInputBlocker(new ProgressInputBlocker(this,
+			Task.BlockingScope.APPLICATION, PDFSignerApp
+				.getApplication().getMainFrame(), null));
+
+		CallbackHandler handler = new PINCallback(getMainFrame());
+
+		try {
+		    signer = new PDFSmartCardSigner(handler);
+		} catch (GeneralSecurityException e) {
+		    ex = e;
+		} catch (IOException e) {
+		    ex = e;
+		} catch (Exception e) {
+		    ex = e;
+		} finally {
+		    if (ex != null)
+			return;
+		}
+
+	    }
+
+	    @Override
+	    protected Object doInBackground() {
+
+		if (ex != null) {
+		    return null;
+		}
+
+		Set<File> files;
+
+		files = getOptions().getFiles();
+
+		Integer total = files.size();
+		Integer atual = 0, erros = 0;
+
+		// TODO: "sobrescrever o original" não funciona
+		signer.setOptions(getOptions());
+
+		Boolean failed = false;
+
+		for (File file : files) {
+
+		    ++atual;
+
+		    // TODO: tratar cada exceção individualmente
+
+		    try {
+
+			signer.sign(file);
+
+			message("finishedMessage", atual, total, erros);
+
+			publish(atual);
+
+		    } catch (Exception e) {
+
+			ex = e;
+
+			message("finishedMessage", atual, total, ++erros);
+
+			failed = true;
+
+		    } finally {
+
+			if (atual < total) {
+			    setProgress(atual, 1, total);
+			}
+
+			// TODO: se todos os arquivos falharem, comportamento
+			// inesperado
+			if (ex != null) {
+			    if (failed) {
+				ex = new Exception(
+					"Não foi possível assinar o documento "
+						+ file.getName(), ex);
+			    }
+			}
+
+			// if (signer.getPddoc() != null) {
+			//
+			// try {
+			// signer.getPddoc().close();
+			// } catch (IOException e) {
+			// e.printStackTrace();
+			// }
+			//
+			// }
+
+			if (signer.getOutputStream() != null) {
+
+			    IOUtils.closeQuietly(signer.getOutputStream());
+
+			    if (failed) {
+				if (getOptions().getOutputOverwriteOriginal()) {
+				    // TODO: se o processo da assinatura falhar
+				    // e o usuário tiver solicitado que se
+				    // sobrescreva o original, o documento será
+				    // perdido pra sempre.
+				} else {
+				    FileUtils.deleteQuietly(signer
+					    .getOutputFile());
 				}
-
-				return null;
-
+			    }
 			}
 
-			@Override
-			protected void failed(Throwable cause) {
+			failed = false;
 
-				cancel(true);
-
-				((ProgressInputBlocker) getInputBlocker()).unblock();
-
-				super.failed(cause);
-
-			}
-
-			@Override
-			protected void finished() {
-
-				super.finished();
-
-				try {
-
-					if (signer != null) {
-
-						if (signer.getCard() != null) {
-							signer.getCard().logout();
-						}
-
-					}
-
-				} catch (LoginException e) {
-					// TODO: implementar catch.
-				}
-
-			}
-
-			@Override
-			protected void process(List<Integer> values) {
-				super.process(values);
-			}
+		    }
 
 		}
 
-		SignSelectionTask task = new SignSelectionTask(
-				PDFSignerApp.getInstance());
+		try {
+		    signer.logout();
+		} catch (LoginException e) {
+		    e.printStackTrace();
+		}
 
-		return task;
+		return null;
 
-	}
+	    }
 
-	@Override
-	protected void startup() {
+	    @Override
+	    protected void failed(Throwable cause) {
 
-		JFrame.setDefaultLookAndFeelDecorated(true);
-		JDialog.setDefaultLookAndFeelDecorated(true);
+		cancel(true);
 
-		SwingUtilities.invokeLater(new Runnable() {
+		((ProgressInputBlocker) getInputBlocker()).unblock();
 
-			@Override
-			public void run() {
+		super.failed(cause);
 
-				try {
+	    }
 
-					String lf = "org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel";
+	    @Override
+	    protected void finished() {
 
-					UIManager.setLookAndFeel(lf);
+		super.finished();
 
-				} catch (Exception e) {
-				}
+		try {
 
-				setView(new PDFSignerView(getApplication()));
+		    if (signer != null) {
 
-				show(getView());
-
+			if (signer.getCard() != null) {
+			    signer.getCard().logout();
 			}
 
-		});
+		    }
+
+		} catch (LoginException e) {
+		    // TODO: implementar catch.
+		}
+
+	    }
+
+	    @Override
+	    protected void process(List<Integer> values) {
+		super.process(values);
+	    }
 
 	}
+
+	SignSelectionTask task = new SignSelectionTask(
+		PDFSignerApp.getInstance());
+
+	return task;
+
+    }
+
+    @Override
+    protected void startup() {
+
+	JFrame.setDefaultLookAndFeelDecorated(true);
+	JDialog.setDefaultLookAndFeelDecorated(true);
+
+	SwingUtilities.invokeLater(new Runnable() {
+
+	    @Override
+	    public void run() {
+
+		try {
+
+		    String lf = "org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel";
+
+		    UIManager.setLookAndFeel(lf);
+
+		} catch (Exception e) {
+		}
+
+		setView(new PDFSignerView(getApplication()));
+
+		show(getView());
+
+	    }
+
+	});
+
+    }
 
 }

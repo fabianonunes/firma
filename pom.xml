@@ -93,6 +93,7 @@
 								<minVersion>1.6.0</minVersion>
 								<maxVersion></maxVersion>
 								<maxHeapSize>512</maxHeapSize>
+								<path>D:\j7</path>
 							</jre>
 							<outfile>target/${project.artifactId}-${project.version}.exe</outfile>
 							<jar>target/${project.artifactId}-${project.version}-jar-with-dependencies.jar</jar>
@@ -104,31 +105,25 @@
 	</build>
 
 	<dependencies>
-		<dependency>
-			<groupId>net.java.dev.appframework</groupId>
-			<artifactId>appframework</artifactId>
-			<version>1.03</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.icepdf</groupId>
-			<artifactId>icepdf-viewer</artifactId>
-			<version>4.3.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.icepdf</groupId>
-			<artifactId>icepdf-core</artifactId>
-			<version>4.3.4</version>
-		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.sun</groupId> -->
-<!-- 			<artifactId>pdfview</artifactId> -->
-<!-- 			<version>1.0</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> <groupId>net.java.dev.appframework</groupId> <artifactId>appframework</artifactId> 
+			<version>1.03</version> </dependency> -->
+		<!-- <dependency> <groupId>commons-httpclient</groupId> <artifactId>commons-httpclient</artifactId> 
+			<version>3.1</version> </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.icepdf</groupId> -->
+		<!-- <artifactId>icepdf-viewer</artifactId> -->
+		<!-- <version>4.3.4</version> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.icepdf</groupId> -->
+		<!-- <artifactId>icepdf-core</artifactId> -->
+		<!-- <version>4.3.4</version> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>com.sun</groupId> -->
+		<!-- <artifactId>pdfview</artifactId> -->
+		<!-- <version>1.0</version> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>iHarder</groupId>
 			<artifactId>FileDrop</artifactId>
@@ -199,6 +194,16 @@
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk15on</artifactId>
 			<version>1.47</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jdesktop.bsaf</groupId>
+			<artifactId>bsaf</artifactId>
+			<version>1.9.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+			<version>3.0</version>
 		</dependency>
 	</dependencies>
 
