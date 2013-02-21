@@ -13,13 +13,13 @@ import javax.security.auth.login.LoginException;
 
 public interface Mechanism {
 
-	void login() throws KeyStoreException, NoSuchAlgorithmException,
-			CertificateException, IOException;
+	void login() throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
+		IOException;
 
 	void logout() throws LoginException;
 
-	PrivateKey getPrivateKey() throws UnrecoverableKeyException,
-			KeyStoreException, NoSuchAlgorithmException;
+	PrivateKey getPrivateKey() throws UnrecoverableKeyException, KeyStoreException,
+		NoSuchAlgorithmException;
 
 	X509Certificate getCertificate() throws KeyStoreException;
 

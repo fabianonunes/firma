@@ -41,13 +41,13 @@ import org.jdesktop.swingx.error.ErrorLevel;
 
 import tc.fab.file.drop.DialogDrop;
 import tc.fab.file.drop.FileDrop;
+import tc.fab.file.filters.ExtensionFilter;
+import tc.fab.file.filters.ImageFilter;
 import tc.fab.file.selector.DirectorySelector;
 import tc.fab.file.selector.FileSelector;
-import tc.fab.file.selector.filters.ExtensionFilter;
-import tc.fab.file.selector.filters.ImageFilter;
-import tc.fab.file.selector.gui.FileSelectorDialog;
-import tc.fab.file.selector.gui.JFileTable;
 import tc.fab.firma.app.FirmaAppView;
+import tc.fab.firma.app.components.JFileTable;
+import tc.fab.firma.app.dialogs.FileSelectorDialog;
 import tc.fab.pdf.signer.FileDropListener;
 import tc.fab.pdf.signer.SignatureAppearance;
 import tc.fab.pdf.signer.options.SignerOptionDialog;
@@ -56,8 +56,7 @@ import tc.fab.security.callback.PINCallback;
 
 public class PDFSignerApp extends SingleFrameApplication {
 
-	public static FileFilter acceptedFiles = new ExtensionFilter(
-			new String[] { "pdf" });
+	public static FileFilter	acceptedFiles	= new ExtensionFilter(new String[] { "pdf" });
 
 	public static PDFSignerApp getApplication() {
 		return Application.getInstance(PDFSignerApp.class);
@@ -73,9 +72,9 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 	}
 
-	private FirmaAppView view;
+	private FirmaAppView	view;
 
-	private SignerOptions options;
+	private SignerOptions	options;
 
 	public PDFSignerApp() throws IOException {
 		super();
@@ -84,8 +83,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 	@Action
 	public void addFiles() throws FileNotFoundException, Exception {
 
-		FileSelectorDialog c = new FileSelectorDialog(getApplication()
-				.getMainFrame(), true);
+		FileSelectorDialog c = new FileSelectorDialog(getApplication().getMainFrame(), true);
 
 		FileFilter extf = new ExtensionFilter(new String[] { "pdf" });
 
@@ -140,8 +138,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 	@Action
 	public void getSelection() throws FileNotFoundException, Exception {
 
-		FileSelectorDialog c = new FileSelectorDialog(getApplication()
-				.getMainFrame(), true);
+		FileSelectorDialog c = new FileSelectorDialog(getApplication().getMainFrame(), true);
 
 		JFileChooser fileChooser = c.getJFileChooser();
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -151,8 +148,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 		if (rv == JFileChooser.APPROVE_OPTION) {
 
-			DirectorySelector ds = new DirectorySelector(
-					fileChooser.getSelectedFile());
+			DirectorySelector ds = new DirectorySelector(fileChooser.getSelectedFile());
 			// TODO: human-check
 			ds.setRecursive(true);
 			FileFilter extf = new ExtensionFilter(new String[] { "pdf" });
@@ -196,8 +192,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 	@Action
 	public void selectImageFile() throws FileNotFoundException, Exception {
 
-		FileSelectorDialog c = new FileSelectorDialog(getApplication()
-				.getMainFrame(), true);
+		FileSelectorDialog c = new FileSelectorDialog(getApplication().getMainFrame(), true);
 		JFileChooser fileChooser = c.getJFileChooser();
 
 		String[] acceptable = { "png", "jpg" };
@@ -266,9 +261,9 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 		class SignSelectionTask extends Task<Object, Integer> {
 
-			SignatureAppearance signer;
+			SignatureAppearance	signer;
 
-			Exception ex = null;
+			Exception			ex	= null;
 
 			SignSelectionTask(Application app) {
 
@@ -283,33 +278,28 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 						if (evt.getPropertyName().equals("state")) {
 
-							if (SwingWorker.StateValue.DONE.toString() == evt
-									.getNewValue().toString()) {
+							if (SwingWorker.StateValue.DONE.toString() == evt.getNewValue()
+								.toString()) {
 
 								if (ex != null) {
 
 									ErrorInfo info = new ErrorInfo(
-											"Erro ao assinar documento",
-											"Envie o texto abaixo para https://github.com/fabianonunes/firma/issues",
-											null, null, ex, ErrorLevel.SEVERE,
-											null);
+										"Erro ao assinar documento",
+										"Envie o texto abaixo para https://github.com/fabianonunes/firma/issues",
+										null, null, ex, ErrorLevel.SEVERE, null);
 
 									while (ex.getCause() != null) {
 										System.out.println(ex.getCause());
 										ex = (Exception) ex.getCause();
 									}
 
-									JXErrorPane
-											.showDialog(getMainFrame(), info);
+									JXErrorPane.showDialog(getMainFrame(), info);
 
 								} else {
 
-									JOptionPane
-											.showMessageDialog(
-													getMainFrame(),
-													"Todos os documentos foram assinados.",
-													"Documentos assinados",
-													JOptionPane.INFORMATION_MESSAGE);
+									JOptionPane.showMessageDialog(getMainFrame(),
+										"Todos os documentos foram assinados.",
+										"Documentos assinados", JOptionPane.INFORMATION_MESSAGE);
 
 								}
 
@@ -319,9 +309,8 @@ public class PDFSignerApp extends SingleFrameApplication {
 					}
 				});
 
-				setInputBlocker(new ProgressInputBlocker(this,
-						Task.BlockingScope.APPLICATION, PDFSignerApp
-								.getApplication().getMainFrame(), null));
+				setInputBlocker(new ProgressInputBlocker(this, Task.BlockingScope.APPLICATION,
+					PDFSignerApp.getApplication().getMainFrame(), null));
 
 				CallbackHandler handler = new PINCallback(getMainFrame());
 
@@ -343,9 +332,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 			@Override
 			protected Object doInBackground() {
 
-				if (ex != null) {
-					return null;
-				}
+				if (ex != null) { return null; }
 
 				Set<File> files;
 
@@ -391,9 +378,8 @@ public class PDFSignerApp extends SingleFrameApplication {
 						// inesperado
 						if (ex != null) {
 							if (failed) {
-								ex = new Exception(
-										"Não foi possível assinar o documento "
-												+ file.getName(), ex);
+								ex = new Exception("Não foi possível assinar o documento "
+									+ file.getName(), ex);
 							}
 						}
 
@@ -418,8 +404,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 									// sobrescreva o original, o documento será
 									// perdido pra sempre.
 								} else {
-									FileUtils.deleteQuietly(signer
-											.getOutputFile());
+									FileUtils.deleteQuietly(signer.getOutputFile());
 								}
 							}
 						}
@@ -479,8 +464,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 		}
 
-		SignSelectionTask task = new SignSelectionTask(
-				PDFSignerApp.getInstance());
+		SignSelectionTask task = new SignSelectionTask(PDFSignerApp.getInstance());
 
 		return task;
 

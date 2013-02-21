@@ -1,4 +1,4 @@
-package tc.fab.file.selector.gui;
+package tc.fab.firma.utils;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -7,13 +7,11 @@ import java.util.Set;
 
 import org.apache.commons.lang.math.NumberRange;
 
-public class FileLengthFormat {
+public class FormatUtils {
 
 	public static String format(Number number) {
 
-		if (number == null) {
-			return "";
-		}
+		if (number == null) { return ""; }
 
 		Map<String, NumberRange> mapRange = new HashMap<String, NumberRange>();
 		mapRange.put("bytes", new NumberRange(0, 3));
@@ -34,22 +32,15 @@ public class FileLengthFormat {
 		}
 
 		for (String key : keys) {
-
 			range = mapRange.get(key);
-
 			if (range.containsNumber(log) && log != range.getMaximumNumber()) {
-
 				unit = key;
-
 				break;
-
 			}
-
 		}
 
 		Integer index = range.getMinimumInteger() / 3;
 		number = number.doubleValue() / Math.pow(1024d, index);
-
 		DecimalFormat formatter = new DecimalFormat("0.0");
 
 		return formatter.format(number) + " " + unit;

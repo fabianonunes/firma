@@ -18,12 +18,11 @@ import com.google.inject.Injector;
 
 public class Main extends Firma {
 
-	private AppContext context;
-	private AppController controller;
-	private AppView view;
+	private AppContext			context;
+	private AppController		controller;
+	private AppView				view;
 
-	private static final Logger LOGGER = Logger
-			.getLogger(Firma.class.getName());
+	private static final Logger	LOGGER	= Logger.getLogger(Firma.class.getName());
 
 	public static void main(String args[]) {
 		launch(Main.class, args);
@@ -64,8 +63,7 @@ public class Main extends Firma {
 			String lf = "org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel";
 			UIManager.setLookAndFeel(lf);
 		} catch (Exception e) {
-			LOGGER.log(Level.WARNING, "Failed to set look&feel to " + lafClass
-					+ "!", e);
+			LOGGER.log(Level.WARNING, "Failed to set look&feel to " + lafClass + "!", e);
 		}
 	}
 

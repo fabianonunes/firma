@@ -11,9 +11,9 @@ import org.jdesktop.application.Action;
 @Singleton
 public class FirmaAppController implements AppController {
 
-	private ActionMap actionMap;
-	private AppContext context;
-	private AppView view;
+	private ActionMap	actionMap;
+	private AppContext	context;
+	private AppView		view;
 
 	@Inject
 	public FirmaAppController(AppContext context, AppView view) {

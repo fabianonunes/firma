@@ -9,74 +9,74 @@ import javax.swing.filechooser.FileFilter;
 
 public class FileSelector implements IFileSelection {
 
-	private Vector<File> files = new Vector<File>();
-	private FileFilter filter;
+    private Vector<File> files = new Vector<File>();
+    private FileFilter filter;
 
-	public FileSelector() {
+    public FileSelector() {
+    }
+
+    @Override
+    public Vector<String> getChildNames() throws FileNotFoundException {
+	Vector<String> vs = new Vector<String>();
+	for (File file : getFiles()) {
+	    vs.add(file.getAbsolutePath());
 	}
+	return vs;
+    }
 
-	@Override
-	public Vector<String> getChildNames() throws FileNotFoundException {
-		Vector<String> vs = new Vector<String>();
-		for (File file : getFiles()) {
-			vs.add(file.getAbsolutePath());
+    @Override
+    public Vector<File> getChilds() {
+	Vector<File> vc = new Vector<File>();
+	for (File iFile : getFiles()) {
+	    vc.add(iFile);
+	}
+	return vc;
+    }
+
+    @Override
+    public void addSource(File source) throws FileNotFoundException {
+	if (source.exists()) {
+	    if (getFilter().accept(source)) {
+		getFiles().add(source);
+	    }
+	} else {
+	    throw new FileNotFoundException(source + " not found");
+	}
+    }
+
+    public void addSource(File[] files) {
+
+	Vector<File> vfiles = new Vector<File>(Arrays.asList(files));
+
+	// Quietly
+	for (File file : vfiles) {
+	    try {
+		if (getFilter() != null) {
+		    if (getFilter().accept(file)) {
+			addSource(file);
+		    }
 		}
-		return vs;
+	    } catch (FileNotFoundException e) {
+	    }
 	}
 
-	@Override
-	public Vector<File> getChilds() {
-		Vector<File> vc = new Vector<File>();
-		for (File iFile : getFiles()) {
-			vc.add(iFile);
-		}
-		return vc;
-	}
+    }
 
-	@Override
-	public void addSource(File source) throws FileNotFoundException {
-		if (source.exists()) {
-			if (getFilter().accept(source)) {
-				getFiles().add(source);
-			}
-		} else {
-			throw new FileNotFoundException(source + " not found");
-		}
-	}
+    public Vector<File> getFiles() {
+	return files;
+    }
 
-	public void addSource(File[] files) {
+    public void setFilter(FileFilter filter) {
+	this.filter = filter;
+    }
 
-		Vector<File> vfiles = new Vector<File>(Arrays.asList(files));
+    public FileFilter getFilter() {
+	return filter;
+    }
 
-		// Quietly
-		for (File file : vfiles) {
-			try {
-				if (getFilter() != null) {
-					if (getFilter().accept(file)) {
-						addSource(file);
-					}
-				}
-			} catch (FileNotFoundException e) {
-			}
-		}
+    @Override
+    public void removeSource(File source) {
+	files.removeElement(source);
 
-	}
-
-	public Vector<File> getFiles() {
-		return files;
-	}
-
-	public void setFilter(FileFilter filter) {
-		this.filter = filter;
-	}
-
-	public FileFilter getFilter() {
-		return filter;
-	}
-
-	@Override
-	public void removeSource(File source) {
-		files.removeElement(source);
-
-	}
+    }
 }

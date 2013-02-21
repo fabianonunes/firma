@@ -16,8 +16,8 @@ import tc.fab.firma.app.ResourceReader;
 @Singleton
 public class FirmaAppContext implements AppContext {
 
-	private ApplicationContext appContext;
-	private ResourceReader resReader;
+	private ApplicationContext	appContext;
+	private ResourceReader		resReader;
 
 	public FirmaAppContext(ApplicationContext context) {
 		appContext = context;
@@ -41,19 +41,16 @@ public class FirmaAppContext implements AppContext {
 	}
 
 	@Override
-	public void showMessageDialog(Component parent, int msgType,
-			String titleKey, String messageKey, Object... arguments) {
-		JOptionPane.showMessageDialog(parent,
-				resReader.getString(messageKey, arguments),
-				resReader.getString(titleKey), msgType);
+	public void showMessageDialog(Component parent, int msgType, String titleKey,
+		String messageKey, Object... arguments) {
+		JOptionPane.showMessageDialog(parent, resReader.getString(messageKey, arguments),
+			resReader.getString(titleKey), msgType);
 	}
 
 	@Override
-	public int showConfirmDialog(Component parent, String titleKey,
-			String messageKey) {
-		return JOptionPane.showConfirmDialog(parent,
-				resReader.getString(messageKey), resReader.getString(titleKey),
-				JOptionPane.YES_NO_OPTION);
+	public int showConfirmDialog(Component parent, String titleKey, String messageKey) {
+		return JOptionPane.showConfirmDialog(parent, resReader.getString(messageKey),
+			resReader.getString(titleKey), JOptionPane.YES_NO_OPTION);
 	}
 
 	private SingleFrameApplication getApplication() {

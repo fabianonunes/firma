@@ -12,24 +12,22 @@ import javax.swing.filechooser.FileFilter;
 
 public class DirectorySelector implements IFileSelection {
 
-	private List<File> dirs = Collections.synchronizedList(new Vector<File>());
-	private Boolean recursive = false;
-	private FileFilter filter;
+	private List<File>	dirs		= Collections.synchronizedList(new Vector<File>());
+	private Boolean		recursive	= false;
+	private FileFilter	filter;
 
-	public DirectorySelector(File source, Boolean recursive)
-			throws FileNotFoundException {
+	public DirectorySelector(File source, Boolean recursive) throws FileNotFoundException {
 		addSource(source);
 		setRecursive(recursive);
 	}
 
-	public DirectorySelector(){
+	public DirectorySelector() {
 		setRecursive(false);
 	}
-	
+
 	public DirectorySelector(File source) throws FileNotFoundException {
 		addSource(source);
 	}
-
 
 	public DirectorySelector(boolean b) {
 		setRecursive(b);
@@ -49,18 +47,18 @@ public class DirectorySelector implements IFileSelection {
 		return fileNames;
 
 	}
-	
+
 	@Override
 	public Vector<File> getChilds() throws FileNotFoundException {
-		
+
 		Vector<File> files = new Vector<File>();
-		
+
 		for (File dir : dirs) {
-			
+
 			files.addAll(getChildsFromSource(dir));
-			
+
 		}
-		
+
 		return files;
 	}
 
@@ -84,8 +82,8 @@ public class DirectorySelector implements IFileSelection {
 
 					String inFileName = itr.next().toString();
 
-					File _fileName = new File(_folder.getAbsolutePath()
-							+ File.separator + inFileName);
+					File _fileName = new File(_folder.getAbsolutePath() + File.separator
+						+ inFileName);
 
 					if (_fileName.isDirectory()) {
 
@@ -151,10 +149,10 @@ public class DirectorySelector implements IFileSelection {
 	@Override
 	public void removeSource(File source) {
 		dirs.remove(source);
-		
+
 	}
-	
-	public List<File> getDirs(){
+
+	public List<File> getDirs() {
 		return this.dirs;
 	}
 
