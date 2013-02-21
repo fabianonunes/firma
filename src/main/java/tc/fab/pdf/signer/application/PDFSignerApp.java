@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import javax.activation.FileDataSource;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.swing.JDialog;
@@ -29,7 +28,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
-
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -49,6 +47,7 @@ import tc.fab.file.selector.filters.ExtensionFilter;
 import tc.fab.file.selector.filters.ImageFilter;
 import tc.fab.file.selector.gui.FileSelectorDialog;
 import tc.fab.file.selector.gui.JFileTable;
+import tc.fab.firma.app.FirmaAppView;
 import tc.fab.pdf.signer.FileDropListener;
 import tc.fab.pdf.signer.SignatureAppearance;
 import tc.fab.pdf.signer.options.SignerOptionDialog;
