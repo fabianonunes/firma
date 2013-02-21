@@ -2,20 +2,24 @@ package tc.fab.security.callback;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.swing.JFrame;
 
+import tc.fab.firma.app.AppContext;
 import tc.fab.firma.app.dialogs.PINDialog;
 
 public class PINCallback implements CallbackHandler {
 
 	JFrame frame;
 
-	public PINCallback(JFrame frame) {
-		this.frame = frame;
+	@Inject
+	public PINCallback(AppContext context) {
+		
+		frame = context.getMainFrame();
 	}
 
 	@Override

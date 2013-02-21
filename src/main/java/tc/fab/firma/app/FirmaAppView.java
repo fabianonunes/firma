@@ -14,12 +14,12 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 import org.jdesktop.application.Action;
+import org.jdesktop.application.Application;
 import org.jdesktop.application.FrameView;
 
 import tc.fab.file.drop.DialogDrop;
 import tc.fab.file.selector.gui.JFileTable;
 import tc.fab.pdf.signer.application.PDFSignerAboutBox;
-import tc.fab.pdf.signer.application.PDFSignerApp;
 import tc.fab.pdf.signer.options.SignerOptionDialog;
 import tc.fab.pdf.signer.options.SignerOptions;
 
@@ -44,11 +44,11 @@ public class FirmaAppView extends FrameView implements AppView {
 	@Action
 	public void showAboutBox() {
 		if (aboutBox == null) {
-			JFrame mainFrame = PDFSignerApp.getApplication().getMainFrame();
+			JFrame mainFrame = context.getMainFrame();
 			aboutBox = new PDFSignerAboutBox(mainFrame);
 			aboutBox.setLocationRelativeTo(mainFrame);
 		}
-		PDFSignerApp.getApplication().show(aboutBox);
+		context.showDialog(aboutBox);
 	}
 
 	private void initComponents() {
@@ -266,7 +266,7 @@ public class FirmaAppView extends FrameView implements AppView {
 	 */
 	public SignerOptionDialog getOptionsDialog() {
 		if (optionsDialog == null) {
-			JFrame mainFrame = PDFSignerApp.getApplication().getMainFrame();
+			JFrame mainFrame = context.getMainFrame();
 			optionsDialog = new SignerOptionDialog(mainFrame, true);
 			optionsDialog.setLocationRelativeTo(mainFrame);
 		}
@@ -280,31 +280,31 @@ public class FirmaAppView extends FrameView implements AppView {
 
 	public void postInitComponents() {
 
-		final PDFSignerApp app = PDFSignerApp.getApplication();
+		Application app = context.getAppContext().getApplication();
 
 		jTable1.getTableHeader().setPreferredSize(
 				new Dimension(jTable1.getTableHeader().getWidth(), 21));
 		jTable1.setRowHeight(24);
 
-		final SignerOptions options = app.getOptions();
-
-		PDFSignerApp.getApplication().attachFileDrop(jScrollPane2);
-
-		options.addPropertyChangeListener(SignerOptions.EVENT_FILES,
-				new PropertyChangeListener() {
-
-					@Override
-					public void propertyChange(PropertyChangeEvent evt) {
-						try {
-
-							jTable1.setModel(options.getModelOfFiles());
-
-						} catch (FileNotFoundException e) {
-							e.printStackTrace();
-						}
-
-					}
-				});
+		// final SignerOptions options = app.getOptions();
+		//
+		// PDFSignerApp.getApplication().attachFileDrop(jScrollPane2);
+		//
+		// options.addPropertyChangeListener(SignerOptions.EVENT_FILES,
+		// new PropertyChangeListener() {
+		//
+		// @Override
+		// public void propertyChange(PropertyChangeEvent evt) {
+		// try {
+		//
+		// jTable1.setModel(options.getModelOfFiles());
+		//
+		// } catch (FileNotFoundException e) {
+		// e.printStackTrace();
+		// }
+		//
+		// }
+		// });
 
 	}
 
@@ -314,7 +314,7 @@ public class FirmaAppView extends FrameView implements AppView {
 
 			dd = DialogDrop.getInstance(getFrame());
 
-			PDFSignerApp.getApplication().attachFileDrop(dd.getDroppable());
+			// PDFSignerApp.getApplication().attachFileDrop(dd.getDroppable());
 
 		}
 
