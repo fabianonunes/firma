@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import javax.activation.FileDataSource;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.swing.JDialog;
@@ -29,7 +30,6 @@ import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
-import net.iharder.dnd.FileDrop;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -42,6 +42,7 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 
 import tc.fab.file.drop.DialogDrop;
+import tc.fab.file.drop.FileDrop;
 import tc.fab.file.selector.DirectorySelector;
 import tc.fab.file.selector.FileSelector;
 import tc.fab.file.selector.filters.ExtensionFilter;
@@ -73,7 +74,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 	}
 
-	private PDFSignerView view;
+	private FirmaAppView view;
 
 	private SignerOptions options;
 
@@ -164,7 +165,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 	}
 
-	public PDFSignerView getView() {
+	public FirmaAppView getView() {
 		return view;
 	}
 
@@ -222,7 +223,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 		this.options = options;
 	}
 
-	public void setView(PDFSignerView view) {
+	public void setView(FirmaAppView view) {
 		this.view = view;
 	}
 
@@ -506,7 +507,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 				} catch (Exception e) {
 				}
 
-				setView(new PDFSignerView(getApplication()));
+				setView(new FirmaAppView(getApplication()));
 
 				show(getView());
 

@@ -3,7 +3,7 @@ package tc.fab.pdf.signer;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import net.iharder.dnd.FileDrop;
+import tc.fab.file.drop.FileDrop;
 import tc.fab.file.selector.DirectorySelector;
 import tc.fab.file.selector.FileSelector;
 import tc.fab.pdf.signer.application.PDFSignerApp;
@@ -60,7 +60,7 @@ public class FileDropListener implements FileDrop.Listener {
 		} catch (FileNotFoundException e) {
 			// Quietly
 		}
-		
+
 	}
 
 }

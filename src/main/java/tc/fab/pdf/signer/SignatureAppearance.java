@@ -68,7 +68,7 @@ public class SignatureAppearance {
 
 		configAppearance(signer.getCertificate());
 
-		signer.sign(appearance);
+		signer.sign(appearance, false);
 
 	}
 
@@ -173,7 +173,6 @@ public class SignatureAppearance {
 
 			// StringTemplate description = new
 			// StringTemplate(desc.getTemplate());
-
 			// description.setAttribute("description", desc);
 
 			if (desc.getLocation() != null) {

@@ -30,9 +30,8 @@ public class Signer {
 
 	}
 
-	public void sign(PdfSignatureAppearance appearance, boolean timestamp,
-			String alias) throws IOException, DocumentException,
-			GeneralSecurityException {
+	public void sign(PdfSignatureAppearance appearance, boolean timestamp)
+			throws IOException, DocumentException, GeneralSecurityException {
 
 		this.mechanism.login();
 
@@ -43,17 +42,16 @@ public class Signer {
 		}
 
 		ExternalSignature external = new PrivateKeySignature(
-				mechanism.getPrivateKey(alias), "SHA-1", null);
+				mechanism.getPrivateKey(), "SHA-1", null);
 
 		MakeSignature.signDetached(appearance, external,
-				mechanism.getCertificateChain(alias), null, null, tsc, null,
-				15000, MakeSignature.CMS);
+				mechanism.getCertificateChain(), null, null, tsc, null, 15000,
+				MakeSignature.CMS);
 
 	}
 
-	public X509Certificate getCertificate(String alias)
-			throws KeyStoreException {
-		return mechanism.getCertificate(alias);
+	public X509Certificate getCertificate() throws KeyStoreException {
+		return mechanism.getCertificate();
 	}
 
 }

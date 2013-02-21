@@ -13,17 +13,16 @@ import javax.security.auth.login.LoginException;
 
 public interface Mechanism {
 
-	void login() throws KeyStoreException,
-			NoSuchAlgorithmException, CertificateException, IOException;
+	void login() throws KeyStoreException, NoSuchAlgorithmException,
+			CertificateException, IOException;
 
 	void logout() throws LoginException;
 
-	PrivateKey getPrivateKey(String alias) throws UnrecoverableKeyException,
+	PrivateKey getPrivateKey() throws UnrecoverableKeyException,
 			KeyStoreException, NoSuchAlgorithmException;
 
-	X509Certificate getCertificate(String alias) throws KeyStoreException;
+	X509Certificate getCertificate() throws KeyStoreException;
 
-	Certificate[] getCertificateChain(String alias) throws KeyStoreException;
-
+	Certificate[] getCertificateChain() throws KeyStoreException;
 
 }

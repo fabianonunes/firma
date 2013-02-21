@@ -13,24 +13,23 @@ public abstract class CommonMechanism implements Mechanism {
 
 	protected AuthProvider provider;
 	protected KeyStore keystore;
+	protected String alias;
 
 	@Override
-	public PrivateKey getPrivateKey(String alias)
-			throws UnrecoverableKeyException, KeyStoreException,
-			NoSuchAlgorithmException {
+	public PrivateKey getPrivateKey() throws UnrecoverableKeyException,
+			KeyStoreException, NoSuchAlgorithmException {
 		return (PrivateKey) keystore.getKey(alias, null);
 
 	}
 
 	@Override
-	public X509Certificate getCertificate(String alias) throws KeyStoreException {
+	public X509Certificate getCertificate() throws KeyStoreException {
 		return (X509Certificate) keystore.getCertificate(alias);
 
 	}
 
 	@Override
-	public Certificate[] getCertificateChain(String alias)
-			throws KeyStoreException {
+	public Certificate[] getCertificateChain() throws KeyStoreException {
 		return keystore.getCertificateChain(alias);
 	}
 

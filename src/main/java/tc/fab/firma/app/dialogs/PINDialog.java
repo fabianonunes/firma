@@ -9,7 +9,7 @@
  * Created on 28/04/2009, 15:11:50
  */
 
-package tc.fab.firma.dialogs;
+package tc.fab.firma.app.dialogs;
 
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Application;
