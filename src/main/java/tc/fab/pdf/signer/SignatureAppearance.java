@@ -74,11 +74,7 @@ public class SignatureAppearance {
 
 	// TODO: tirar este método daqui
 	public static Float cmToPoint(Number cm) {
-
-		Float returnf = (cm.floatValue() / 2.54F) * 72;
-
-		return returnf;
-
+		return (cm.floatValue() / 2.54F) * 72;
 	}
 
 	public void setOptions(SignerOptions options) {
