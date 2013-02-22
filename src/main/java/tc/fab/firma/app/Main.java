@@ -7,6 +7,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.swing.UIManager;
 
 import org.jdesktop.application.View;
+import org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel;
 
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.SmartCardAdapter;
@@ -39,8 +40,8 @@ public class Main extends Firma {
 
 				// app
 				bind(AppContext.class).toInstance(context);
-				bind(AppController.class).to(FirmaAppController.class);
 				bind(AppView.class).to(FirmaAppView.class);
+				bind(AppController.class).to(FirmaAppController.class);
 
 				// security
 				bind(Mechanism.class).to(SmartCardAdapter.class);
@@ -49,7 +50,7 @@ public class Main extends Firma {
 			}
 		});
 
-		initLookAndFeel("org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel");
+		initLookAndFeel(SubstanceCremeLookAndFeel.class.toString());
 
 		controller = injector.getInstance(AppController.class);
 		view = injector.getInstance(AppView.class);

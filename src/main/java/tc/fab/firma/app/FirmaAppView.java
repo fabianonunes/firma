@@ -21,6 +21,7 @@ import tc.fab.pdf.signer.options.SignerOptionDialog;
 public class FirmaAppView extends FrameView implements AppView {
 
 	private AppContext context;
+
 	private AppController controller;
 
 	@Inject
@@ -51,10 +52,9 @@ public class FirmaAppView extends FrameView implements AppView {
 
 		mainPanel.setName("mainPanel"); // NOI18N
 
-		System.out.println(controller);
 		ActionMap actionMap = controller.getActionMap();
 		ResourceMap resourceMap = context.getAppContext().getResourceMap();
-		
+
 		jButton2.setAction(actionMap.get("signSelection")); // NOI18N
 		jButton2.setIcon(resourceMap.getIcon("jButton2.icon")); // NOI18N
 		jButton2.setName("jButton2"); // NOI18N

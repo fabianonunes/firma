@@ -20,8 +20,8 @@ public class FirmaAppController implements AppController {
 	private AppView view;
 
 	// dialogs
-	// @Inject
-	// private Provider<FileSelectorDialog> fileDialog;
+	@Inject
+	private Provider<FileSelectorDialog> fileDialog;
 
 	@Inject
 	public FirmaAppController(AppContext context, AppView view) {
