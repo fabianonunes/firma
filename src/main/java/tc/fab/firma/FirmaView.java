@@ -1,7 +1,7 @@
 /*
  * PDFSignerView.java
  */
-package tc.fab.app.firma;
+package tc.fab.firma;
 
 import java.awt.Dimension;
 
@@ -10,7 +10,6 @@ import javax.inject.Singleton;
 import javax.swing.ActionMap;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle;
@@ -146,38 +145,12 @@ public class FirmaView extends FrameView implements AppView {
 	private SignerOptionDialog optionsDialog;
 	private DialogDrop dd;
 
-	public SignerOptionDialog getOptionsDialog() {
-		if (optionsDialog == null) {
-			JFrame mainFrame = context.getMainFrame();
-			optionsDialog = new SignerOptionDialog(mainFrame, true);
-			optionsDialog.setLocationRelativeTo(mainFrame);
-		}
-		return optionsDialog;
-	}
-
-	public JFileTable getFileTable() {
-		return fileTable;
-	}
-
 	public void postInitComponents() {
 
 		fileTable.getTableHeader().setPreferredSize(
 			new Dimension(fileTable.getTableHeader().getWidth(), 21));
 		fileTable.setRowHeight(24);
 
-	}
-
-	public DialogDrop getDialogDrop() {
-
-		if (dd == null) {
-
-			dd = DialogDrop.getInstance(getFrame());
-
-			// PDFSignerApp.getApplication().attachFileDrop(dd.getDroppable());
-
-		}
-
-		return dd;
 	}
 
 }

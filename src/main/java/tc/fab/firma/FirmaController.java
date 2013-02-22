@@ -1,4 +1,4 @@
-package tc.fab.app.firma;
+package tc.fab.firma;
 
 import java.io.File;
 
@@ -12,6 +12,7 @@ import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppView;
 import tc.fab.firma.app.dialogs.FileSelectorDialog;
+import tc.fab.firma.app.dialogs.SignDocumentDialog;
 
 import com.google.inject.Provider;
 
@@ -25,7 +26,10 @@ public class FirmaController implements AppController {
 	// dialogs
 	@Inject
 	private Provider<FileSelectorDialog> fileDialog;
-
+	
+	@Inject
+	private Provider<SignDocumentDialog> optionsDialog;
+	
 	@Inject
 	public FirmaController(AppContext context, AppView view) {
 		this.context = context;
@@ -61,6 +65,7 @@ public class FirmaController implements AppController {
 
 	@Action(name = AppController.ACTION_FILES_SIGN)
 	public void sign() {
+		optionsDialog.get().setVisible(true);
 	}
 
 	@Action(name = AppController.ACTION_FILES_REMOVE)

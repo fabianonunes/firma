@@ -40,11 +40,11 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 
-import tc.fab.app.firma.FirmaView;
 import tc.fab.file.drop.DialogDrop;
 import tc.fab.file.drop.FileDrop;
 import tc.fab.file.selector.DirectorySelector;
 import tc.fab.file.selector.FileSelector;
+import tc.fab.firma.FirmaView;
 import tc.fab.firma.app.components.JFileTable;
 import tc.fab.firma.app.dialogs.FileSelectorDialog;
 import tc.fab.pdf.signer.FileDropListener;

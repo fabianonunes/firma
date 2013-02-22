@@ -1,4 +1,4 @@
-package tc.fab.app.firma;
+package tc.fab.firma;
 
 import org.jdesktop.application.SingleFrameApplication;
 
