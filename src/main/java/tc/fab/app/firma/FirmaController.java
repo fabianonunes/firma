@@ -1,4 +1,4 @@
-package tc.fab.firma.app;
+package tc.fab.app.firma;
 
 import java.io.File;
 
@@ -8,12 +8,15 @@ import javax.swing.ActionMap;
 
 import org.jdesktop.application.Action;
 
+import tc.fab.app.AppContext;
+import tc.fab.app.AppController;
+import tc.fab.app.AppView;
 import tc.fab.firma.app.dialogs.FileSelectorDialog;
 
 import com.google.inject.Provider;
 
 @Singleton
-public class FirmaAppController implements AppController {
+public class FirmaController implements AppController {
 
 	private ActionMap actionMap;
 	private AppContext context;
@@ -24,7 +27,7 @@ public class FirmaAppController implements AppController {
 	private Provider<FileSelectorDialog> fileDialog;
 
 	@Inject
-	public FirmaAppController(AppContext context, AppView view) {
+	public FirmaController(AppContext context, AppView view) {
 		this.context = context;
 		this.view = view;
 	}
@@ -32,7 +35,7 @@ public class FirmaAppController implements AppController {
 	@Override
 	public ActionMap getActionMap() {
 		if (actionMap == null) {
-			actionMap = context.getAppContext().getActionMap(FirmaAppController.class, this);
+			actionMap = context.getAppContext().getActionMap(FirmaController.class, this);
 		}
 		return actionMap;
 	}

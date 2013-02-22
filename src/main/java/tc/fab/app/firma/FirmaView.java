@@ -1,7 +1,7 @@
 /*
  * PDFSignerView.java
  */
-package tc.fab.firma.app;
+package tc.fab.app.firma;
 
 import java.awt.Dimension;
 
@@ -17,19 +17,22 @@ import javax.swing.LayoutStyle;
 
 import org.jdesktop.application.FrameView;
 
+import tc.fab.app.AppContext;
+import tc.fab.app.AppController;
+import tc.fab.app.AppView;
 import tc.fab.file.drop.DialogDrop;
 import tc.fab.firma.app.components.JFileTable;
 import tc.fab.pdf.signer.options.SignerOptionDialog;
 
 @Singleton
-public class FirmaAppView extends FrameView implements AppView {
+public class FirmaView extends FrameView implements AppView {
 
 	private AppContext context;
 
 	private AppController controller;
 
 	@Inject
-	public FirmaAppView(AppContext context, AppController controller) {
+	public FirmaView(AppContext context, AppController controller) {
 
 		super(context.getAppContext().getApplication());
 

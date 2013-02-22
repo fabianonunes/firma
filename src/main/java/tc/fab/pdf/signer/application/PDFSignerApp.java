@@ -40,11 +40,11 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 
+import tc.fab.app.firma.FirmaView;
 import tc.fab.file.drop.DialogDrop;
 import tc.fab.file.drop.FileDrop;
 import tc.fab.file.selector.DirectorySelector;
 import tc.fab.file.selector.FileSelector;
-import tc.fab.firma.app.FirmaAppView;
 import tc.fab.firma.app.components.JFileTable;
 import tc.fab.firma.app.dialogs.FileSelectorDialog;
 import tc.fab.pdf.signer.FileDropListener;
@@ -71,7 +71,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 	}
 
-	private FirmaAppView	view;
+	private FirmaView	view;
 
 	private SignerOptions	options;
 
@@ -159,7 +159,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 	}
 
-	public FirmaAppView getView() {
+	public FirmaView getView() {
 		return view;
 	}
 
@@ -216,7 +216,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 		this.options = options;
 	}
 
-	public void setView(FirmaAppView view) {
+	public void setView(FirmaView view) {
 		this.view = view;
 	}
 
@@ -489,7 +489,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 				} catch (Exception e) {
 				}
 
-				setView(new FirmaAppView(getApplication()));
+				setView(new FirmaView(getApplication()));
 
 				show(getView());
 

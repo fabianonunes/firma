@@ -1,4 +1,4 @@
-package tc.fab.firma.app;
+package tc.fab.app.firma;
 
 import java.awt.Component;
 
@@ -10,16 +10,16 @@ import javax.swing.JOptionPane;
 import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.SingleFrameApplication;
 
-import tc.fab.firma.app.AppContext;
-import tc.fab.firma.app.ResourceReader;
+import tc.fab.app.AppContext;
+import tc.fab.app.ResourceReader;
 
 @Singleton
-public class FirmaAppContext implements AppContext {
+public class FirmaContext implements AppContext {
 
 	private ApplicationContext	appContext;
 	private ResourceReader		resReader;
 
-	public FirmaAppContext(ApplicationContext context) {
+	public FirmaContext(ApplicationContext context) {
 		appContext = context;
 		resReader = new ResourceReader(appContext.getResourceMap());
 	}

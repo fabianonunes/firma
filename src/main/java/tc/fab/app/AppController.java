@@ -1,4 +1,4 @@
-package tc.fab.firma.app;
+package tc.fab.app;
 
 import javax.swing.ActionMap;
 

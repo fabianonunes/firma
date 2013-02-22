@@ -8,7 +8,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import tc.fab.firma.app.AppContext;
+import tc.fab.app.firma.AppContext;
 
 public class FileSelectorDialog extends JDialog {
 

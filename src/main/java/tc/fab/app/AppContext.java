@@ -1,4 +1,4 @@
-package tc.fab.firma.app;
+package tc.fab.app;
 
 import java.awt.Component;
 
@@ -6,6 +6,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 import org.jdesktop.application.ApplicationContext;
+
 
 public interface AppContext {
 

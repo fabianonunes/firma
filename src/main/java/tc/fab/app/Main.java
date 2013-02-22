@@ -1,4 +1,4 @@
-package tc.fab.firma.app;
+package tc.fab.app;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -9,6 +9,10 @@ import javax.swing.UIManager;
 import org.jdesktop.application.View;
 import org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel;
 
+import tc.fab.app.firma.Firma;
+import tc.fab.app.firma.FirmaContext;
+import tc.fab.app.firma.FirmaController;
+import tc.fab.app.firma.FirmaView;
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.SmartCardAdapter;
 import tc.fab.security.callback.PINCallback;
@@ -36,12 +40,12 @@ public class Main extends Firma {
 			@Override
 			protected void configure() {
 
-				context = new FirmaAppContext(getContext());
+				context = new FirmaContext(getContext());
 
 				// app
 				bind(AppContext.class).toInstance(context);
-				bind(AppView.class).to(FirmaAppView.class);
-				bind(AppController.class).to(FirmaAppController.class);
+				bind(AppView.class).to(FirmaView.class);
+				bind(AppController.class).to(FirmaController.class);
 
 				// security
 				bind(Mechanism.class).to(SmartCardAdapter.class);
@@ -54,7 +58,7 @@ public class Main extends Firma {
 
 		controller = injector.getInstance(AppController.class);
 		view = injector.getInstance(AppView.class);
-		
+
 		view.initView();
 
 		show((View) view);
