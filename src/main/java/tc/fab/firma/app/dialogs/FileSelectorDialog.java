@@ -1,41 +1,68 @@
 package tc.fab.firma.app.dialogs;
 
-public class FileSelectorDialog extends javax.swing.JDialog {
+import java.io.File;
 
-	private static final long	serialVersionUID	= 1L;
+import javax.swing.GroupLayout;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
-	public FileSelectorDialog(java.awt.Frame parent, boolean modal) {
-		super(parent, modal);
+import tc.fab.firma.app.AppContext;
+
+public class FileSelectorDialog extends JDialog {
+
+	private static final long serialVersionUID = 1L;
+	private AppContext context;
+
+	public FileSelectorDialog(AppContext context) {
+
+		super(context.getMainFrame(), true);
+
+		this.context = context;
+
 		initComponents();
-		setLocationRelativeTo(parent);
+		setLocationRelativeTo(context.getMainFrame());
 	}
 
 	private void initComponents() {
 
-		jFileChooser = new javax.swing.JFileChooser();
+		fileChooser = new JFileChooser();
+		fileChooser.setMultiSelectionEnabled(true);
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+		javax.swing.GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
 		layout.setHorizontalGroup(layout.createParallelGroup(
-			javax.swing.GroupLayout.Alignment.LEADING).addComponent(jFileChooser,
+			javax.swing.GroupLayout.Alignment.LEADING).addComponent(fileChooser,
 			javax.swing.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE));
 		layout.setVerticalGroup(layout.createParallelGroup(
 			javax.swing.GroupLayout.Alignment.LEADING).addGroup(
 			layout
 				.createSequentialGroup()
-				.addComponent(jFileChooser, javax.swing.GroupLayout.PREFERRED_SIZE,
+				.addComponent(fileChooser, javax.swing.GroupLayout.PREFERRED_SIZE,
 					javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
 				.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
 
 		pack();
 	}
 
-	private javax.swing.JFileChooser	jFileChooser;
+	private JFileChooser fileChooser;
 
-	public javax.swing.JFileChooser getJFileChooser() {
-		return jFileChooser;
+	public File[] selectFile() {
+
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+		fileChooser.setFileFilter(new FileNameExtensionFilter("pdf", "pdf"));
+
+		int rv = fileChooser.showOpenDialog(context.getMainFrame());
+
+		if (rv == JFileChooser.APPROVE_OPTION) {
+			return fileChooser.getSelectedFiles();
+		}
+
+		return null;
+
 	}
 
 }

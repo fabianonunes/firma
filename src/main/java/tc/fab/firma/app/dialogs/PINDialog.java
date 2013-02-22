@@ -1,66 +1,82 @@
 package tc.fab.firma.app.dialogs;
 
-import org.jdesktop.application.Action;
-import org.jdesktop.application.Application;
+import javax.swing.GroupLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JSeparator;
+import javax.swing.LayoutStyle;
+import javax.swing.WindowConstants;
 
-public class PINDialog extends javax.swing.JDialog {
+import org.jdesktop.application.Action;
+import org.jdesktop.application.ResourceMap;
+
+import tc.fab.firma.app.AppContext;
+
+public class PINDialog extends JDialog {
 
 	private static final long	serialVersionUID	= 1818127766295051259L;
-
 	private Boolean				status				= false;
+	private AppContext			context;
 
-	public PINDialog(java.awt.Frame parent, boolean modal) {
-		super(parent, modal);
+	public PINDialog(AppContext context) {
+
+		super(context.getMainFrame(), true);
+
+		this.context = context;
+
 		initComponents();
+		getRootPane().setDefaultButton(btOk);
+
 	}
 
 	private void initComponents() {
 
-		jPanel1 = new javax.swing.JPanel();
-		jSeparator1 = new javax.swing.JSeparator();
-		jButton1 = new javax.swing.JButton(Application.getInstance().getContext()
-			.getActionMap(this).get("doClose"));
-		jLabel1 = new javax.swing.JLabel();
-		jPasswordField1 = new javax.swing.JPasswordField();
+		ResourceMap resourceMap = context.getAppContext().getResourceMap(PINDialog.class);
 
-		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+		jPanel1 = new JPanel();
+		jSeparator1 = new JSeparator();
+		btOk = new JButton(context.getAppContext().getActionMap(this).get("doClose"));
+		jLabel1 = new JLabel();
+		jPasswordField1 = new JPasswordField();
+
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setName("Form"); // NOI18N
 		setResizable(false);
 
-		org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application
-			.getInstance(tc.fab.pdf.signer.application.PDFSignerApp.class).getContext()
-			.getResourceMap(PINDialog.class);
 		jPanel1.setBackground(resourceMap.getColor("jPanel1.background")); // NOI18N
 		jPanel1.setName("jPanel1"); // NOI18N
 
 		jSeparator1.setName("jSeparator1"); // NOI18N
 
-		jButton1.setText(resourceMap.getString("jButton1.text")); // NOI18N
-		jButton1.setName("jButton1"); // NOI18N
+		btOk.setText(resourceMap.getString("jButton1.text")); // NOI18N
+		btOk.setName("jButton1"); // NOI18N
 
-		javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+		GroupLayout jPanel1Layout = new GroupLayout(jPanel1);
 		jPanel1.setLayout(jPanel1Layout);
 		jPanel1Layout.setHorizontalGroup(jPanel1Layout.createParallelGroup(
-			javax.swing.GroupLayout.Alignment.LEADING).addGroup(
+			GroupLayout.Alignment.LEADING).addGroup(
 			jPanel1Layout
 				.createSequentialGroup()
 				.addContainerGap()
 				.addGroup(
 					jPanel1Layout
-						.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-						.addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 84,
-							javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 238,
-							Short.MAX_VALUE)).addContainerGap()));
+						.createParallelGroup(GroupLayout.Alignment.CENTER)
+						.addComponent(btOk, GroupLayout.PREFERRED_SIZE, 84,
+							GroupLayout.PREFERRED_SIZE)
+						.addComponent(jSeparator1, GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE))
+				.addContainerGap()));
 		jPanel1Layout.setVerticalGroup(jPanel1Layout.createParallelGroup(
-			javax.swing.GroupLayout.Alignment.LEADING).addGroup(
+			GroupLayout.Alignment.LEADING).addGroup(
 			jPanel1Layout
 				.createSequentialGroup()
-				.addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10,
-					javax.swing.GroupLayout.PREFERRED_SIZE)
-				.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-				.addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE,
-					javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addContainerGap()));
+				.addComponent(jSeparator1, GroupLayout.PREFERRED_SIZE, 10,
+					GroupLayout.PREFERRED_SIZE)
+				.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+				.addComponent(btOk, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
+					Short.MAX_VALUE).addContainerGap()));
 
 		jLabel1.setText(resourceMap.getString("jLabel1.text")); // NOI18N
 		jLabel1.setName("jLabel1"); // NOI18N
@@ -68,40 +84,39 @@ public class PINDialog extends javax.swing.JDialog {
 		jPasswordField1.setText(resourceMap.getString("jPasswordField1.text")); // NOI18N
 		jPasswordField1.setName("jPasswordField1"); // NOI18N
 
-		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
 		layout.setHorizontalGroup(layout
-			.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-			.addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE,
-				javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+			.createParallelGroup(GroupLayout.Alignment.LEADING)
+			.addComponent(jPanel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE,
+				Short.MAX_VALUE)
 			.addGroup(
 				layout
 					.createSequentialGroup()
 					.addContainerGap()
 					.addComponent(jLabel1)
-					.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-						javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-					.addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 121,
-						javax.swing.GroupLayout.PREFERRED_SIZE).addContainerGap()));
-		layout.setVerticalGroup(layout.createParallelGroup(
-			javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-			javax.swing.GroupLayout.Alignment.TRAILING,
+					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
+						GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+					.addComponent(jPasswordField1, GroupLayout.PREFERRED_SIZE, 121,
+						GroupLayout.PREFERRED_SIZE).addContainerGap()));
+		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
+			GroupLayout.Alignment.TRAILING,
 			layout
 				.createSequentialGroup()
 				.addContainerGap()
 				.addGroup(
 					layout
-						.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+						.createParallelGroup(GroupLayout.Alignment.BASELINE)
 						.addComponent(jLabel1)
-						.addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE,
-							javax.swing.GroupLayout.DEFAULT_SIZE,
-							javax.swing.GroupLayout.PREFERRED_SIZE))
-				.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-					javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-				.addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE,
-					javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)));
+						.addComponent(jPasswordField1, GroupLayout.PREFERRED_SIZE,
+							GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+				.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE,
+					Short.MAX_VALUE)
+				.addComponent(jPanel1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+					GroupLayout.PREFERRED_SIZE)));
 
 		pack();
+
 	}
 
 	public char[] getPassword() {
@@ -117,11 +132,11 @@ public class PINDialog extends javax.swing.JDialog {
 		dispose();
 	}
 
-	private javax.swing.JButton			jButton1;
-	private javax.swing.JLabel			jLabel1;
-	private javax.swing.JPanel			jPanel1;
-	private javax.swing.JPasswordField	jPasswordField1;
-	private javax.swing.JSeparator		jSeparator1;
+	private JButton			btOk;
+	private JLabel			jLabel1;
+	private JPanel			jPanel1;
+	private JPasswordField	jPasswordField1;
+	private JSeparator		jSeparator1;
 
 	public Boolean getStatus() {
 		return status;

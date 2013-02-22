@@ -6,7 +6,7 @@ import javax.swing.ActionMap;
 
 public interface AppController {
 
-	static final String ACTION_QUIT = "firma.quit";
+	static final String ACTION_FILES_ADD = "firma.view.files_add";
 
 	ActionMap getActionMap();
 

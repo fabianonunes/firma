@@ -7,9 +7,11 @@ import java.awt.Dimension;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.swing.ActionMap;
 import javax.swing.JFrame;
 
 import org.jdesktop.application.FrameView;
+import org.jdesktop.application.ResourceMap;
 
 import tc.fab.file.drop.DialogDrop;
 import tc.fab.firma.app.components.JFileTable;
@@ -18,14 +20,20 @@ import tc.fab.pdf.signer.options.SignerOptionDialog;
 @Singleton
 public class FirmaAppView extends FrameView implements AppView {
 
-	AppContext	context;
+	private AppContext context;
+	private AppController controller;
 
 	@Inject
-	public FirmaAppView(AppContext context) {
+	public FirmaAppView(AppContext context, AppController controller) {
+
 		super(context.getAppContext().getApplication());
+
 		this.context = context;
+		this.controller = controller;
+
 		initComponents();
 		postInitComponents();
+
 	}
 
 	private void initComponents() {
@@ -34,7 +42,7 @@ public class FirmaAppView extends FrameView implements AppView {
 		jButton2 = new javax.swing.JButton();
 		jButton3 = new javax.swing.JButton();
 		jButton1 = new javax.swing.JButton();
-		jButton4 = new javax.swing.JButton();
+		addFiles = new javax.swing.JButton();
 		jButton5 = new javax.swing.JButton();
 		jScrollPane2 = new javax.swing.JScrollPane();
 		jTable1 = new JFileTable();
@@ -43,11 +51,10 @@ public class FirmaAppView extends FrameView implements AppView {
 
 		mainPanel.setName("mainPanel"); // NOI18N
 
-		javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance()
-			.getContext().getActionMap(FirmaAppView.class, this);
+		ActionMap actionMap = controller.getActionMap();
+		ResourceMap resourceMap = context.getAppContext().getResourceMap();
+		
 		jButton2.setAction(actionMap.get("signSelection")); // NOI18N
-		org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application
-			.getInstance().getContext().getResourceMap(FirmaAppView.class);
 		jButton2.setIcon(resourceMap.getIcon("jButton2.icon")); // NOI18N
 		jButton2.setName("jButton2"); // NOI18N
 
@@ -61,10 +68,10 @@ public class FirmaAppView extends FrameView implements AppView {
 		jButton1.setText(resourceMap.getString("jButton1.text")); // NOI18N
 		jButton1.setName("jButton1"); // NOI18N
 
-		jButton4.setAction(actionMap.get("addFiles")); // NOI18N
-		jButton4.setIcon(resourceMap.getIcon("jButton4.icon")); // NOI18N
-		jButton4.setText(resourceMap.getString("jButton4.text")); // NOI18N
-		jButton4.setName("jButton4"); // NOI18N
+		addFiles.setAction(actionMap.get("addFiles")); // NOI18N
+		addFiles.setIcon(resourceMap.getIcon("jButton4.icon")); // NOI18N
+		addFiles.setText(resourceMap.getString("jButton4.text")); // NOI18N
+		addFiles.setName("jButton4"); // NOI18N
 
 		jButton5.setAction(actionMap.get("config")); // NOI18N
 		jButton5.setIcon(resourceMap.getIcon("jButton5.icon")); // NOI18N
@@ -104,7 +111,7 @@ public class FirmaAppView extends FrameView implements AppView {
 										.addComponent(jButton1)
 										.addPreferredGap(
 											javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-										.addComponent(jButton4)
+										.addComponent(addFiles)
 										.addPreferredGap(
 											javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 										.addComponent(jButton5)
@@ -132,7 +139,7 @@ public class FirmaAppView extends FrameView implements AppView {
 						.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
 						.addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 28,
 							javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 28,
+						.addComponent(addFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 28,
 							javax.swing.GroupLayout.PREFERRED_SIZE)
 						.addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 28,
 							javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -155,18 +162,18 @@ public class FirmaAppView extends FrameView implements AppView {
 		setComponent(mainPanel);
 	}
 
-	private javax.swing.JButton		jButton1;
-	private javax.swing.JButton		jButton2;
-	private javax.swing.JButton		jButton3;
-	private javax.swing.JButton		jButton4;
-	private javax.swing.JButton		jButton5;
-	private javax.swing.JButton		jButton6;
-	private javax.swing.JButton		jButton7;
-	private javax.swing.JScrollPane	jScrollPane2;
-	private JFileTable				jTable1;
-	private javax.swing.JPanel		mainPanel;
-	private SignerOptionDialog		optionsDialog;
-	private DialogDrop				dd;
+	private javax.swing.JButton jButton1;
+	private javax.swing.JButton jButton2;
+	private javax.swing.JButton jButton3;
+	private javax.swing.JButton addFiles;
+	private javax.swing.JButton jButton5;
+	private javax.swing.JButton jButton6;
+	private javax.swing.JButton jButton7;
+	private javax.swing.JScrollPane jScrollPane2;
+	private JFileTable jTable1;
+	private javax.swing.JPanel mainPanel;
+	private SignerOptionDialog optionsDialog;
+	private DialogDrop dd;
 
 	public SignerOptionDialog getOptionsDialog() {
 		if (optionsDialog == null) {
