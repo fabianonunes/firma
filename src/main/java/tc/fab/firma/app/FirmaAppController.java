@@ -39,19 +39,12 @@ public class FirmaAppController implements AppController {
 
 	@Override
 	public boolean saveBeforeExit() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void startActionManually(String actionName) {
-		// TODO Auto-generated method stub
 
-	}
-
-	@Action
-	public void quitApplication() {
-		context.getAppContext().getApplication().exit();
 	}
 
 	@Action(name = AppController.ACTION_FILES_ADD)
@@ -59,20 +52,27 @@ public class FirmaAppController implements AppController {
 		File[] selectedFile = fileDialog.get().selectFile();
 	}
 
+	@Action(name = AppController.ACTION_FOLDER_ADD)
 	public void addFolder(File folder) {
 	}
 
+	@Action(name = AppController.ACTION_FILES_SIGN)
 	public void sign() {
 	}
 
-	public void removeSelected() {
+	@Action(name = AppController.ACTION_FILES_REMOVE)
+	public void removeFile() {
+	}
+
+	@Action(name = AppController.ACTION_FILE_PREVIEW)
+	public void previewFile() {
 	}
 
 	@Override
 	public void selectAlias() {
 	}
 
-	@Override
+	@Action(name = AppController.ACTION_DROPAREA_SHOW)
 	public void showDropArea() {
 	}
 

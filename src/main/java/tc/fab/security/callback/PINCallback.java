@@ -7,24 +7,21 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.swing.JFrame;
 
 import tc.fab.firma.app.AppContext;
 import tc.fab.firma.app.dialogs.PINDialog;
 
 public class PINCallback implements CallbackHandler {
 
-	JFrame frame;
+	private AppContext context;
 
 	@Inject
 	public PINCallback(AppContext context) {
-		
-		frame = context.getMainFrame();
+		this.context = context;
 	}
 
 	@Override
-	public void handle(Callback[] callbacks) throws IOException,
-			UnsupportedCallbackException {
+	public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 
 		Callback cb = callbacks[0];
 
@@ -32,9 +29,7 @@ public class PINCallback implements CallbackHandler {
 
 			final PasswordCallback passCallBack = (PasswordCallback) cb;
 
-			PINDialog dialog = new PINDialog(frame, true);
-			dialog.setLocationRelativeTo(frame);
-			dialog.setVisible(true);
+			PINDialog dialog = new PINDialog(context);
 
 			if (dialog.getStatus()) {
 				passCallBack.setPassword(dialog.getPassword());

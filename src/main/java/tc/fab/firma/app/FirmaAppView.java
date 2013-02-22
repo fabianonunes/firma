@@ -16,7 +16,6 @@ import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle;
 
 import org.jdesktop.application.FrameView;
-import org.jdesktop.application.ResourceMap;
 
 import tc.fab.file.drop.DialogDrop;
 import tc.fab.firma.app.components.JFileTable;
@@ -47,6 +46,8 @@ public class FirmaAppView extends FrameView implements AppView {
 
 	private void initComponents() {
 
+		ActionMap actionMap = controller.getActionMap();
+
 		mainPanel = new JPanel();
 		signFiles = new JButton();
 		removeFile = new JButton();
@@ -56,24 +57,17 @@ public class FirmaAppView extends FrameView implements AppView {
 		scrollPane = new JScrollPane();
 		fileTable = new JFileTable();
 		showDropArea = new JButton();
-		jButton7 = new JButton();
+		previewFile = new JButton();
 
-		mainPanel.setName("mainPanel");
-
-		ActionMap actionMap = controller.getActionMap();
-		ResourceMap resourceMap = context.getAppContext().getResourceMap();
-
-		signFiles.setAction(actionMap.get("signSelection"));
-		removeFile.setAction(actionMap.get("removeSelecteds"));
-		addFolder.setAction(actionMap.get("getSelection"));
 		addFiles.setAction(actionMap.get(AppController.ACTION_FILES_ADD));
+		addFolder.setAction(actionMap.get(AppController.ACTION_FOLDER_ADD));
 		settings.setAction(actionMap.get(AppController.ACTION_SETTINGS));
-		showDropArea.setAction(actionMap.get("showDropBox"));
+		showDropArea.setAction(actionMap.get(AppController.ACTION_DROPAREA_SHOW));
+		signFiles.setAction(actionMap.get(AppController.ACTION_FILES_SIGN));
+		removeFile.setAction(actionMap.get(AppController.ACTION_FILES_REMOVE));
+		previewFile.setAction(actionMap.get(AppController.ACTION_FILE_PREVIEW));
 
 		scrollPane.setViewportView(fileTable);
-
-		jButton7.setAction(actionMap.get("previewFile"));
-		jButton7.setName("jButton7");
 
 		GroupLayout mainPanelLayout = new GroupLayout(mainPanel);
 		mainPanel.setLayout(mainPanelLayout);
@@ -101,7 +95,7 @@ public class FirmaAppView extends FrameView implements AppView {
 								.createSequentialGroup()
 								.addComponent(signFiles)
 								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(jButton7)
+								.addComponent(previewFile)
 								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 292,
 									Short.MAX_VALUE).addComponent(removeFile))).addContainerGap()));
 		mainPanelLayout.setVerticalGroup(mainPanelLayout.createParallelGroup(
@@ -130,7 +124,7 @@ public class FirmaAppView extends FrameView implements AppView {
 							GroupLayout.PREFERRED_SIZE)
 						.addComponent(removeFile, GroupLayout.PREFERRED_SIZE, 28,
 							GroupLayout.PREFERRED_SIZE)
-						.addComponent(jButton7, GroupLayout.PREFERRED_SIZE, 28,
+						.addComponent(previewFile, GroupLayout.PREFERRED_SIZE, 28,
 							GroupLayout.PREFERRED_SIZE)).addContainerGap()));
 
 		setComponent(mainPanel);
@@ -142,7 +136,7 @@ public class FirmaAppView extends FrameView implements AppView {
 	private JButton addFiles;
 	private JButton settings;
 	private JButton showDropArea;
-	private JButton jButton7;
+	private JButton previewFile;
 	private JScrollPane scrollPane;
 	private JFileTable fileTable;
 	private JPanel mainPanel;
@@ -155,7 +149,6 @@ public class FirmaAppView extends FrameView implements AppView {
 			optionsDialog = new SignerOptionDialog(mainFrame, true);
 			optionsDialog.setLocationRelativeTo(mainFrame);
 		}
-
 		return optionsDialog;
 	}
 
