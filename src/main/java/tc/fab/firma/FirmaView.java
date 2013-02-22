@@ -37,9 +37,9 @@ public class FirmaView extends FrameView implements AppView {
 
 		this.context = context;
 		this.controller = controller;
-
+		
 	}
-
+	
 	@Override
 	public void initView() {
 		initComponents();

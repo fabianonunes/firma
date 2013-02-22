@@ -11,9 +11,9 @@ import java.security.cert.X509Certificate;
 
 public abstract class CommonMechanism implements Mechanism {
 
-	protected AuthProvider	provider;
-	protected KeyStore		keystore;
-	protected String		alias;
+	protected AuthProvider provider;
+	protected KeyStore keystore;
+	protected String alias;
 
 	@Override
 	public PrivateKey getPrivateKey() throws UnrecoverableKeyException, KeyStoreException,

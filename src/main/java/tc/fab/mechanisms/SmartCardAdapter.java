@@ -18,8 +18,8 @@ import com.google.inject.Inject;
 @SuppressWarnings("restriction")
 public class SmartCardAdapter extends CommonMechanism {
 
-	CallbackHandler	handler;
-	String			alias;
+	CallbackHandler handler;
+	String alias;
 
 	@Inject
 	public SmartCardAdapter(CallbackHandler handler) {
