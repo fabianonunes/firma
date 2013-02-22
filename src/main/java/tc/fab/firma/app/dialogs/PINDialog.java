@@ -13,7 +13,7 @@ import javax.swing.WindowConstants;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ResourceMap;
 
-import tc.fab.app.firma.AppContext;
+import tc.fab.app.AppContext;
 
 public class PINDialog extends JDialog {
 

@@ -1,4 +1,4 @@
-package tc.fab.app;
+package tc.fab.app.firma;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -9,10 +9,9 @@ import javax.swing.UIManager;
 import org.jdesktop.application.View;
 import org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel;
 
-import tc.fab.app.firma.Firma;
-import tc.fab.app.firma.FirmaContext;
-import tc.fab.app.firma.FirmaController;
-import tc.fab.app.firma.FirmaView;
+import tc.fab.app.AppContext;
+import tc.fab.app.AppController;
+import tc.fab.app.AppView;
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.SmartCardAdapter;
 import tc.fab.security.callback.PINCallback;

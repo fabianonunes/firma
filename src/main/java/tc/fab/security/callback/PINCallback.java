@@ -8,7 +8,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import tc.fab.app.firma.AppContext;
+import tc.fab.app.AppContext;
 import tc.fab.firma.app.dialogs.PINDialog;
 
 public class PINCallback implements CallbackHandler {
