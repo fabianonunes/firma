@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Security;
 import java.security.cert.CertificateException;
+import java.util.Enumeration;
 
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
@@ -41,6 +42,18 @@ public class SmartCardAdapter extends CommonMechanism {
 
 		Security.addProvider(provider);
 
+		try {
+			KeyStore keyStore = KeyStore.getInstance("PKCS11", provider);
+			System.out.println(keystore);
+			Enumeration<String> aliases = keystore.aliases();
+			while (aliases.hasMoreElements()) {
+				System.out.println(aliases.nextElement());
+			}
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override
@@ -51,9 +64,11 @@ public class SmartCardAdapter extends CommonMechanism {
 			new KeyStore.CallbackHandlerProtection(handler));
 
 		keystore = builder.getKeyStore();
-		keystore.load(null, null);
-		// TODO: alias selection
 		alias = keystore.aliases().nextElement();
+		System.out.println(alias);
+
+		// keystore.load(null, null);
+		// TODO: alias selection
 
 	}
 

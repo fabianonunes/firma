@@ -1,10 +1,15 @@
 package tc.fab.firma.app.dialogs;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 import javax.inject.Inject;
 import javax.swing.GroupLayout;
@@ -17,14 +22,12 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 import org.fit.cssbox.swingbox.BrowserPane;
 
 import tc.fab.app.AppContext;
 import tc.fab.mechanisms.Mechanism;
-
-import javax.swing.border.LineBorder;
-import java.awt.Color;
 
 public class SignDocumentDialog extends JDialog {
 
@@ -42,6 +45,13 @@ public class SignDocumentDialog extends JDialog {
 		super(context.getMainFrame(), true);
 
 		this.context = context;
+		
+		try {
+			mechanism.login();
+		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		initComponents();
 		setLocationRelativeTo(this.context.getMainFrame());
