@@ -51,6 +51,7 @@ public class FirmaAppView extends FrameView implements AppView {
 
 		mainPanel.setName("mainPanel"); // NOI18N
 
+		System.out.println(controller);
 		ActionMap actionMap = controller.getActionMap();
 		ResourceMap resourceMap = context.getAppContext().getResourceMap();
 		
@@ -68,7 +69,7 @@ public class FirmaAppView extends FrameView implements AppView {
 		jButton1.setText(resourceMap.getString("jButton1.text")); // NOI18N
 		jButton1.setName("jButton1"); // NOI18N
 
-		addFiles.setAction(actionMap.get("addFiles")); // NOI18N
+		addFiles.setAction(actionMap.get(AppController.ACTION_FILES_ADD)); // NOI18N
 		addFiles.setIcon(resourceMap.getIcon("jButton4.icon")); // NOI18N
 		addFiles.setText(resourceMap.getString("jButton4.text")); // NOI18N
 		addFiles.setName("jButton4"); // NOI18N

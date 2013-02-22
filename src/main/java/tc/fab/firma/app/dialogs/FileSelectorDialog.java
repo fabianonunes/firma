@@ -2,6 +2,7 @@ package tc.fab.firma.app.dialogs;
 
 import java.io.File;
 
+import javax.inject.Inject;
 import javax.swing.GroupLayout;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -14,6 +15,7 @@ public class FileSelectorDialog extends JDialog {
 	private static final long serialVersionUID = 1L;
 	private AppContext context;
 
+	@Inject
 	public FileSelectorDialog(AppContext context) {
 
 		super(context.getMainFrame(), true);

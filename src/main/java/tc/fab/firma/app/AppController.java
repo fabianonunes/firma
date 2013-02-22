@@ -1,7 +1,5 @@
 package tc.fab.firma.app;
 
-import java.io.File;
-
 import javax.swing.ActionMap;
 
 public interface AppController {
@@ -14,18 +12,8 @@ public interface AppController {
 
 	void startActionManually(String actionName);
 
-	void addFile(File file);
-
-	void addFolder(File folder);
-
-	void sign();
-
-	void removeSelected();
-
 	void selectAlias();
 
 	void showDropArea();
-
-	void settings();
 
 }

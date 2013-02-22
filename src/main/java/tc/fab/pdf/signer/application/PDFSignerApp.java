@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Toolkit;
+import java.awt.image.ImageFilter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -41,8 +42,6 @@ import org.jdesktop.swingx.error.ErrorLevel;
 
 import tc.fab.file.drop.DialogDrop;
 import tc.fab.file.drop.FileDrop;
-import tc.fab.file.filters.ExtensionFilter;
-import tc.fab.file.filters.ImageFilter;
 import tc.fab.file.selector.DirectorySelector;
 import tc.fab.file.selector.FileSelector;
 import tc.fab.firma.app.FirmaAppView;

@@ -8,6 +8,10 @@ import javax.swing.ActionMap;
 
 import org.jdesktop.application.Action;
 
+import tc.fab.firma.app.dialogs.FileSelectorDialog;
+
+import com.google.inject.Provider;
+
 @Singleton
 public class FirmaAppController implements AppController {
 
@@ -15,11 +19,14 @@ public class FirmaAppController implements AppController {
 	private AppContext context;
 	private AppView view;
 
+	// dialogs
+	// @Inject
+	// private Provider<FileSelectorDialog> fileDialog;
+
 	@Inject
 	public FirmaAppController(AppContext context, AppView view) {
 		this.context = context;
 		this.view = view;
-
 	}
 
 	@Override
@@ -47,25 +54,21 @@ public class FirmaAppController implements AppController {
 		context.getAppContext().getApplication().exit();
 	}
 
-	@Override
+	@Action(name = AppController.ACTION_FILES_ADD)
 	public void addFile(File file) {
-		// TODO Auto-generated method stub
-
+		// File[] selectedFile = fileDialog.get().selectFile();
 	}
 
-	@Override
 	public void addFolder(File folder) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void sign() {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void removeSelected() {
 		// TODO Auto-generated method stub
 
@@ -83,7 +86,6 @@ public class FirmaAppController implements AppController {
 
 	}
 
-	@Override
 	public void settings() {
 		// TODO Auto-generated method stub
 

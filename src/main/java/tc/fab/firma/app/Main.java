@@ -18,11 +18,11 @@ import com.google.inject.Injector;
 
 public class Main extends Firma {
 
-	private AppContext			context;
-	private AppController		controller;
-	private AppView				view;
+	private AppContext context;
+	private AppController controller;
+	private AppView view;
 
-	private static final Logger	LOGGER	= Logger.getLogger(Firma.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(Firma.class.getName());
 
 	public static void main(String args[]) {
 		launch(Main.class, args);
