@@ -32,9 +32,12 @@ public class FirmaAppView extends FrameView implements AppView {
 		this.context = context;
 		this.controller = controller;
 
+	}
+
+	@Override
+	public void initView() {
 		initComponents();
 		postInitComponents();
-
 	}
 
 	private void initComponents() {
@@ -44,7 +47,7 @@ public class FirmaAppView extends FrameView implements AppView {
 		jButton3 = new javax.swing.JButton();
 		jButton1 = new javax.swing.JButton();
 		addFiles = new javax.swing.JButton();
-		jButton5 = new javax.swing.JButton();
+		settings = new javax.swing.JButton();
 		jScrollPane2 = new javax.swing.JScrollPane();
 		jTable1 = new JFileTable();
 		jButton6 = new javax.swing.JButton();
@@ -70,14 +73,7 @@ public class FirmaAppView extends FrameView implements AppView {
 		jButton1.setName("jButton1"); // NOI18N
 
 		addFiles.setAction(actionMap.get(AppController.ACTION_FILES_ADD)); // NOI18N
-		addFiles.setIcon(resourceMap.getIcon("jButton4.icon")); // NOI18N
-		addFiles.setText(resourceMap.getString("jButton4.text")); // NOI18N
-		addFiles.setName("jButton4"); // NOI18N
-
-		jButton5.setAction(actionMap.get("config")); // NOI18N
-		jButton5.setIcon(resourceMap.getIcon("jButton5.icon")); // NOI18N
-		jButton5.setText(resourceMap.getString("jButton5.text")); // NOI18N
-		jButton5.setName("jButton5"); // NOI18N
+		settings.setAction(actionMap.get(AppController.ACTION_SETTINGS)); // NOI18N
 
 		jScrollPane2.setName("jScrollPane2"); // NOI18N
 
@@ -115,7 +111,7 @@ public class FirmaAppView extends FrameView implements AppView {
 										.addComponent(addFiles)
 										.addPreferredGap(
 											javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-										.addComponent(jButton5)
+										.addComponent(settings)
 										.addPreferredGap(
 											javax.swing.LayoutStyle.ComponentPlacement.RELATED,
 											203, Short.MAX_VALUE).addComponent(jButton6))
@@ -142,7 +138,7 @@ public class FirmaAppView extends FrameView implements AppView {
 							javax.swing.GroupLayout.PREFERRED_SIZE)
 						.addComponent(addFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 28,
 							javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 28,
+						.addComponent(settings, javax.swing.GroupLayout.PREFERRED_SIZE, 28,
 							javax.swing.GroupLayout.PREFERRED_SIZE)
 						.addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 28,
 							javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -167,7 +163,7 @@ public class FirmaAppView extends FrameView implements AppView {
 	private javax.swing.JButton jButton2;
 	private javax.swing.JButton jButton3;
 	private javax.swing.JButton addFiles;
-	private javax.swing.JButton jButton5;
+	private javax.swing.JButton settings;
 	private javax.swing.JButton jButton6;
 	private javax.swing.JButton jButton7;
 	private javax.swing.JScrollPane jScrollPane2;

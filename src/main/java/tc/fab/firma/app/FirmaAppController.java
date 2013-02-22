@@ -32,7 +32,7 @@ public class FirmaAppController implements AppController {
 	@Override
 	public ActionMap getActionMap() {
 		if (actionMap == null) {
-			actionMap = context.getAppContext().getActionMap(getClass(), this);
+			actionMap = context.getAppContext().getActionMap(FirmaAppController.class, this);
 		}
 		return actionMap;
 	}
@@ -55,40 +55,29 @@ public class FirmaAppController implements AppController {
 	}
 
 	@Action(name = AppController.ACTION_FILES_ADD)
-	public void addFile(File file) {
-		// File[] selectedFile = fileDialog.get().selectFile();
+	public void addFile() {
+		File[] selectedFile = fileDialog.get().selectFile();
 	}
 
 	public void addFolder(File folder) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void sign() {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void removeSelected() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void selectAlias() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void showDropArea() {
-		// TODO Auto-generated method stub
-
 	}
 
+	@Action(name = AppController.ACTION_SETTINGS)
 	public void settings() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

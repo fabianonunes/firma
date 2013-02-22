@@ -54,6 +54,8 @@ public class Main extends Firma {
 
 		controller = injector.getInstance(AppController.class);
 		view = injector.getInstance(AppView.class);
+		
+		view.initView();
 
 		show((View) view);
 
