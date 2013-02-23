@@ -23,7 +23,8 @@ public class TokenInfo {
 
 		ArrayList<String> aliases = new ArrayList<>();
 
-		InputStream wrapperLib = TokenInfo.class.getResourceAsStream("lib/libpkcs11wrapper.so");
+		InputStream wrapperLib = TokenInfo.class
+			.getResourceAsStream("lib/unix/64/libpkcs11wrapper.so");
 
 		File file = File.createTempFile("lib", "wrapper");
 		file.deleteOnExit();

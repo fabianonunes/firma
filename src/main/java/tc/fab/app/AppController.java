@@ -17,7 +17,7 @@ public interface AppController {
 	boolean saveBeforeExit();
 
 	void startActionManually(String actionName);
-
-	void selectAlias();
+	
+	void detectModules();
 
 }

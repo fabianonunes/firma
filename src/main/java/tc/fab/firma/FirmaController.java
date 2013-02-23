@@ -7,12 +7,13 @@ import javax.inject.Singleton;
 import javax.swing.ActionMap;
 
 import org.jdesktop.application.Action;
+import org.jdesktop.application.ResourceMap;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppView;
 import tc.fab.firma.app.dialogs.FileSelectorDialog;
-import tc.fab.firma.app.dialogs.PINDialog;
+import tc.fab.firma.app.dialogs.SignDocumentDialog;
 
 import com.google.inject.Provider;
 
@@ -28,7 +29,7 @@ public class FirmaController implements AppController {
 	private Provider<FileSelectorDialog> fileDialog;
 
 	@Inject
-	private Provider<PINDialog> optionsDialog;
+	private Provider<SignDocumentDialog> optionsDialog;
 
 	@Inject
 	public FirmaController(AppContext context, AppView view) {
@@ -77,16 +78,18 @@ public class FirmaController implements AppController {
 		System.out.println("preview");
 	}
 
-	@Override
-	public void selectAlias() {
-	}
-
 	@Action(name = AppController.ACTION_DROPAREA_SHOW)
 	public void showDropArea() {
 	}
 
 	@Action(name = AppController.ACTION_SETTINGS)
 	public void settings() {
+	}
+
+	@Override
+	public void detectModules() {
+		ResourceMap resourceMap = context.getAppContext().getResourceMap();
+
 	}
 
 }

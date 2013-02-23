@@ -77,5 +77,10 @@ public class Main extends Firma {
 	protected void initialize(String[] args) {
 		super.initialize(args);
 	}
+	
+	@Override
+	protected void ready() {
+		super.ready();
+	}
 
 }

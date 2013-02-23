@@ -1,6 +1,7 @@
 package tc.fab.mechanisms;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -11,6 +12,8 @@ import java.util.Enumeration;
 
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
+
+import org.apache.commons.io.IOUtils;
 
 import sun.security.pkcs11.SunPKCS11;
 
@@ -24,28 +27,27 @@ public class SmartCardAdapter extends CommonMechanism {
 
 	@Inject
 	public SmartCardAdapter(CallbackHandler handler) {
-
 		this.handler = handler;
-
-		registerProvider();
-
 	}
 
-	private void registerProvider() {
-
-		boolean isLinux = System.getProperty("os.name").equals("Linux");
-
-		String resourceName = isLinux ? "resources/linux-pkcs11.cfg" : "resources/pkcs11.cfg";
-
-		provider = new SunPKCS11(getClass().getResourceAsStream(resourceName));
+	public void registerProvider(String libraryPath) {
 
 		Provider previousProvider = Security.getProvider("SunPKCS11-Firma");
-
 		if (previousProvider != null) {
-			Security.removeProvider(provider.getName());
+			Security.removeProvider(previousProvider.getName());
 		}
 
+		StringBuffer config = new StringBuffer();
+		config.append("name = Firma\n");
+		config.append("library = " + libraryPath);
+
+		InputStream is = IOUtils.toInputStream(config);
+
+		provider = new SunPKCS11(is);
+
 		Security.addProvider(provider);
+
+		// boolean isLinux = System.getProperty("os.name").equals("Linux");
 
 	}
 
