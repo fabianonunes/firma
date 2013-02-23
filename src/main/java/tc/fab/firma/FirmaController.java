@@ -26,10 +26,10 @@ public class FirmaController implements AppController {
 	// dialogs
 	@Inject
 	private Provider<FileSelectorDialog> fileDialog;
-	
+
 	@Inject
 	private Provider<SignDocumentDialog> optionsDialog;
-	
+
 	@Inject
 	public FirmaController(AppContext context, AppView view) {
 		this.context = context;
