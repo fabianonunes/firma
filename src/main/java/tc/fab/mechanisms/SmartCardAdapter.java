@@ -27,7 +27,12 @@ public class SmartCardAdapter extends CommonMechanism {
 
 		this.handler = handler;
 
-		// TODO: smell constructor: doing things?
+		registerProvider();
+
+	}
+
+	private void registerProvider() {
+
 		boolean isLinux = System.getProperty("os.name").equals("Linux");
 
 		String resourceName = isLinux ? "resources/linux-pkcs11.cfg" : "resources/pkcs11.cfg";
@@ -42,18 +47,6 @@ public class SmartCardAdapter extends CommonMechanism {
 
 		Security.addProvider(provider);
 
-		try {
-			KeyStore keyStore = KeyStore.getInstance("PKCS11", provider);
-			System.out.println(keystore);
-			Enumeration<String> aliases = keystore.aliases();
-			while (aliases.hasMoreElements()) {
-				System.out.println(aliases.nextElement());
-			}
-		} catch (KeyStoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 	}
 
 	@Override
@@ -64,11 +57,14 @@ public class SmartCardAdapter extends CommonMechanism {
 			new KeyStore.CallbackHandlerProtection(handler));
 
 		keystore = builder.getKeyStore();
+		keystore.load(null, null);
 		alias = keystore.aliases().nextElement();
-		System.out.println(alias);
 
-		// keystore.load(null, null);
-		// TODO: alias selection
+		Enumeration<String> aliases = keystore.aliases();
+
+		while (aliases.hasMoreElements()) {
+			System.out.println("--" + aliases.nextElement());
+		}
 
 	}
 

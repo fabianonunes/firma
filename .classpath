@@ -27,6 +27,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/home/fabiano/downloads/SwingBox-bin-0.2.jar"/>
+	<classpathentry kind="lib" path="/home/fabiano/downloads/iaikPkcs11Wrapper_1_2_18/bin/iaikPkcs11Wrapper.jar" sourcepath="/home/fabiano/downloads/iaikPkcs11Wrapper_1_2_18/iaikPkcs11Wrapper-1.2.18-src.zip"/>
+	<classpathentry kind="lib" path="/home/fabiano/downloads/SwingBox-bin-0.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
