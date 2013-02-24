@@ -92,7 +92,6 @@ public class FirmaController implements AppController {
 	@Override
 	public void detectModules() {
 		ResourceMap resourceMap = context.getAppContext().getResourceMap();
-
 	}
 
 }

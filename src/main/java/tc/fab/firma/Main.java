@@ -61,7 +61,7 @@ public class Main extends Firma {
 
 			}
 		});
-		
+
 		controller = injector.getInstance(AppController.class);
 
 		addExitListener(new ExitListener() {
@@ -79,8 +79,7 @@ public class Main extends Firma {
 		document.loadOptions();
 
 		libs = injector.getInstance(LibraryManager.class);
-		context.getResourceMap().injectFields(libs);
-		
+
 		document.getOptions().setLibs(libs.getLibs());
 
 		view = injector.getInstance(AppView.class);
@@ -89,10 +88,6 @@ public class Main extends Firma {
 
 		show((View) view);
 
-	}
-
-	private boolean executeSave() {
-		return true;
 	}
 
 	private void initLookAndFeel(String lafClass) {

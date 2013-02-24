@@ -1,12 +1,11 @@
 package tc.fab.firma.app.dialogs;
 
-import iaik.pkcs.pkcs11.TokenException;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.io.IOException;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +24,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import org.eclipse.wb.swing.FocusTraversalOnArray;
 import org.fit.cssbox.swingbox.BrowserPane;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Task;
@@ -41,7 +41,9 @@ public class SignDocumentDialog extends JDialog {
 
 	private static final long serialVersionUID = 7850839445605448945L;
 
-	private static final String ACTION_FILL_ALIASES = "firma.dlg.sign.fill_aliases";
+	private static final String ACTION_FILL_ALIASES = "firma.dlg.sign_document.fill_aliases";
+	private static final String ACTION_ADD_PROVIDER = "firma.dlg.sign_document.add_provider";
+	private static final String ACTION_SELECT_ALIAS = "firma.dlg.sign_document.select_alias";
 
 	private AppContext context;
 	private AppController controller;
@@ -52,69 +54,129 @@ public class SignDocumentDialog extends JDialog {
 	private JComboBox<String> cbProvider;
 	private JComboBox<String> cbAppearance;
 
-	private JButton btAddProvider;
-	private JButton btOk;
+	private FirmaOptions options;
+
+	private TokenInfo tokenInfo;
 
 	@Inject
-	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document) {
+	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document,
+		TokenInfo tokenInfo) {
 
 		super(context.getMainFrame(), true);
 
 		this.context = context;
 		this.controller = controller;
-
-		FirmaOptions options = document.getOptions();
+		this.tokenInfo = tokenInfo;
 
 		initComponents();
 		context.getResourceMap().injectComponents(this);
 
-		List<String> libs = options.getLibs();
+		options = document.getOptions();
 
-		if (libs.size() > 0) {
-			fillProviders(libs);
-			context.fireAction(this, ACTION_FILL_ALIASES);
-		}
+		fillProviders(options.getLibs());
 
+		cbAlias.setAction(context.getAction(this, ACTION_SELECT_ALIAS));
+		// addItemListener(new ItemListener() {
+		// @Override
+		// public void itemStateChanged(ItemEvent e) {
+		// if (e.getStateChange() == ItemEvent.SELECTED) {
+		// selectAlias();
+		// }
+		// }
+		// });
+
+		// the action setup must be after initial fulfillment to avoid double
+		// fire
 		cbProvider.setAction(context.getAction(this, ACTION_FILL_ALIASES));
 
 	}
 
 	@Action(name = ACTION_FILL_ALIASES, block = BlockingScope.ACTION)
-	public Task<Void, Void> fillAliases() {
-		cbAlias.removeAllItems();
-		cbAlias.addItem("aguarde...");
+	public Task<Void, String> fillAliases(ActionEvent ae) {
+
+		System.out.println("filling..." + ae.paramString());
+
 		cbAlias.setEnabled(false);
-		return new FillAliasesTask();
+		cbAlias.removeAllItems();
+		cbAlias.addItem(context.getResReader().getString("firma.dlg.waiting"));
+
+		String lib = cbProvider.getItemAt(cbProvider.getSelectedIndex());
+
+		return new FillAliasesTask(lib);
+
 	}
 
-	class FillAliasesTask extends Task<Void, Void> {
-		public FillAliasesTask() {
+	@Action(name = ACTION_ADD_PROVIDER)
+	public void addProvider() {
+
+	}
+
+	@Action(name = ACTION_SELECT_ALIAS)
+	public void selectAlias() {
+		String alias = cbAlias.getItemAt(cbAlias.getSelectedIndex());
+		System.out.println("selecting " + alias);
+		options.setAlias(alias);
+	}
+
+	class FillAliasesTask extends Task<Void, String> {
+
+		private String lib;
+
+		public FillAliasesTask(String lib) {
 			super(context.getAppContext().getApplication());
+			this.lib = lib;
 		}
 
 		@Override
 		protected Void doInBackground() throws Exception {
-			String lib = cbProvider.getItemAt(cbProvider.getSelectedIndex());
-			ArrayList<String> aliases;
-			try {
-				aliases = TokenInfo.getAliases(lib);
-				cbAlias.removeAllItems();
+
+			ArrayList<String> aliases = tokenInfo.getAliases(lib);
+
+			if (aliases.size() > 0) {
 				for (String alias : aliases) {
-					cbAlias.addItem(alias);
+					publish(alias);
 				}
-			} catch (IOException | TokenException e) {
-				cbAlias.removeAllItems();
-			} finally {
-				cbAlias.setEnabled(true);
+			} else {
+				publish(context.getResReader().getString("firma.msg.sign_document.no_certs_found"));
 			}
+
 			return null;
 		}
+
+		@Override
+		protected void succeeded(Void result) {
+			cbAlias.removeItemAt(0);
+		}
+
+		@Override
+		protected void process(List<String> values) {
+			super.process(values);
+			for (String value : values) {
+				cbAlias.addItem(value);
+			}
+		}
+
+		@Override
+		protected void failed(Throwable cause) {
+			super.failed(cause);
+			cbAlias.removeAllItems();
+		}
+
+		@Override
+		protected void finished() {
+			cbAlias.setEnabled(true);
+		}
+
 	}
 
 	private void fillProviders(List<String> libs) {
 		for (String lib : libs) {
 			cbProvider.addItem(lib);
 		}
+		if (libs.size() > 0) {
+			context.fireAction(this, ACTION_FILL_ALIASES);
+		}
+
 	}
 
 	public void open() {
@@ -126,12 +188,20 @@ public class SignDocumentDialog extends JDialog {
 
 		ActionMap actionMap = controller.getActionMap();
 
-		btOk = new JButton();
 		cbAlias = new JComboBox<String>();
 		cbAppearance = new JComboBox<String>();
 		cbProvider = new JComboBox<String>();
-		btAddProvider = new JButton("i");
+
+		JButton btOk = new JButton();
+		JButton btAddProvider = new JButton();
+		JButton btRefresh = new JButton();
+		BrowserPane browserPane = new BrowserPane();
+		JSeparator separator = new JSeparator();
+		JSeparator separator_1 = new JSeparator();
+
 		btOk.setAction(actionMap.get(AppController.ACTION_FILE_PREVIEW));
+		btRefresh.setAction(context.getAction(this, ACTION_FILL_ALIASES));
+		btAddProvider.setAction(context.getAction(this, ACTION_ADD_PROVIDER));
 
 		JButton btCancel = new JButton();
 		btCancel.setName("firma.dlg.sign_document.cancel");
@@ -145,28 +215,13 @@ public class SignDocumentDialog extends JDialog {
 		JButton btCertificateInfo = new JButton();
 		btCertificateInfo.setName("firma.dlg.sign_document.info");
 
-		BrowserPane browserPane = new BrowserPane();
-		JSeparator separator = new JSeparator();
-		JSeparator separator_1 = new JSeparator();
-		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
+		getRootPane().setDefaultButton(btOk);
 
-		setName("firma.dlg.sign_document");
-		setResizable(false);
-		setModal(true);
-		setBounds(100, 100, 450, 292);
-		getContentPane().setLayout(new BorderLayout());
-		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(contentPanel, BorderLayout.CENTER);
-		cbProvider.setPreferredSize(new Dimension(32, 22));
-		cbAlias.setPreferredSize(new Dimension(32, 22));
-		browserPane.setBorder(new LineBorder(Color.LIGHT_GRAY));
-		cbAppearance.setPreferredSize(new Dimension(32, 22));
-		btCertificateInfo.setPreferredSize(new Dimension(80, 22));
-		btAddProvider.setMinimumSize(new Dimension(108, 22));
-		btAddProvider.setPreferredSize(new Dimension(108, 22));
+		btRefresh.setPreferredSize(new Dimension(0, 24));
+		btRefresh.setMinimumSize(new Dimension(108, 22));
+		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
 		gl_contentPanel
-			.setHorizontalGroup(gl_contentPanel
-				.createParallelGroup(Alignment.LEADING)
+			.setHorizontalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(
 					gl_contentPanel
 						.createSequentialGroup()
@@ -174,11 +229,11 @@ public class SignDocumentDialog extends JDialog {
 						.addGroup(
 							gl_contentPanel
 								.createParallelGroup(Alignment.TRAILING)
-								.addComponent(separator_1, GroupLayout.PREFERRED_SIZE, 341,
+								.addComponent(separator_1, GroupLayout.PREFERRED_SIZE, 416,
 									Short.MAX_VALUE)
-								.addComponent(browserPane, GroupLayout.DEFAULT_SIZE, 341,
+								.addComponent(browserPane, GroupLayout.DEFAULT_SIZE, 416,
 									Short.MAX_VALUE)
-								.addComponent(separator, GroupLayout.DEFAULT_SIZE, 341,
+								.addComponent(separator, GroupLayout.DEFAULT_SIZE, 416,
 									Short.MAX_VALUE)
 								.addGroup(
 									gl_contentPanel
@@ -186,7 +241,7 @@ public class SignDocumentDialog extends JDialog {
 										.addComponent(btCertificateInfo,
 											GroupLayout.PREFERRED_SIZE, 101,
 											GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(ComponentPlacement.RELATED, 78,
+										.addPreferredGap(ComponentPlacement.RELATED, 153,
 											Short.MAX_VALUE)
 										.addComponent(cbAppearance, GroupLayout.PREFERRED_SIZE,
 											162, GroupLayout.PREFERRED_SIZE))
@@ -201,16 +256,20 @@ public class SignDocumentDialog extends JDialog {
 										.addGroup(
 											gl_contentPanel
 												.createParallelGroup(Alignment.TRAILING)
-												.addGroup(
-													gl_contentPanel
-														.createSequentialGroup()
-														.addComponent(cbProvider, 0, 157,
-															Short.MAX_VALUE)
-														.addPreferredGap(ComponentPlacement.RELATED)
-														.addComponent(btAddProvider,
-															GroupLayout.PREFERRED_SIZE, 41,
-															GroupLayout.PREFERRED_SIZE))
-												.addComponent(cbAlias, 0, 210, Short.MAX_VALUE))))
+												.addComponent(cbAlias, Alignment.LEADING, 0, 357,
+													Short.MAX_VALUE)
+												.addComponent(cbProvider, Alignment.LEADING, 0,
+													357, Short.MAX_VALUE))
+										.addPreferredGap(ComponentPlacement.RELATED)
+										.addGroup(
+											gl_contentPanel
+												.createParallelGroup(Alignment.LEADING)
+												.addComponent(btRefresh,
+													GroupLayout.PREFERRED_SIZE, 41,
+													GroupLayout.PREFERRED_SIZE)
+												.addComponent(btAddProvider,
+													GroupLayout.PREFERRED_SIZE, 41,
+													GroupLayout.PREFERRED_SIZE))))
 						.addContainerGap()));
 		gl_contentPanel.setVerticalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
 			.addGroup(
@@ -231,7 +290,9 @@ public class SignDocumentDialog extends JDialog {
 							.createParallelGroup(Alignment.BASELINE)
 							.addComponent(lblAssinarComo)
 							.addComponent(cbAlias, GroupLayout.PREFERRED_SIZE,
-								GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+								GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(btRefresh, GroupLayout.PREFERRED_SIZE, 25,
+								GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(separator, GroupLayout.PREFERRED_SIZE, 2,
 						GroupLayout.PREFERRED_SIZE)
@@ -250,6 +311,21 @@ public class SignDocumentDialog extends JDialog {
 					.addComponent(separator_1, GroupLayout.PREFERRED_SIZE, 2,
 						GroupLayout.PREFERRED_SIZE)
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+
+		setName("firma.dlg.sign_document");
+		setResizable(false);
+		setModal(true);
+		setBounds(100, 100, 450, 292);
+		getContentPane().setLayout(new BorderLayout());
+		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		getContentPane().add(contentPanel, BorderLayout.CENTER);
+		cbProvider.setPreferredSize(new Dimension(0, 24));
+		cbAlias.setPreferredSize(new Dimension(0, 24));
+		browserPane.setBorder(new LineBorder(Color.LIGHT_GRAY));
+		cbAppearance.setPreferredSize(new Dimension(0, 24));
+		btCertificateInfo.setPreferredSize(new Dimension(0, 24));
+		btAddProvider.setMinimumSize(new Dimension(108, 22));
+		btAddProvider.setPreferredSize(new Dimension(0, 24));
 		contentPanel.setLayout(gl_contentPanel);
 		{
 			JPanel buttonPane = new JPanel();
@@ -270,6 +346,9 @@ public class SignDocumentDialog extends JDialog {
 				buttonPane.add(btCancel);
 			}
 		}
-	}
 
+		setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[] { btOk, btCancel,
+			cbProvider, btAddProvider, cbAlias, btRefresh, btCertificateInfo, cbAppearance }));
+
+	}
 }

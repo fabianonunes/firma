@@ -15,25 +15,34 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import javax.inject.Singleton;
+
 import org.apache.commons.io.IOUtils;
 
+@Singleton
 public class TokenInfo {
 
-	public static ArrayList<String> getAliases(String libModule) throws IOException, TokenException {
+	private File wrapperFile;
 
-		ArrayList<String> aliases = new ArrayList<>();
+	public TokenInfo() throws IOException {
+
+		wrapperFile = File.createTempFile("lib", "wrapper");
 
 		InputStream wrapperLib = TokenInfo.class
 			.getResourceAsStream("lib/unix/64/libpkcs11wrapper.so");
+		wrapperFile.deleteOnExit();
 
-		File file = File.createTempFile("lib", "wrapper");
-		file.deleteOnExit();
-
-		OutputStream fout = new FileOutputStream(file);
-
+		OutputStream fout = new FileOutputStream(wrapperFile);
 		IOUtils.copy(wrapperLib, fout);
 
-		Module module = Module.getInstance(libModule, file.getAbsolutePath());
+	}
+
+	public synchronized ArrayList<String> getAliases(String libModule) throws IOException,
+		TokenException {
+
+		ArrayList<String> aliases = new ArrayList<>();
+
+		Module module = Module.getInstance(libModule, wrapperFile.getAbsolutePath());
 		module.initialize(null);
 
 		Slot[] slotsWithToken = module.getSlotList(Module.SlotRequirement.TOKEN_PRESENT);
