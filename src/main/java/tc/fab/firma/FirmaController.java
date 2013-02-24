@@ -11,6 +11,7 @@ import org.jdesktop.application.ResourceMap;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
+import tc.fab.app.AppDocument;
 import tc.fab.app.AppView;
 import tc.fab.firma.app.dialogs.FileSelectorDialog;
 import tc.fab.firma.app.dialogs.SignDocumentDialog;
@@ -20,21 +21,23 @@ import com.google.inject.Provider;
 @Singleton
 public class FirmaController implements AppController {
 
-	private ActionMap actionMap;
 	private AppContext context;
 	private AppView view;
+	private AppDocument document;
+
+	private ActionMap actionMap;
 
 	// dialogs
 	@Inject
 	private Provider<FileSelectorDialog> fileDialog;
-
 	@Inject
 	private Provider<SignDocumentDialog> optionsDialog;
 
 	@Inject
-	public FirmaController(AppContext context, AppView view) {
+	public FirmaController(AppContext context, AppDocument document, AppView view) {
 		this.context = context;
 		this.view = view;
+		this.document = document;
 	}
 
 	@Override
@@ -47,7 +50,7 @@ public class FirmaController implements AppController {
 
 	@Override
 	public boolean saveBeforeExit() {
-		return false;
+		return true;
 	}
 
 	@Override

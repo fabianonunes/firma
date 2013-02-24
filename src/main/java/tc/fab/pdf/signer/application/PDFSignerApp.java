@@ -55,7 +55,7 @@ import tc.fab.security.callback.PINCallback;
 
 public class PDFSignerApp extends SingleFrameApplication {
 
-	public static FileFilter	acceptedFiles	= new ExtensionFilter(new String[] { "pdf" });
+	public static FileFilter acceptedFiles = new ExtensionFilter(new String[] { "pdf" });
 
 	public static PDFSignerApp getApplication() {
 		return Application.getInstance(PDFSignerApp.class);
@@ -71,9 +71,9 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 	}
 
-	private FirmaView	view;
+	private FirmaView view;
 
-	private SignerOptions	options;
+	private SignerOptions options;
 
 	public PDFSignerApp() throws IOException {
 		super();
@@ -260,9 +260,9 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 		class SignSelectionTask extends Task<Object, Integer> {
 
-			SignatureAppearance	signer;
+			SignatureAppearance signer;
 
-			Exception			ex	= null;
+			Exception ex = null;
 
 			SignSelectionTask(Application app) {
 
@@ -331,7 +331,9 @@ public class PDFSignerApp extends SingleFrameApplication {
 			@Override
 			protected Object doInBackground() {
 
-				if (ex != null) { return null; }
+				if (ex != null) {
+					return null;
+				}
 
 				Set<File> files;
 

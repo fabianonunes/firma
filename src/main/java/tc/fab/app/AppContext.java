@@ -6,6 +6,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 import org.jdesktop.application.ApplicationContext;
+import org.jdesktop.application.ResourceMap;
 
 
 public interface AppContext {
@@ -22,5 +23,7 @@ public interface AppContext {
 	int showConfirmDialog(Component parent, String titleKey, String messageKey);
 
 	ResourceReader getResReader();
+	
+	ResourceMap getResourceMap();
 
 }

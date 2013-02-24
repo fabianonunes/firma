@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.jdesktop.application.ApplicationContext;
+import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
 
 import tc.fab.app.AppContext;
@@ -60,6 +61,11 @@ public class FirmaContext implements AppContext {
 	@Override
 	public ResourceReader getResReader() {
 		return resReader;
+	}
+
+	@Override
+	public ResourceMap getResourceMap() {
+		return this.getAppContext().getResourceMap();
 	}
 
 }
