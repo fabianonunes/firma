@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.inject.Singleton;
 
@@ -23,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 public class TokenInfo {
 
 	private File wrapperFile;
+	private Map<String, Module> modules = new HashMap<>();
 
 	public TokenInfo() throws IOException {
 
@@ -42,8 +45,13 @@ public class TokenInfo {
 
 		ArrayList<String> aliases = new ArrayList<>();
 
-		Module module = Module.getInstance(libModule, wrapperFile.getAbsolutePath());
-		module.initialize(null);
+		if (!modules.containsKey(libModule)) {
+			Module module = Module.getInstance(libModule, wrapperFile.getAbsolutePath());
+			modules.put(libModule, module);
+			module.initialize(null);
+		}
+
+		Module module = modules.get(libModule);
 
 		Slot[] slotsWithToken = module.getSlotList(Module.SlotRequirement.TOKEN_PRESENT);
 
@@ -63,16 +71,21 @@ public class TokenInfo {
 					label = "0x" + certificate.getAttributeTable().get(Attribute.ID);
 				}
 				aliases.add(label);
-
 			}
 
 			session.findObjectsFinal();
 
 		}
 
-		module.finalize(null);
-
 		return aliases;
+
+	}
+
+	public void finalizeModules() throws TokenException {
+
+		for (Module module : modules.values()) {
+			module.finalize(null);
+		}
 
 	}
 

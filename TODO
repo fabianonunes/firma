@@ -1,3 +1,4 @@
 TODO
 -- adicionar um botão de refresh no detector de certificados, ou usar algum tipo de trigger/listener
 -- detectar OS para selececionar a iaik wrapper correta
+-- finalizar módules ao sair

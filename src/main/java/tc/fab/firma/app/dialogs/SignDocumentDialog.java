@@ -29,6 +29,10 @@ import org.fit.cssbox.swingbox.BrowserPane;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Task;
 import org.jdesktop.application.Task.BlockingScope;
+import org.jdesktop.beansbinding.AutoBinding;
+import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
+import org.jdesktop.beansbinding.BeanProperty;
+import org.jdesktop.beansbinding.Bindings;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
@@ -67,34 +71,24 @@ public class SignDocumentDialog extends JDialog {
 		this.context = context;
 		this.controller = controller;
 		this.tokenInfo = tokenInfo;
+		this.options = document.getOptions();
 
 		initComponents();
+
 		context.getResourceMap().injectComponents(this);
 
-		options = document.getOptions();
-
 		fillProviders(options.getLibs());
-
-		cbAlias.setAction(context.getAction(this, ACTION_SELECT_ALIAS));
-		// addItemListener(new ItemListener() {
-		// @Override
-		// public void itemStateChanged(ItemEvent e) {
-		// if (e.getStateChange() == ItemEvent.SELECTED) {
-		// selectAlias();
-		// }
-		// }
-		// });
 
 		// the action setup must be after initial fulfillment to avoid double
 		// fire
 		cbProvider.setAction(context.getAction(this, ACTION_FILL_ALIASES));
 
+		cbAlias.setAction(context.getAction(this, ACTION_SELECT_ALIAS));
+
 	}
 
 	@Action(name = ACTION_FILL_ALIASES, block = BlockingScope.ACTION)
 	public Task<Void, String> fillAliases(ActionEvent ae) {
-
-		System.out.println("filling..." + ae.paramString());
 
 		cbAlias.setEnabled(false);
 		cbAlias.removeAllItems();
@@ -113,9 +107,9 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_SELECT_ALIAS)
 	public void selectAlias() {
-		String alias = cbAlias.getItemAt(cbAlias.getSelectedIndex());
-		System.out.println("selecting " + alias);
-		options.setAlias(alias);
+		System.out.println(options.getAlias());
+		// String alias = cbAlias.getItemAt(cbAlias.getSelectedIndex());
+		// options.setAlias(alias);
 	}
 
 	class FillAliasesTask extends Task<Void, String> {
@@ -350,5 +344,17 @@ public class SignDocumentDialog extends JDialog {
 		setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[] { btOk, btCancel,
 			cbProvider, btAddProvider, cbAlias, btRefresh, btCertificateInfo, cbAppearance }));
 
+		initDataBindings();
+
+	}
+
+	protected void initDataBindings() {
+		BeanProperty<JComboBox<String>, Object> jComboBoxBeanProperty = BeanProperty
+			.create("selectedItem");
+		BeanProperty<FirmaOptions, String> firmaOptionsBeanProperty = BeanProperty.create("alias");
+		AutoBinding<JComboBox<String>, Object, FirmaOptions, String> autoBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxBeanProperty, options,
+				firmaOptionsBeanProperty);
+		autoBinding.bind();
 	}
 }
