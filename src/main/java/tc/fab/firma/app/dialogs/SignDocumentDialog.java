@@ -6,10 +6,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,20 +22,26 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import org.fit.cssbox.swingbox.BrowserPane;
+import org.jdesktop.application.Action;
+import org.jdesktop.application.Task;
+import org.jdesktop.application.Task.BlockingScope;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
+import tc.fab.app.AppDocument;
+import tc.fab.firma.FirmaOptions;
 import tc.fab.mechanisms.TokenInfo;
 
 @Singleton
 public class SignDocumentDialog extends JDialog {
 
 	private static final long serialVersionUID = 7850839445605448945L;
+
+	private static final String ACTION_FILL_ALIASES = "firma.dlg.sign.fill_aliases";
 
 	private AppContext context;
 	private AppController controller;
@@ -49,62 +54,72 @@ public class SignDocumentDialog extends JDialog {
 
 	private JButton btAddProvider;
 	private JButton btOk;
-	private JButton btCancel;
-	private JButton btCertificateInfo;
 
 	@Inject
-	public SignDocumentDialog(AppContext context, AppController controller) {
+	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document) {
 
 		super(context.getMainFrame(), true);
 
 		this.context = context;
 		this.controller = controller;
 
+		FirmaOptions options = document.getOptions();
+
 		initComponents();
+		context.getResourceMap().injectComponents(this);
 
-		fillProviders();
+		List<String> libs = options.getLibs();
 
-		cbProvider.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				fillAliases((String) cbProvider.getSelectedItem());
-			}
-		});
+		if (libs.size() > 0) {
+			fillProviders(libs);
+			context.fireAction(this, ACTION_FILL_ALIASES);
+		}
+
+		cbProvider.setAction(context.getAction(this, ACTION_FILL_ALIASES));
 
 	}
 
-	protected void fillAliases(final String string) {
-
+	@Action(name = ACTION_FILL_ALIASES, block = BlockingScope.ACTION)
+	public Task<Void, Void> fillAliases() {
 		cbAlias.removeAllItems();
 		cbAlias.addItem("aguarde...");
 		cbAlias.setEnabled(false);
-
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				ArrayList<String> aliases;
-				try {
-					cbAlias.removeAllItems();
-					cbAlias.setEnabled(true);
-					aliases = TokenInfo.getAliases(string);
-					for (String alias : aliases) {
-						cbAlias.addItem(alias);
-					}
-				} catch (IOException | TokenException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-
+		return new FillAliasesTask();
 	}
 
-	private void fillProviders() {
-		// cbProvider.removeAllItems();
-		// cbProvider.addItem("aguarde...");
-		// cbProvider.setEnabled(false);
-		cbProvider.addItem("Windows");
-		cbProvider.addItem("/usr/lib/libaetpkss.so");
+	class FillAliasesTask extends Task<Void, Void> {
+		public FillAliasesTask() {
+			super(context.getAppContext().getApplication());
+		}
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			String lib = cbProvider.getItemAt(cbProvider.getSelectedIndex());
+			ArrayList<String> aliases;
+			try {
+				aliases = TokenInfo.getAliases(lib);
+				cbAlias.removeAllItems();
+				for (String alias : aliases) {
+					cbAlias.addItem(alias);
+				}
+			} catch (IOException | TokenException e) {
+				cbAlias.removeAllItems();
+			} finally {
+				cbAlias.setEnabled(true);
+			}
+			return null;
+		}
+	}
+
+	private void fillProviders(List<String> libs) {
+		for (String lib : libs) {
+			cbProvider.addItem(lib);
+		}
+	}
+
+	public void open() {
+		setLocationRelativeTo(this.context.getMainFrame());
+		setVisible(true);
 	}
 
 	public void initComponents() {
@@ -112,20 +127,30 @@ public class SignDocumentDialog extends JDialog {
 		ActionMap actionMap = controller.getActionMap();
 
 		btOk = new JButton();
-		btCancel = new JButton("Cancel");
 		cbAlias = new JComboBox<String>();
 		cbAppearance = new JComboBox<String>();
 		cbProvider = new JComboBox<String>();
 		btAddProvider = new JButton("i");
-
 		btOk.setAction(actionMap.get(AppController.ACTION_FILE_PREVIEW));
 
-		JLabel lblTipoDoCertificado = new JLabel("Local do certificado");
-		JLabel lblAssinarComo = new JLabel("Assinar como");
+		JButton btCancel = new JButton();
+		btCancel.setName("firma.dlg.sign_document.cancel");
+
+		JLabel lblTipoDoCertificado = new JLabel();
+		lblTipoDoCertificado.setName("firma.dlg.sign_document.provider");
+
+		JLabel lblAssinarComo = new JLabel();
+		lblAssinarComo.setName("firma.dlg.sign_document.alias");
+
+		JButton btCertificateInfo = new JButton();
+		btCertificateInfo.setName("firma.dlg.sign_document.info");
+
 		BrowserPane browserPane = new BrowserPane();
 		JSeparator separator = new JSeparator();
+		JSeparator separator_1 = new JSeparator();
+		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
 
-		setTitle("Assinar documentos");
+		setName("firma.dlg.sign_document");
 		setResizable(false);
 		setModal(true);
 		setBounds(100, 100, 450, 292);
@@ -136,13 +161,9 @@ public class SignDocumentDialog extends JDialog {
 		cbAlias.setPreferredSize(new Dimension(32, 22));
 		browserPane.setBorder(new LineBorder(Color.LIGHT_GRAY));
 		cbAppearance.setPreferredSize(new Dimension(32, 22));
-		JSeparator separator_1 = new JSeparator();
-		btCertificateInfo = new JButton("Informações...");
 		btCertificateInfo.setPreferredSize(new Dimension(80, 22));
-		btCertificateInfo.setActionCommand("OK");
 		btAddProvider.setMinimumSize(new Dimension(108, 22));
 		btAddProvider.setPreferredSize(new Dimension(108, 22));
-		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
 		gl_contentPanel
 			.setHorizontalGroup(gl_contentPanel
 				.createParallelGroup(Alignment.LEADING)
@@ -246,14 +267,9 @@ public class SignDocumentDialog extends JDialog {
 			}
 			{
 				btCancel.setPreferredSize(new Dimension(80, 27));
-				btCancel.setActionCommand("Cancel");
 				buttonPane.add(btCancel);
 			}
 		}
 	}
 
-	public void open() {
-		setLocationRelativeTo(this.context.getMainFrame());
-		setVisible(true);
-	}
 }

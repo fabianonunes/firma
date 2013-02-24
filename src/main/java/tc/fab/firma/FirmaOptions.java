@@ -1,6 +1,7 @@
 package tc.fab.firma;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class FirmaOptions implements Serializable {
 
@@ -8,6 +9,7 @@ public class FirmaOptions implements Serializable {
 
 	private String certificateProvider;
 	private String alias;
+	private List<String> libs;
 
 	public String getCertificateProvider() {
 		return certificateProvider;
@@ -30,6 +32,14 @@ public class FirmaOptions implements Serializable {
 		FirmaOptions options = new FirmaOptions();
 
 		return options;
+	}
+
+	public List<String> getLibs() {
+		return libs;
+	}
+
+	public void setLibs(List<String> libs) {
+		this.libs = libs;
 	}
 
 }

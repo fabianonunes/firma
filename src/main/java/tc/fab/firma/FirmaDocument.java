@@ -5,10 +5,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppDocument;
 
+@Singleton
 public class FirmaDocument implements AppDocument {
 
 	private static final Logger LOGGER = Logger.getLogger(FirmaDocument.class.getName());

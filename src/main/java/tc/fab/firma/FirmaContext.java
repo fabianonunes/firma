@@ -1,12 +1,14 @@
 package tc.fab.firma;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
 
 import javax.inject.Singleton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import org.jdesktop.application.ApplicationAction;
 import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
@@ -17,8 +19,8 @@ import tc.fab.app.ResourceReader;
 @Singleton
 public class FirmaContext implements AppContext {
 
-	private ApplicationContext	appContext;
-	private ResourceReader		resReader;
+	private ApplicationContext appContext;
+	private ResourceReader resReader;
 
 	public FirmaContext(ApplicationContext context) {
 		appContext = context;
@@ -65,7 +67,24 @@ public class FirmaContext implements AppContext {
 
 	@Override
 	public ResourceMap getResourceMap() {
-		return this.getAppContext().getResourceMap();
+		return appContext.getResourceMap();
+	}
+
+	@Override
+	public void fireAction(Object actionsObject, String actionName) {
+		fireAction(getAction(actionsObject, actionName));
+	}
+
+	@Override
+	public ApplicationAction getAction(Object actionsObject, String actionName) {
+		return (ApplicationAction) appContext.getActionMap(actionsObject).get(actionName);
+	}
+
+	@Override
+	public void fireAction(ApplicationAction action) {
+		action.actionPerformed(new ActionEvent(getMainFrame(), ActionEvent.ACTION_PERFORMED, action
+			.getName()));
+
 	}
 
 }

@@ -61,10 +61,7 @@ public class Main extends Firma {
 
 			}
 		});
-
-		libs = injector.getInstance(LibraryManager.class);
-		context.getResourceMap().injectFields(libs);
-
+		
 		controller = injector.getInstance(AppController.class);
 
 		addExitListener(new ExitListener() {
@@ -80,6 +77,11 @@ public class Main extends Firma {
 
 		document = injector.getInstance(AppDocument.class);
 		document.loadOptions();
+
+		libs = injector.getInstance(LibraryManager.class);
+		context.getResourceMap().injectFields(libs);
+		
+		document.getOptions().setLibs(libs.getLibs());
 
 		view = injector.getInstance(AppView.class);
 		initLookAndFeel(SubstanceCremeLookAndFeel.class.toString());
@@ -101,7 +103,7 @@ public class Main extends Firma {
 			LOGGER.log(Level.WARNING, "Failed to set look&feel to " + lafClass + "!", e);
 		}
 	}
-	
+
 	@Override
 	protected void shutdown() {
 		super.shutdown();
