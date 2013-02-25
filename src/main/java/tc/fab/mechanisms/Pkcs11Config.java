@@ -53,9 +53,10 @@ public class Pkcs11Config {
 
 		String os = SystemUtils.IS_OS_WINDOWS ? "windows" : "unix";
 		String arch = SystemUtils.OS_ARCH.contains("64") ? "64" : "32";
+		String libName = SystemUtils.IS_OS_WINDOWS ? "PKCS11Wrapper.dll" : "libpkcs11wrapper.so";
 
 		InputStream wrapperLib = Pkcs11Config.class.getResourceAsStream("lib/" + os + "/" + arch
-			+ "/libpkcs11wrapper.so");
+			+ "/" + libName);
 
 		OutputStream fout = new FileOutputStream(wrapperFile);
 		IOUtils.copy(wrapperLib, fout);
