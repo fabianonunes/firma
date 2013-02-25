@@ -51,8 +51,7 @@ public class SignDocumentDialog extends JDialog {
 
 	private JComboBox<String> cbAlias;
 	private JComboBox<String> cbProvider;
-	private JComboBox<String> cbAppearance;
-
+	private JComboBox<String> comboBox;
 	private ProviderManager providerManager;
 
 	@Inject
@@ -60,6 +59,7 @@ public class SignDocumentDialog extends JDialog {
 		ProviderManager providersManager) {
 
 		super(context.getMainFrame(), true);
+		setUndecorated(false);
 
 		this.context = context;
 		this.controller = controller;
@@ -163,15 +163,12 @@ public class SignDocumentDialog extends JDialog {
 	public void initComponents() {
 
 		cbAlias = new JComboBox<String>();
-		cbAppearance = new JComboBox<String>();
 		cbProvider = new JComboBox<String>();
 
 		JButton btOk = new JButton();
 		JButton btAddProvider = new JButton();
 		JButton btRefresh = new JButton();
-		BrowserPane browserPane = new BrowserPane();
 		JSeparator separator = new JSeparator();
-		JSeparator separator_1 = new JSeparator();
 
 		btOk.setAction(context.getAction(this, ACTION_SIGN));
 		btRefresh.setAction(context.getAction(this, ACTION_FILL_ALIASES));
@@ -193,32 +190,27 @@ public class SignDocumentDialog extends JDialog {
 
 		btRefresh.setPreferredSize(new Dimension(0, 24));
 		btRefresh.setMinimumSize(new Dimension(108, 22));
+
+		comboBox = new JComboBox<>();
+		comboBox.setPreferredSize(new Dimension(0, 24));
+
+		BrowserPane browserPane = new BrowserPane();
+		browserPane.setBorder(new LineBorder(Color.LIGHT_GRAY));
 		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
 		gl_contentPanel
 			.setHorizontalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(
+					Alignment.TRAILING,
 					gl_contentPanel
 						.createSequentialGroup()
 						.addContainerGap()
 						.addGroup(
 							gl_contentPanel
 								.createParallelGroup(Alignment.TRAILING)
-								.addComponent(separator_1, GroupLayout.PREFERRED_SIZE, 416,
+								.addComponent(browserPane, Alignment.LEADING,
+									GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE)
+								.addComponent(separator, GroupLayout.DEFAULT_SIZE, 428,
 									Short.MAX_VALUE)
-								.addComponent(browserPane, GroupLayout.DEFAULT_SIZE, 416,
-									Short.MAX_VALUE)
-								.addComponent(separator, GroupLayout.DEFAULT_SIZE, 416,
-									Short.MAX_VALUE)
-								.addGroup(
-									gl_contentPanel
-										.createSequentialGroup()
-										.addComponent(btCertificateInfo,
-											GroupLayout.PREFERRED_SIZE, 101,
-											GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(ComponentPlacement.RELATED, 153,
-											Short.MAX_VALUE)
-										.addComponent(cbAppearance, GroupLayout.PREFERRED_SIZE,
-											162, GroupLayout.PREFERRED_SIZE))
 								.addGroup(
 									gl_contentPanel
 										.createSequentialGroup()
@@ -230,10 +222,10 @@ public class SignDocumentDialog extends JDialog {
 										.addGroup(
 											gl_contentPanel
 												.createParallelGroup(Alignment.TRAILING)
-												.addComponent(cbAlias, Alignment.LEADING, 0, 357,
+												.addComponent(cbAlias, Alignment.LEADING, 0, 369,
 													Short.MAX_VALUE)
 												.addComponent(cbProvider, Alignment.LEADING, 0,
-													357, Short.MAX_VALUE))
+													369, Short.MAX_VALUE))
 										.addPreferredGap(ComponentPlacement.RELATED)
 										.addGroup(
 											gl_contentPanel
@@ -243,8 +235,18 @@ public class SignDocumentDialog extends JDialog {
 													GroupLayout.PREFERRED_SIZE)
 												.addComponent(btAddProvider,
 													GroupLayout.PREFERRED_SIZE, 41,
-													GroupLayout.PREFERRED_SIZE))))
-						.addContainerGap()));
+													GroupLayout.PREFERRED_SIZE)))
+								.addGroup(
+									Alignment.LEADING,
+									gl_contentPanel
+										.createSequentialGroup()
+										.addComponent(btCertificateInfo,
+											GroupLayout.PREFERRED_SIZE, 101,
+											GroupLayout.PREFERRED_SIZE)
+										.addPreferredGap(ComponentPlacement.RELATED, 177,
+											Short.MAX_VALUE)
+										.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 138,
+											GroupLayout.PREFERRED_SIZE))).addContainerGap()));
 		gl_contentPanel.setVerticalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
 			.addGroup(
 				gl_contentPanel
@@ -271,20 +273,16 @@ public class SignDocumentDialog extends JDialog {
 					.addComponent(separator, GroupLayout.PREFERRED_SIZE, 2,
 						GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(browserPane, GroupLayout.PREFERRED_SIZE, 112,
-						GroupLayout.PREFERRED_SIZE)
+					.addComponent(browserPane, GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(
 						gl_contentPanel
-							.createParallelGroup(Alignment.LEADING, false)
-							.addComponent(btCertificateInfo, GroupLayout.DEFAULT_SIZE,
-								GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-							.addComponent(cbAppearance, GroupLayout.DEFAULT_SIZE,
-								GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(separator_1, GroupLayout.PREFERRED_SIZE, 2,
-						GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+							.createParallelGroup(Alignment.LEADING)
+							.addComponent(btCertificateInfo, Alignment.TRAILING,
+								GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE)
+							.addComponent(comboBox, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE,
+								GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))));
 
 		setName("firma.dlg.sign_document");
 		setResizable(false);
@@ -295,8 +293,6 @@ public class SignDocumentDialog extends JDialog {
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		cbProvider.setPreferredSize(new Dimension(0, 24));
 		cbAlias.setPreferredSize(new Dimension(0, 24));
-		browserPane.setBorder(new LineBorder(Color.LIGHT_GRAY));
-		cbAppearance.setPreferredSize(new Dimension(0, 24));
 		btCertificateInfo.setPreferredSize(new Dimension(0, 24));
 		btAddProvider.setMinimumSize(new Dimension(108, 22));
 		btAddProvider.setPreferredSize(new Dimension(0, 24));
@@ -322,10 +318,9 @@ public class SignDocumentDialog extends JDialog {
 		}
 
 		setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[] { btOk, btCancel,
-			cbProvider, btAddProvider, cbAlias, btRefresh, btCertificateInfo, cbAppearance }));
+			cbProvider, btAddProvider, cbAlias, btRefresh, btCertificateInfo }));
 
 		context.getResourceMap().injectComponents(this);
 
 	}
-
 }
