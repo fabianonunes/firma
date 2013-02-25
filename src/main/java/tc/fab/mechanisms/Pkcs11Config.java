@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 
@@ -27,11 +28,15 @@ import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.application.Resource;
 
 import tc.fab.app.AppContext;
+import tc.fab.firma.Firma;
 
 import com.google.inject.Inject;
 
 @Singleton
 public class Pkcs11Config {
+
+	private static final Logger LOGGER = Logger
+			.getLogger(Firma.class.getName());
 
 	private File wrapperFile;
 	private Map<String, Module> modules = new HashMap<>();
@@ -51,15 +56,18 @@ public class Pkcs11Config {
 
 		String os = SystemUtils.IS_OS_WINDOWS ? "windows" : "unix";
 		String arch = SystemUtils.OS_ARCH.contains("64") ? "64" : "32";
-		String libName = SystemUtils.IS_OS_WINDOWS ? "PKCS11Wrapper.dll" : "libpkcs11wrapper.so";
+		String libName = SystemUtils.IS_OS_WINDOWS ? "PKCS11Wrapper.dll"
+				: "libpkcs11wrapper.so";
 
 		wrapperFile = new File(SystemUtils.JAVA_IO_TMPDIR, libName);
 		wrapperFile.deleteOnExit();
 
-		try (InputStream wrapperLib = Pkcs11Config.class.getResourceAsStream("lib/" + os + "/"
-			+ arch + "/" + libName);
-			OutputStream fout = new FileOutputStream(wrapperFile);) {
+		try (InputStream wrapperLib = Pkcs11Config.class
+				.getResourceAsStream("lib/" + os + "/" + arch + "/" + libName);
+				OutputStream fout = new FileOutputStream(wrapperFile);) {
 			IOUtils.copy(wrapperLib, fout);
+		} catch (Exception e) {
+			LOGGER.warning(e.getMessage());
 		}
 
 		try {
@@ -73,7 +81,8 @@ public class Pkcs11Config {
 
 	public List<String> getProviders() {
 		List<String> existentsLibs = new ArrayList<>();
-		for (String libPath : Arrays.asList(SystemUtils.IS_OS_LINUX ? unixLibs : winLibs)) {
+		for (String libPath : Arrays.asList(SystemUtils.IS_OS_LINUX ? unixLibs
+				: winLibs)) {
 			if (libPath != null) {
 				if (new File(libPath).exists()) {
 					existentsLibs.add(libPath);
@@ -83,34 +92,46 @@ public class Pkcs11Config {
 		return existentsLibs;
 	}
 
-	public synchronized ArrayList<String> aliases(String pkcs11Module) throws TokenException,
-		IOException {
+	public synchronized ArrayList<String> aliases(String pkcs11Module)
+			throws IOException, TokenException {
 
 		ArrayList<String> aliases = new ArrayList<>();
 
 		Module module = loadModule(pkcs11Module);
 
-		Slot[] slotsWithToken = module.getSlotList(Module.SlotRequirement.TOKEN_PRESENT);
+		Slot[] slotsWithToken = module
+				.getSlotList(Module.SlotRequirement.TOKEN_PRESENT);
 
 		for (Slot slot : slotsWithToken) {
 
-			Session session = slot.getToken().openSession(Token.SessionType.SERIAL_SESSION,
-				Token.SessionReadWriteBehavior.RO_SESSION, null, null);
+			try {
+				Session session = slot.getToken().openSession(
+						Token.SessionType.SERIAL_SESSION,
+						Token.SessionReadWriteBehavior.RO_SESSION, null, null);
+				Certificate searchTemplate = new Certificate();
 
-			Certificate searchTemplate = new Certificate();
+				session.findObjectsInit(searchTemplate);
 
-			session.findObjectsInit(searchTemplate);
+				for (Object object : session.findObjects(10)) {
 
-			for (Object object : session.findObjects(10)) {
-				Certificate certificate = (Certificate) object;
-				String label = certificate.getLabel().toString();
-				if (label.equals("<NULL_PTR>")) {
-					label = "0x" + certificate.getAttributeTable().get(Attribute.ID);
+					Certificate certificate = (Certificate) object;
+					String label = certificate.getLabel().toString();
+
+					if (label.equals("<NULL_PTR>")) {
+						label = "0x"
+								+ certificate.getAttributeTable().get(
+										Attribute.ID);
+					}
+
+					aliases.add(label);
+
 				}
-				aliases.add(label);
-			}
 
-			session.findObjectsFinal();
+				session.findObjectsFinal();
+
+			} catch (TokenException e) {
+				LOGGER.warning(e.getMessage());
+			}
 
 		}
 
@@ -118,9 +139,11 @@ public class Pkcs11Config {
 
 	}
 
-	private Module loadModule(String pkcs11Module) throws IOException, TokenException {
+	private Module loadModule(String pkcs11Module) throws IOException,
+			TokenException {
 		if (!modules.containsKey(pkcs11Module)) {
-			Module module = Module.getInstance(pkcs11Module, wrapperFile.getAbsolutePath());
+			Module module = Module.getInstance(pkcs11Module,
+					wrapperFile.getAbsolutePath());
 			modules.put(pkcs11Module, module);
 			module.initialize(null);
 		}
@@ -141,7 +164,8 @@ public class Pkcs11Config {
 	 * @throws Exception
 	 */
 	private static void addLibraryPath(String pathToAdd) throws Exception {
-		final Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
+		final Field usrPathsField = ClassLoader.class
+				.getDeclaredField("usr_paths");
 		usrPathsField.setAccessible(true);
 
 		// get array of paths

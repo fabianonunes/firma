@@ -2,6 +2,7 @@ package tc.fab.firma;
 
 import iaik.pkcs.pkcs11.TokenException;
 
+import java.io.IOException;
 import java.util.EventObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,6 +86,13 @@ public class Main extends Firma {
 		view.initView();
 
 		show((View) view);
+
+		try {
+			pkcs11Config.loadPkcs11Wrapper();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		context.fireAction(this, ACTION_LOAD_PKCS11_WRAPPER);
 
@@ -103,7 +111,7 @@ public class Main extends Firma {
 
 		@Override
 		protected Void doInBackground() throws Exception {
-			pkcs11Config.loadPkcs11Wrapper();
+			
 			return null;
 		}
 
