@@ -18,6 +18,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.WindowConstants;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -34,7 +35,6 @@ import tc.fab.app.AppDocument;
 import tc.fab.firma.FirmaOptions;
 import tc.fab.mechanisms.ProviderManager;
 
-@Singleton
 public class SignDocumentDialog extends JDialog {
 
 	private static final long serialVersionUID = 7850839445605448945L;
@@ -57,6 +57,8 @@ public class SignDocumentDialog extends JDialog {
 	@Inject
 	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document,
 		ProviderManager providersManager) {
+		
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
 		super(context.getMainFrame(), true);
 		setUndecorated(false);
