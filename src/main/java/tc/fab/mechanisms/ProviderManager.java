@@ -1,25 +1,36 @@
 package tc.fab.mechanisms;
 
-import iaik.pkcs.pkcs11.TokenException;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.security.auth.callback.CallbackHandler;
 
 import org.apache.commons.lang.SystemUtils;
 
 @Singleton
 public class ProviderManager {
 
+	// PKCS11
 	private Pkcs11Config pkcs11Config;
+	private Mechanism pkcs11;
+
+	// MSCAPI
 	private String certmgr = "Windows Certificate Manager";
+	private Mechanism mscapi;
 
 	@Inject
-	public ProviderManager(Pkcs11Config pkcs11Config) {
+	public ProviderManager(Pkcs11Config pkcs11Config, CallbackHandler handler) throws Exception {
+
 		this.pkcs11Config = pkcs11Config;
+		pkcs11 = new SmartCardAdapter(handler);
+
+		if (SystemUtils.IS_OS_WINDOWS) {
+			mscapi = new WindowsMyAdapter();
+			mscapi.login();
+		}
+
 	}
 
 	public List<String> getProviders() {
@@ -31,21 +42,18 @@ public class ProviderManager {
 		return providers;
 	}
 
-	public ArrayList<String> getAliases(String provider) throws TokenException, IOException {
+	public ArrayList<String> aliases(String provider) throws Exception {
 		if (!provider.equals(certmgr)) {
-			return pkcs11Config.getAliases(provider);
+			return pkcs11Config.aliases(provider);
+		} else {
+			return mscapi.aliases();
 		}
-		// TODO: a Mechanism to windows-cert-mgre
-		return null;
 
 	}
 
 	public Mechanism getMechanism(String provider, String alias) {
-		if (!provider.equals(certmgr)) {
-			return new SmartCardAdapter(provider);
-		}
-		// TODO: a Mechanism to windows-cert-mgre
-		return null;
-
+		return provider.equals(certmgr) ? mscapi : ((SmartCardAdapter) pkcs11)
+			.registerProvider(provider);
 	}
+
 }

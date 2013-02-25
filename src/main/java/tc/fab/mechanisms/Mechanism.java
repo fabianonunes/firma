@@ -1,28 +1,22 @@
 package tc.fab.mechanisms;
 
-import java.io.IOException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-
-import javax.security.auth.login.LoginException;
+import java.util.ArrayList;
 
 public interface Mechanism {
 
-	void login() throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
-		IOException;
+	void login() throws Exception;
 
-	void logout() throws LoginException;
+	void logout() throws Exception;
 
-	PrivateKey getPrivateKey(String alias) throws UnrecoverableKeyException, KeyStoreException,
-		NoSuchAlgorithmException;
+	PrivateKey getPrivateKey(String alias) throws Exception;
 
-	X509Certificate getCertificate(String alias) throws KeyStoreException;
+	X509Certificate getCertificate(String alias) throws Exception;
 
-	Certificate[] getCertificateChain(String alias) throws KeyStoreException;
+	Certificate[] getCertificateChain(String alias) throws Exception;
+
+	ArrayList<String> aliases() throws Exception;
 
 }

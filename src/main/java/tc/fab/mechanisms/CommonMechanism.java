@@ -8,6 +8,8 @@ import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public abstract class CommonMechanism implements Mechanism {
 
@@ -32,9 +34,14 @@ public abstract class CommonMechanism implements Mechanism {
 	public Certificate[] getCertificateChain(String alias) throws KeyStoreException {
 		return keystore.getCertificateChain(alias);
 	}
-	
+
 	public KeyStore getKeystore() {
 		return keystore;
+	}
+
+	@Override
+	public ArrayList<String> aliases() throws KeyStoreException {
+		return Collections.list(keystore.aliases());
 	}
 
 }

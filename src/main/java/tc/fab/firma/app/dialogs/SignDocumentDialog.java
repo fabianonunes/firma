@@ -69,7 +69,6 @@ public class SignDocumentDialog extends JDialog {
 		initComponents();
 
 		fillProviders();
-
 		// the action setup must be after initial fulfillment to avoid double
 		// fire
 		cbProvider.setAction(context.getAction(this, ACTION_FILL_ALIASES));
@@ -104,7 +103,7 @@ public class SignDocumentDialog extends JDialog {
 
 		@Override
 		protected Void doInBackground() throws Exception {
-			aliases = providerManager.getAliases(provider);
+			aliases = providerManager.aliases(provider);
 			if (aliases.size() > 0) {
 				for (String alias : aliases) {
 					publish(alias);

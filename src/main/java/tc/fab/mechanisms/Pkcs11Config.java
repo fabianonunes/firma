@@ -83,7 +83,7 @@ public class Pkcs11Config {
 		return existentsLibs;
 	}
 
-	public synchronized ArrayList<String> getAliases(String pkcs11Module) throws TokenException,
+	public synchronized ArrayList<String> aliases(String pkcs11Module) throws TokenException,
 		IOException {
 
 		ArrayList<String> aliases = new ArrayList<>();
@@ -140,7 +140,7 @@ public class Pkcs11Config {
 	 *            the path to add
 	 * @throws Exception
 	 */
-	public static void addLibraryPath(String pathToAdd) throws Exception {
+	private static void addLibraryPath(String pathToAdd) throws Exception {
 		final Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
 		usrPathsField.setAccessible(true);
 

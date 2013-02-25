@@ -8,7 +8,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.cert.CertificateException;
 
-import javax.inject.Provider;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 
@@ -16,21 +15,16 @@ import org.apache.commons.io.IOUtils;
 
 import sun.security.pkcs11.SunPKCS11;
 
-import com.google.inject.Inject;
-
 @SuppressWarnings("restriction")
 public class SmartCardAdapter extends CommonMechanism {
 
-	@Inject
-	private Provider<CallbackHandler> handler;
-	private String pkcs11Module;
+	private CallbackHandler handler;
 
-	public SmartCardAdapter(String pkcs11Module) {
-		this.pkcs11Module = pkcs11Module;
-		registerProvider();
+	public SmartCardAdapter(CallbackHandler handler) {
+		this.handler = handler;
 	}
 
-	private void registerProvider() {
+	public Mechanism registerProvider(String pkcs11Module) {
 
 		java.security.Provider previousProvider = Security.getProvider("SunPKCS11-Firma");
 		if (previousProvider != null) {
@@ -47,6 +41,8 @@ public class SmartCardAdapter extends CommonMechanism {
 
 		Security.addProvider(provider);
 
+		return this;
+
 	}
 
 	@Override
@@ -54,7 +50,7 @@ public class SmartCardAdapter extends CommonMechanism {
 		IOException {
 
 		KeyStore.Builder builder = KeyStore.Builder.newInstance("PKCS11", provider,
-			new KeyStore.CallbackHandlerProtection(handler.get()));
+			new KeyStore.CallbackHandlerProtection(handler));
 
 		keystore = builder.getKeyStore();
 		keystore.load(null, null);

@@ -6,6 +6,7 @@ import java.util.EventObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.security.auth.callback.CallbackHandler;
 import javax.swing.UIManager;
 
 import org.jdesktop.application.Action;
@@ -18,6 +19,7 @@ import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
 import tc.fab.app.AppView;
 import tc.fab.mechanisms.Pkcs11Config;
+import tc.fab.security.callback.PINCallback;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -54,6 +56,8 @@ public class Main extends Firma {
 				bind(AppView.class).to(FirmaView.class);
 				bind(AppController.class).to(FirmaController.class);
 				bind(AppDocument.class).to(FirmaDocument.class);
+				
+				bind(CallbackHandler.class).to(PINCallback.class);
 
 			}
 		});
