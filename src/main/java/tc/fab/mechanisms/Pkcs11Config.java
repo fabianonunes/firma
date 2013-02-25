@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,11 +56,18 @@ public class Pkcs11Config {
 		String arch = SystemUtils.OS_ARCH.contains("64") ? "64" : "32";
 		String libName = SystemUtils.IS_OS_WINDOWS ? "PKCS11Wrapper.dll" : "libpkcs11wrapper.so";
 
-		InputStream wrapperLib = Pkcs11Config.class.getResourceAsStream("lib/" + os + "/" + arch
-			+ "/" + libName);
+		try (InputStream wrapperLib = Pkcs11Config.class.getResourceAsStream("lib/" + os + "/"
+			+ arch + "/" + libName);
+			OutputStream fout = new FileOutputStream(wrapperFile);) {
+			IOUtils.copy(wrapperLib, fout);
+		}
 
-		OutputStream fout = new FileOutputStream(wrapperFile);
-		IOUtils.copy(wrapperLib, fout);
+		try {
+			addLibraryPath(wrapperFile.getAbsolutePath());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
@@ -123,6 +131,33 @@ public class Pkcs11Config {
 		for (Module module : modules.values()) {
 			module.finalize(null);
 		}
+	}
+
+	/**
+	 * Adds the specified path to the java library path
+	 * 
+	 * @param pathToAdd
+	 *            the path to add
+	 * @throws Exception
+	 */
+	public static void addLibraryPath(String pathToAdd) throws Exception {
+		final Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
+		usrPathsField.setAccessible(true);
+
+		// get array of paths
+		final String[] paths = (String[]) usrPathsField.get(null);
+
+		// check if the path to add is already present
+		for (String path : paths) {
+			if (path.equals(pathToAdd)) {
+				return;
+			}
+		}
+
+		// add the new path
+		final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
+		newPaths[newPaths.length - 1] = pathToAdd;
+		usrPathsField.set(null, newPaths);
 	}
 
 }
