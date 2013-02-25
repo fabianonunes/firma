@@ -49,12 +49,12 @@ public class Pkcs11Config {
 
 	public synchronized void loadPkcs11Wrapper() throws IOException {
 
-		wrapperFile = File.createTempFile("lib", "wrapper");
-		wrapperFile.deleteOnExit();
-
 		String os = SystemUtils.IS_OS_WINDOWS ? "windows" : "unix";
 		String arch = SystemUtils.OS_ARCH.contains("64") ? "64" : "32";
 		String libName = SystemUtils.IS_OS_WINDOWS ? "PKCS11Wrapper.dll" : "libpkcs11wrapper.so";
+
+		wrapperFile = new File(SystemUtils.JAVA_IO_TMPDIR, libName);
+		wrapperFile.deleteOnExit();
 
 		try (InputStream wrapperLib = Pkcs11Config.class.getResourceAsStream("lib/" + os + "/"
 			+ arch + "/" + libName);
