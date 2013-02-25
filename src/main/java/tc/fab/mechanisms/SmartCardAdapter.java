@@ -34,10 +34,14 @@ public class SmartCardAdapter extends CommonMechanism {
 		StringBuffer config = new StringBuffer();
 		config.append("name = Firma\n");
 		config.append("library = " + pkcs11Module);
+		
+		System.out.println(config);
 
 		InputStream is = IOUtils.toInputStream(config);
 
 		provider = new SunPKCS11(is);
+		
+		System.out.println(provider.getName());
 
 		Security.addProvider(provider);
 
