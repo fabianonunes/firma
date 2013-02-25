@@ -31,18 +31,20 @@ public class ProviderManager {
 		return providers;
 	}
 
-	public ArrayList<String> getAliases(String provider) {
-		
-		System.out.println(provider);
-
+	public ArrayList<String> getAliases(String provider) throws TokenException, IOException {
 		if (!provider.equals(certmgr)) {
-			try {
-				return pkcs11Config.getAliases(provider);
-			} catch (TokenException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			return pkcs11Config.getAliases(provider);
 		}
+		// TODO: a Mechanism to windows-cert-mgre
+		return null;
+
+	}
+
+	public Mechanism getMechanism(String provider, String alias) {
+		if (!provider.equals(certmgr)) {
+			return new SmartCardAdapter(provider);
+		}
+		// TODO: a Mechanism to windows-cert-mgre
 		return null;
 
 	}

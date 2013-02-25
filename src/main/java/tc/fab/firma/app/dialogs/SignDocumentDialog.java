@@ -85,15 +85,8 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_FILL_ALIASES, block = BlockingScope.ACTION)
 	public Task<Void, String> fillAliases() {
-
-		String lib = cbProvider.getItemAt(cbProvider.getSelectedIndex());
-
-		cbAlias.setEnabled(false);
-		cbAlias.removeAllItems();
-		cbAlias.addItem(context.getResReader().getString("firma.dlg.waiting"));
-
-		return new FillAliasesTask(lib);
-
+		String provider = cbProvider.getItemAt(cbProvider.getSelectedIndex());
+		return new FillAliasesTask(provider);
 	}
 
 	class FillAliasesTask extends Task<Void, String> {
@@ -104,6 +97,9 @@ public class SignDocumentDialog extends JDialog {
 		public FillAliasesTask(String provider) {
 			super(context.getAppContext().getApplication());
 			this.provider = provider;
+			cbAlias.setEnabled(false);
+			cbAlias.removeAllItems();
+			cbAlias.addItem(context.getResReader().getString("firma.dlg.waiting"));
 		}
 
 		@Override

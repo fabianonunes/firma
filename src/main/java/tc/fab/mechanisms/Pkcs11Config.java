@@ -54,7 +54,7 @@ public class Pkcs11Config {
 		String os = SystemUtils.IS_OS_WINDOWS ? "windows" : "unix";
 		String arch = SystemUtils.OS_ARCH.contains("64") ? "64" : "32";
 
-		InputStream wrapperLib = ProviderManager.class.getResourceAsStream("lib/" + os + "/" + arch
+		InputStream wrapperLib = Pkcs11Config.class.getResourceAsStream("lib/" + os + "/" + arch
 			+ "/libpkcs11wrapper.so");
 
 		OutputStream fout = new FileOutputStream(wrapperFile);
@@ -79,13 +79,7 @@ public class Pkcs11Config {
 
 		ArrayList<String> aliases = new ArrayList<>();
 
-		if (!modules.containsKey(pkcs11Module)) {
-			Module module = Module.getInstance(pkcs11Module, wrapperFile.getAbsolutePath());
-			modules.put(pkcs11Module, module);
-			module.initialize(null);
-		}
-
-		Module module = modules.get(pkcs11Module);
+		Module module = loadModule(pkcs11Module);
 
 		Slot[] slotsWithToken = module.getSlotList(Module.SlotRequirement.TOKEN_PRESENT);
 
@@ -113,6 +107,15 @@ public class Pkcs11Config {
 
 		return aliases;
 
+	}
+
+	private Module loadModule(String pkcs11Module) throws IOException, TokenException {
+		if (!modules.containsKey(pkcs11Module)) {
+			Module module = Module.getInstance(pkcs11Module, wrapperFile.getAbsolutePath());
+			modules.put(pkcs11Module, module);
+			module.initialize(null);
+		}
+		return modules.get(pkcs11Module);
 	}
 
 	public void finalizeModules() throws TokenException {
