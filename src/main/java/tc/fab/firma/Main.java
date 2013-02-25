@@ -1,12 +1,15 @@
 package tc.fab.firma;
 
+import iaik.pkcs.pkcs11.TokenException;
+
 import java.util.EventObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.security.auth.callback.CallbackHandler;
 import javax.swing.UIManager;
 
+import org.jdesktop.application.Action;
+import org.jdesktop.application.Task;
 import org.jdesktop.application.View;
 import org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel;
 
@@ -14,11 +17,7 @@ import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
 import tc.fab.app.AppView;
-import tc.fab.mechanisms.LibraryManager;
-import tc.fab.mechanisms.LibraryManagerImpl;
-import tc.fab.mechanisms.Mechanism;
-import tc.fab.mechanisms.SmartCardAdapter;
-import tc.fab.security.callback.PINCallback;
+import tc.fab.mechanisms.Pkcs11Config;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -26,14 +25,16 @@ import com.google.inject.Injector;
 
 public class Main extends Firma {
 
+	private static final Logger LOGGER = Logger.getLogger(Firma.class.getName());
+
+	private static final String ACTION_LOAD_PKCS11_WRAPPER = "firma.main.load_pkcs11_wrapper";
 	private AppContext context;
 	private AppController controller;
 	private AppView view;
 	private AppDocument document;
 
-	private LibraryManager libs;
-
-	private static final Logger LOGGER = Logger.getLogger(Firma.class.getName());
+	private Injector injector;
+	private Pkcs11Config pkcs11Config;
 
 	public static void main(String args[]) {
 		launch(Main.class, args);
@@ -42,7 +43,7 @@ public class Main extends Firma {
 	@Override
 	protected void startup() {
 
-		Injector injector = Guice.createInjector(new AbstractModule() {
+		injector = Guice.createInjector(new AbstractModule() {
 			@Override
 			protected void configure() {
 
@@ -53,11 +54,6 @@ public class Main extends Firma {
 				bind(AppView.class).to(FirmaView.class);
 				bind(AppController.class).to(FirmaController.class);
 				bind(AppDocument.class).to(FirmaDocument.class);
-
-				// security
-				bind(LibraryManager.class).to(LibraryManagerImpl.class);
-				bind(Mechanism.class).to(SmartCardAdapter.class);
-				bind(CallbackHandler.class).to(PINCallback.class);
 
 			}
 		});
@@ -78,15 +74,34 @@ public class Main extends Firma {
 		document = injector.getInstance(AppDocument.class);
 		document.loadOptions();
 
-		libs = injector.getInstance(LibraryManager.class);
-
-		document.getOptions().setLibs(libs.getLibs());
+		pkcs11Config = injector.getInstance(Pkcs11Config.class);
 
 		view = injector.getInstance(AppView.class);
 		initLookAndFeel(SubstanceCremeLookAndFeel.class.toString());
 		view.initView();
 
 		show((View) view);
+		
+		context.fireAction(this, ACTION_LOAD_PKCS11_WRAPPER);
+
+	}
+
+	@Action(name = ACTION_LOAD_PKCS11_WRAPPER)
+	public Task<Void, Void> loadPkcs11Wrapper() {
+		return new LoadPkcs11Task();
+	}
+
+	class LoadPkcs11Task extends Task<Void, Void> {
+
+		public LoadPkcs11Task() {
+			super(context.getAppContext().getApplication());
+		}
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			pkcs11Config.loadPkcs11Wrapper();
+			return null;
+		}
 
 	}
 
@@ -103,6 +118,12 @@ public class Main extends Firma {
 	protected void shutdown() {
 		super.shutdown();
 		document.storeOptions();
+		try {
+			pkcs11Config.finalizeModules();
+		} catch (TokenException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

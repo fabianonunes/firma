@@ -5,11 +5,10 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Provider;
 import java.security.Security;
 import java.security.cert.CertificateException;
-import java.util.Enumeration;
 
+import javax.inject.Provider;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 
@@ -22,32 +21,31 @@ import com.google.inject.Inject;
 @SuppressWarnings("restriction")
 public class SmartCardAdapter extends CommonMechanism {
 
-	CallbackHandler handler;
-	String alias;
-
 	@Inject
-	public SmartCardAdapter(CallbackHandler handler) {
-		this.handler = handler;
+	private Provider<CallbackHandler> handler;
+	private String pkcs11Module;
+
+	public SmartCardAdapter(String pkcs11Module) {
+		this.pkcs11Module = pkcs11Module;
+		registerProvider();
 	}
 
-	public void registerProvider(String libraryPath) {
+	private void registerProvider() {
 
-		Provider previousProvider = Security.getProvider("SunPKCS11-Firma");
+		java.security.Provider previousProvider = Security.getProvider("SunPKCS11-Firma");
 		if (previousProvider != null) {
 			Security.removeProvider(previousProvider.getName());
 		}
 
 		StringBuffer config = new StringBuffer();
 		config.append("name = Firma\n");
-		config.append("library = " + libraryPath);
+		config.append("library = " + pkcs11Module);
 
 		InputStream is = IOUtils.toInputStream(config);
 
 		provider = new SunPKCS11(is);
 
 		Security.addProvider(provider);
-
-		// boolean isLinux = System.getProperty("os.name").equals("Linux");
 
 	}
 
@@ -56,17 +54,10 @@ public class SmartCardAdapter extends CommonMechanism {
 		IOException {
 
 		KeyStore.Builder builder = KeyStore.Builder.newInstance("PKCS11", provider,
-			new KeyStore.CallbackHandlerProtection(handler));
+			new KeyStore.CallbackHandlerProtection(handler.get()));
 
 		keystore = builder.getKeyStore();
 		keystore.load(null, null);
-		alias = keystore.aliases().nextElement();
-
-		Enumeration<String> aliases = keystore.aliases();
-
-		while (aliases.hasMoreElements()) {
-			System.out.println("--" + aliases.nextElement());
-		}
 
 	}
 

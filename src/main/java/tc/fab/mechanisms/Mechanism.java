@@ -18,11 +18,11 @@ public interface Mechanism {
 
 	void logout() throws LoginException;
 
-	PrivateKey getPrivateKey() throws UnrecoverableKeyException, KeyStoreException,
+	PrivateKey getPrivateKey(String alias) throws UnrecoverableKeyException, KeyStoreException,
 		NoSuchAlgorithmException;
 
-	X509Certificate getCertificate() throws KeyStoreException;
+	X509Certificate getCertificate(String alias) throws KeyStoreException;
 
-	Certificate[] getCertificateChain() throws KeyStoreException;
+	Certificate[] getCertificateChain(String alias) throws KeyStoreException;
 
 }

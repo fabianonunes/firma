@@ -1,4 +1,4 @@
 TODO
--- adicionar um botão de refresh no detector de certificados, ou usar algum tipo de trigger/listener
+-- implantar Windows-MY aos providers quando estiver no windows
 -- detectar OS para selececionar a iaik wrapper correta
 -- finalizar módules ao sair

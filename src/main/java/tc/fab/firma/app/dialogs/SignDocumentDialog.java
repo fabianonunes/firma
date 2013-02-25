@@ -5,13 +5,11 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.swing.ActionMap;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
@@ -29,16 +27,12 @@ import org.fit.cssbox.swingbox.BrowserPane;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Task;
 import org.jdesktop.application.Task.BlockingScope;
-import org.jdesktop.beansbinding.AutoBinding;
-import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
-import org.jdesktop.beansbinding.BeanProperty;
-import org.jdesktop.beansbinding.Bindings;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
 import tc.fab.firma.FirmaOptions;
-import tc.fab.mechanisms.TokenInfo;
+import tc.fab.mechanisms.ProviderManager;
 
 @Singleton
 public class SignDocumentDialog extends JDialog {
@@ -47,10 +41,11 @@ public class SignDocumentDialog extends JDialog {
 
 	private static final String ACTION_FILL_ALIASES = "firma.dlg.sign_document.fill_aliases";
 	private static final String ACTION_ADD_PROVIDER = "firma.dlg.sign_document.add_provider";
-	private static final String ACTION_SELECT_ALIAS = "firma.dlg.sign_document.select_alias";
+	private static final String ACTION_SIGN = "firma.dlg.sign_document.sign";
 
 	private AppContext context;
 	private AppController controller;
+	private FirmaOptions options;
 
 	private final JPanel contentPanel = new JPanel();
 
@@ -58,88 +53,68 @@ public class SignDocumentDialog extends JDialog {
 	private JComboBox<String> cbProvider;
 	private JComboBox<String> cbAppearance;
 
-	private FirmaOptions options;
-
-	private TokenInfo tokenInfo;
+	private ProviderManager providerManager;
 
 	@Inject
 	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document,
-		TokenInfo tokenInfo) {
+		ProviderManager providersManager) {
 
 		super(context.getMainFrame(), true);
 
 		this.context = context;
 		this.controller = controller;
-		this.tokenInfo = tokenInfo;
+		this.providerManager = providersManager;
 		this.options = document.getOptions();
 
 		initComponents();
 
-		context.getResourceMap().injectComponents(this);
-
-		fillProviders(options.getLibs());
+		fillProviders();
 
 		// the action setup must be after initial fulfillment to avoid double
 		// fire
 		cbProvider.setAction(context.getAction(this, ACTION_FILL_ALIASES));
 
-		cbAlias.setAction(context.getAction(this, ACTION_SELECT_ALIAS));
+	}
 
+	@Action(name = ACTION_SIGN)
+	public void sign() {
+		options.setAlias((String) cbAlias.getSelectedItem());
+		options.setProvider((String) cbProvider.getSelectedItem());
+		context.fireAction(controller, AppController.ACTION_FILE_PREVIEW);
 	}
 
 	@Action(name = ACTION_FILL_ALIASES, block = BlockingScope.ACTION)
-	public Task<Void, String> fillAliases(ActionEvent ae) {
+	public Task<Void, String> fillAliases() {
+
+		String lib = cbProvider.getItemAt(cbProvider.getSelectedIndex());
 
 		cbAlias.setEnabled(false);
 		cbAlias.removeAllItems();
 		cbAlias.addItem(context.getResReader().getString("firma.dlg.waiting"));
 
-		String lib = cbProvider.getItemAt(cbProvider.getSelectedIndex());
-
 		return new FillAliasesTask(lib);
 
 	}
 
-	@Action(name = ACTION_ADD_PROVIDER)
-	public void addProvider() {
-
-	}
-
-	@Action(name = ACTION_SELECT_ALIAS)
-	public void selectAlias() {
-		System.out.println(options.getAlias());
-		// String alias = cbAlias.getItemAt(cbAlias.getSelectedIndex());
-		// options.setAlias(alias);
-	}
-
 	class FillAliasesTask extends Task<Void, String> {
 
-		private String lib;
+		private String provider;
+		private ArrayList<String> aliases;
 
-		public FillAliasesTask(String lib) {
+		public FillAliasesTask(String provider) {
 			super(context.getAppContext().getApplication());
-			this.lib = lib;
+			this.provider = provider;
 		}
 
 		@Override
 		protected Void doInBackground() throws Exception {
-
-			ArrayList<String> aliases = tokenInfo.getAliases(lib);
-
+			aliases = providerManager.getAliases(provider);
 			if (aliases.size() > 0) {
 				for (String alias : aliases) {
 					publish(alias);
 				}
-			} else {
-				publish(context.getResReader().getString("firma.msg.sign_document.no_certs_found"));
 			}
-
 			return null;
-		}
-
-		@Override
-		protected void succeeded(Void result) {
-			cbAlias.removeItemAt(0);
 		}
 
 		@Override
@@ -157,19 +132,30 @@ public class SignDocumentDialog extends JDialog {
 		}
 
 		@Override
-		protected void finished() {
+		protected void succeeded(Void result) {
+			cbAlias.setSelectedItem(options.getAlias());
 			cbAlias.setEnabled(true);
+		}
+
+		@Override
+		protected void finished() {
+			cbAlias.removeItemAt(0);
 		}
 
 	}
 
-	private void fillProviders(List<String> libs) {
+	private void fillProviders() {
+		List<String> libs = providerManager.getProviders();
 		for (String lib : libs) {
 			cbProvider.addItem(lib);
 		}
 		if (libs.size() > 0) {
 			context.fireAction(this, ACTION_FILL_ALIASES);
 		}
+	}
+
+	@Action(name = ACTION_ADD_PROVIDER)
+	public void addProvider() {
 
 	}
 
@@ -179,8 +165,6 @@ public class SignDocumentDialog extends JDialog {
 	}
 
 	public void initComponents() {
-
-		ActionMap actionMap = controller.getActionMap();
 
 		cbAlias = new JComboBox<String>();
 		cbAppearance = new JComboBox<String>();
@@ -193,7 +177,7 @@ public class SignDocumentDialog extends JDialog {
 		JSeparator separator = new JSeparator();
 		JSeparator separator_1 = new JSeparator();
 
-		btOk.setAction(actionMap.get(AppController.ACTION_FILE_PREVIEW));
+		btOk.setAction(context.getAction(this, ACTION_SIGN));
 		btRefresh.setAction(context.getAction(this, ACTION_FILL_ALIASES));
 		btAddProvider.setAction(context.getAction(this, ACTION_ADD_PROVIDER));
 
@@ -344,17 +328,8 @@ public class SignDocumentDialog extends JDialog {
 		setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[] { btOk, btCancel,
 			cbProvider, btAddProvider, cbAlias, btRefresh, btCertificateInfo, cbAppearance }));
 
-		initDataBindings();
+		context.getResourceMap().injectComponents(this);
 
 	}
 
-	protected void initDataBindings() {
-		BeanProperty<JComboBox<String>, Object> jComboBoxBeanProperty = BeanProperty
-			.create("selectedItem");
-		BeanProperty<FirmaOptions, String> firmaOptionsBeanProperty = BeanProperty.create("alias");
-		AutoBinding<JComboBox<String>, Object, FirmaOptions, String> autoBinding = Bindings
-			.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxBeanProperty, options,
-				firmaOptionsBeanProperty);
-		autoBinding.bind();
-	}
 }

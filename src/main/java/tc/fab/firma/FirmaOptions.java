@@ -1,7 +1,5 @@
 package tc.fab.firma;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.List;
 
@@ -11,6 +9,7 @@ public class FirmaOptions implements Serializable {
 
 	private String certificateProvider;
 	private String alias;
+	private String provider;
 	private List<String> libs;
 
 	public String getCertificateProvider() {
@@ -30,9 +29,7 @@ public class FirmaOptions implements Serializable {
 	}
 
 	public static FirmaOptions createDefaultInstance() {
-
 		FirmaOptions options = new FirmaOptions();
-
 		return options;
 	}
 
@@ -44,13 +41,12 @@ public class FirmaOptions implements Serializable {
 		this.libs = libs;
 	}
 
-	private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
-
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		changeSupport.addPropertyChangeListener(listener);
+	public String getProvider() {
+		return provider;
 	}
 
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		changeSupport.removePropertyChangeListener(listener);
+	public void setProvider(String provider) {
+		this.provider = provider;
 	}
+
 }
