@@ -38,6 +38,7 @@ public class PINDialog extends JDialog {
 		super(context.getMainFrame(), true);
 		this.context = context;
 		initComponents();
+		open();
 	}
 
 	public void initComponents() {
