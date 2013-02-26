@@ -14,14 +14,15 @@ public class ProviderManager {
 
 	// PKCS11
 	private Pkcs11Config pkcs11Config;
-	private Mechanism pkcs11;
+	private SmartCardAdapter pkcs11;
 
 	// MSCAPI
 	private String certmgr = "Windows Certificate Manager";
 	private Mechanism mscapi;
 
 	@Inject
-	public ProviderManager(Pkcs11Config pkcs11Config, CallbackHandler handler) throws Exception {
+	public ProviderManager(Pkcs11Config pkcs11Config, CallbackHandler handler)
+			throws Exception {
 
 		this.pkcs11Config = pkcs11Config;
 		pkcs11 = new SmartCardAdapter(handler);
@@ -52,8 +53,12 @@ public class ProviderManager {
 	}
 
 	public Mechanism getMechanism(String provider, String alias) {
-		return provider.equals(certmgr) ? mscapi : ((SmartCardAdapter) pkcs11)
-			.registerProvider(provider);
+		if (provider.equals(certmgr)) {
+			return mscapi;
+		} else {
+			return pkcs11.registerProvider(provider,
+					pkcs11Config.getSlotId(provider, alias));
+		}
 	}
 
 }

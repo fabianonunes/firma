@@ -24,24 +24,26 @@ public class SmartCardAdapter extends CommonMechanism {
 		this.handler = handler;
 	}
 
-	public Mechanism registerProvider(String pkcs11Module) {
+	public Mechanism registerProvider(String pkcs11Module, Long slotId) {
 
-		java.security.Provider previousProvider = Security.getProvider("SunPKCS11-Firma");
+		// some pkcs11 modules, aetpkss1, e.g., try to load token in all slots.
+		// if two smartcards are connected, it may try load the wrong one and
+		// throw CKR_TOKEN_NOT_RECOGNIZED
+		
+		java.security.Provider previousProvider = Security
+				.getProvider("SunPKCS11-Firma");
 		if (previousProvider != null) {
 			Security.removeProvider(previousProvider.getName());
 		}
 
 		StringBuffer config = new StringBuffer();
-		config.append("name = Firma\n");
-		config.append("library = " + pkcs11Module);
-		
-		System.out.println(config);
+		config.append("name = Firma");
+		config.append("\nslot = " + slotId);
+		config.append("\nlibrary = " + pkcs11Module);
 
 		InputStream is = IOUtils.toInputStream(config);
 
 		provider = new SunPKCS11(is);
-		
-		System.out.println(provider.getName());
 
 		Security.addProvider(provider);
 
@@ -50,11 +52,11 @@ public class SmartCardAdapter extends CommonMechanism {
 	}
 
 	@Override
-	public void login() throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
-		IOException {
+	public void login() throws KeyStoreException, NoSuchAlgorithmException,
+			CertificateException, IOException {
 
-		KeyStore.Builder builder = KeyStore.Builder.newInstance("PKCS11", provider,
-			new KeyStore.CallbackHandlerProtection(handler));
+		KeyStore.Builder builder = KeyStore.Builder.newInstance("PKCS11",
+				provider, new KeyStore.CallbackHandlerProtection(handler));
 
 		keystore = builder.getKeyStore();
 		keystore.load(null, null);
