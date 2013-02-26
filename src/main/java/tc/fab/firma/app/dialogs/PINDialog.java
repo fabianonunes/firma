@@ -53,7 +53,6 @@ public class PINDialog extends JDialog {
 
 		JPanel contentPanel = new JPanel();
 
-		setUndecorated(true);
 		setBounds(100, 100, 246, 92);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
