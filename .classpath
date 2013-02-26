@@ -27,5 +27,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/home/fabiano/downloads/2012-02-23-bin-jmupdf-linux-0.4.1/jmupdf-0.4.1.jar" sourcepath="/home/fabiano/downloads/2012-02-23-bin-jmupdf-linux-0.4.1/jmupdf-src-0.4.1.zip"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

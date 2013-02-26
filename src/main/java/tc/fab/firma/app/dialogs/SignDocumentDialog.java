@@ -19,7 +19,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
@@ -86,16 +85,23 @@ public class SignDocumentDialog extends JDialog {
 		options.setProvider(provider);
 		context.fireAction(controller, AppController.ACTION_FILE_PREVIEW);
 
+		byte[] dataToSign = "fabiano nunes parente".getBytes();
+
 		Mechanism m = providerManager.getMechanism(provider, alias);
 		m.login();
 
 		Signature signature = Signature.getInstance("SHA1withRSA");
-		signature.initSign(m.getPrivateKey(alias));
-		signature.update("fabiano nunes parente".getBytes());
+		signature.initSign(m.getPrivateKey());
+		signature.update(dataToSign);
 
 		byte[] data_signed = signature.sign();
 
 		System.out.println(Hex.encodeHex(data_signed));
+
+		signature = Signature.getInstance("SHA1withRSA");
+		signature.initVerify(m.getCertificate());
+		signature.update(dataToSign);
+		System.out.println(signature.verify(data_signed));
 
 		m.logout();
 
@@ -163,6 +169,7 @@ public class SignDocumentDialog extends JDialog {
 		for (String lib : libs) {
 			cbProvider.addItem(lib);
 		}
+		cbProvider.setSelectedItem(options.getProvider());
 		if (libs.size() > 0) {
 			context.fireAction(this, ACTION_FILL_ALIASES);
 		}

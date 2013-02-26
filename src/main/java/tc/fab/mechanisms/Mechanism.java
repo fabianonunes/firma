@@ -11,11 +11,11 @@ public interface Mechanism {
 
 	void logout() throws Exception;
 
-	PrivateKey getPrivateKey(String alias) throws Exception;
+	PrivateKey getPrivateKey() throws Exception;
 
-	X509Certificate getCertificate(String alias) throws Exception;
+	X509Certificate getCertificate() throws Exception;
 
-	Certificate[] getCertificateChain(String alias) throws Exception;
+	Certificate[] getCertificateChain() throws Exception;
 
 	ArrayList<String> aliases() throws Exception;
 

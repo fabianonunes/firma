@@ -76,7 +76,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>tc.fab.pdf.signer.application.PDFSignerApp</mainClass>
+							<mainClass>tc.fab.firma.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

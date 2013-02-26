@@ -14,9 +14,14 @@ public class WindowsMyAdapter extends CommonMechanism {
 	public WindowsMyAdapter() {
 	}
 
+	public Mechanism registerProvider(String alias) {
+		this.alias = alias;
+		return this;
+	}
+
 	@Override
 	public void login() throws KeyStoreException, NoSuchProviderException,
-			NoSuchAlgorithmException, CertificateException, IOException {
+		NoSuchAlgorithmException, CertificateException, IOException {
 		keystore = KeyStore.getInstance("Windows-MY", "SunMSCAPI");
 		keystore.load(null, null);
 	}

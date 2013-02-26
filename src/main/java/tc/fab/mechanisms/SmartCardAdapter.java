@@ -35,9 +35,9 @@ public class SmartCardAdapter extends CommonMechanism {
 	 *            wrong slot and throw CKR_TOKEN_NOT_RECOGNIZED
 	 * @return a new Mechanism
 	 */
-	public Mechanism registerProvider(String pkcs11Module, Long slotId) {
-
-		//
+	public Mechanism registerProvider(String pkcs11Module, String alias, Long slotId) {
+		
+		this.alias = alias;
 
 		java.security.Provider previousProvider = Security.getProvider("SunPKCS11-Firma");
 		if (previousProvider != null) {

@@ -23,8 +23,10 @@ import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.jdesktop.application.Resource;
 
 import tc.fab.app.AppContext;
@@ -37,15 +39,15 @@ public class Pkcs11Config {
 
 	private static final Logger LOGGER = Logger.getLogger(Firma.class.getName());
 
-	private File wrapperFile;
+	@Resource(key = "firma.pkcs11.libs.unix")
+	private String[] unixLibs = new String[20];
+	@Resource(key = "firma.pkcs11.libs.win")
+	private String[] winLibs = new String[20];
+
 	private Map<String, Module> modules = new HashMap<>();
 	private Map<String, Long> aliasesAndSlot = new HashMap<>();
 
-	@Resource(key = "firma.pkcs11.libs.unix")
-	private String[] unixLibs = new String[20];
-
-	@Resource(key = "firma.pkcs11.libs.win")
-	private String[] winLibs = new String[20];
+	private File wrapperFile;
 
 	@Inject
 	public Pkcs11Config(AppContext context) {
@@ -58,9 +60,12 @@ public class Pkcs11Config {
 		String arch = SystemUtils.OS_ARCH.contains("64") ? "64" : "32";
 		String libName = SystemUtils.IS_OS_WINDOWS ? "PKCS11Wrapper.dll" : "libpkcs11wrapper.so";
 
-		wrapperFile = new File(SystemUtils.JAVA_IO_TMPDIR, libName);
+		wrapperFile = new File(SystemUtils.JAVA_IO_TMPDIR, Integer.toString(RandomUtils.nextInt()));
+		FileUtils.forceMkdir(wrapperFile);
+		wrapperFile = new File(wrapperFile, libName);
+		wrapperFile.getParentFile().deleteOnExit();
 		wrapperFile.deleteOnExit();
-
+		
 		try (InputStream wrapperLib = Pkcs11Config.class.getResourceAsStream("lib/" + os + "/"
 			+ arch + "/" + libName);
 			OutputStream fout = new FileOutputStream(wrapperFile);) {
@@ -75,10 +80,10 @@ public class Pkcs11Config {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
 	}
 
-	public List<String> getProviders() {
+	public List<String> getPkcs11Modules() {
 		List<String> existentsLibs = new ArrayList<>();
 		for (String libPath : Arrays.asList(SystemUtils.IS_OS_LINUX ? unixLibs : winLibs)) {
 			if (libPath != null) {
@@ -151,11 +156,10 @@ public class Pkcs11Config {
 
 	public void finalizeModules() throws TokenException {
 		for (Module module : modules.values()) {
-			for (Slot slot : module.getSlotList(true)) {
+			for (Slot slot : module.getSlotList(Module.SlotRequirement.TOKEN_PRESENT)) {
 				try {
 					slot.getToken().closeAllSessions();
 				} catch (Exception e) {
-
 				}
 			}
 			module.finalize(null);
