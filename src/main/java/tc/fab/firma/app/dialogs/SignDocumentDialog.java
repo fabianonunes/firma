@@ -62,7 +62,7 @@ public class SignDocumentDialog extends JDialog {
 
 		super(context.getMainFrame(), true);
 
-		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		// setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
 		this.context = context;
 		this.controller = controller;
@@ -96,9 +96,8 @@ public class SignDocumentDialog extends JDialog {
 		byte[] data_signed = signature.sign();
 
 		System.out.println(Hex.encodeHex(data_signed));
-		
-		m.logout();
 
+		m.logout();
 
 	}
 
