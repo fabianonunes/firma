@@ -2,6 +2,9 @@ package tc.fab.firma;
 
 import iaik.pkcs.pkcs11.TokenException;
 
+import java.awt.AWTEvent;
+import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.EventObject;
 import java.util.logging.Level;
@@ -13,6 +16,9 @@ import javax.swing.UIManager;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Task;
 import org.jdesktop.application.View;
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 import org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel;
 
 import tc.fab.app.AppContext;
@@ -57,7 +63,7 @@ public class Main extends Firma {
 				bind(AppView.class).to(FirmaView.class);
 				bind(AppController.class).to(FirmaController.class);
 				bind(AppDocument.class).to(FirmaDocument.class);
-				
+
 				bind(CallbackHandler.class).to(PINCallback.class);
 
 			}
@@ -83,6 +89,10 @@ public class Main extends Firma {
 
 		view = injector.getInstance(AppView.class);
 		initLookAndFeel(SubstanceCremeLookAndFeel.class.toString());
+
+		EventQueue queue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+		queue.push(new EventQueueProxy());
+
 		view.initView();
 
 		show((View) view);
@@ -93,7 +103,7 @@ public class Main extends Firma {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 		context.fireAction(this, ACTION_LOAD_PKCS11_WRAPPER);
 
 	}
@@ -111,7 +121,7 @@ public class Main extends Firma {
 
 		@Override
 		protected Void doInBackground() throws Exception {
-			
+
 			return null;
 		}
 
@@ -146,6 +156,20 @@ public class Main extends Firma {
 	@Override
 	protected void ready() {
 		super.ready();
+	}
+
+	class EventQueueProxy extends EventQueue {
+
+		protected void dispatchEvent(AWTEvent newEvent) {
+			try {
+				super.dispatchEvent(newEvent);
+			} catch (Throwable t) {
+				ErrorInfo info = new ErrorInfo("Erro",
+					"Envie o texto abaixo para https://github.com/fabianonunes/firma/issues", null,
+					null, t, ErrorLevel.SEVERE, null);
+				JXErrorPane.showDialog(getMainFrame(), info);
+			}
+		}
 	}
 
 }
