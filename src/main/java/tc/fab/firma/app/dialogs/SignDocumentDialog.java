@@ -90,14 +90,15 @@ public class SignDocumentDialog extends JDialog {
 		m.login();
 
 		Signature signature = Signature.getInstance("SHA1withRSA");
-
 		signature.initSign(m.getPrivateKey(alias));
-
 		signature.update("fabiano nunes parente".getBytes());
 
 		byte[] data_signed = signature.sign();
 
 		System.out.println(Hex.encodeHex(data_signed));
+		
+		m.logout();
+
 
 	}
 

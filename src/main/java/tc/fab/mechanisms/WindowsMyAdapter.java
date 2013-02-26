@@ -7,6 +7,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
 
+import javax.security.auth.login.LoginException;
+
 public class WindowsMyAdapter extends CommonMechanism {
 
 	public WindowsMyAdapter() {
@@ -14,13 +16,13 @@ public class WindowsMyAdapter extends CommonMechanism {
 
 	@Override
 	public void login() throws KeyStoreException, NoSuchProviderException,
-		NoSuchAlgorithmException, CertificateException, IOException {
+			NoSuchAlgorithmException, CertificateException, IOException {
 		keystore = KeyStore.getInstance("Windows-MY", "SunMSCAPI");
 		keystore.load(null, null);
 	}
 
 	@Override
-	public void logout() {
+	public void logout() throws LoginException {
 	}
 
 }
