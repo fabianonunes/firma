@@ -46,9 +46,7 @@ public class Pkcs11Config {
 	private Map<String, Long> slotIDs = new HashMap<>();
 
 	private File wrapperFile;
-
 	private List<String> pkcs11Modules;
-
 	private CallbackHandler handler;
 
 	public Pkcs11Config(List<String> pkcs11Modules, CallbackHandler handler) {

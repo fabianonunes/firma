@@ -10,6 +10,8 @@ import javax.security.auth.callback.CallbackHandler;
 
 import org.apache.commons.lang.SystemUtils;
 
+import com.google.inject.Inject;
+
 @Singleton
 public class MechanismManager {
 
@@ -18,6 +20,7 @@ public class MechanismManager {
 	Pkcs11Config pkcs11config;
 	MscapiConfig mscapi;
 
+	@Inject
 	public MechanismManager(List<String> libraries, CallbackHandler handler) throws Exception {
 
 		pkcs11config = new Pkcs11Config(libraries, handler);

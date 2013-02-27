@@ -5,13 +5,17 @@ import iaik.pkcs.pkcs11.TokenException;
 import java.awt.AWTEvent;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.security.auth.callback.CallbackHandler;
 import javax.swing.UIManager;
 
+import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Resource;
 import org.jdesktop.application.Task;
@@ -33,13 +37,12 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 public class Main extends Firma {
-	
+
 	@Resource(key = "firma.pkcs11.libs.unix")
 	private String[] unixLibs = new String[20];
 
 	@Resource(key = "firma.pkcs11.libs.win")
 	private String[] winLibs = new String[20];
-
 
 	private static final Logger LOGGER = Logger.getLogger(Firma.class.getName());
 
@@ -59,18 +62,21 @@ public class Main extends Firma {
 	@Override
 	protected void startup() {
 
+		context = new FirmaContext(getContext());
+		context.getResourceMap().injectFields(this);
+
+		List<String> libraries = getExistentsLibs();
+
 		injector = Guice.createInjector(new AbstractModule() {
 			@Override
 			protected void configure() {
-
-				context = new FirmaContext(getContext());
 
 				// app
 				bind(AppContext.class).toInstance(context);
 				bind(AppView.class).to(FirmaView.class);
 				bind(AppController.class).to(FirmaController.class);
 				bind(AppDocument.class).to(FirmaDocument.class);
-
+				
 				// security
 				bind(CallbackHandler.class).to(PINCallback.class);
 
@@ -84,6 +90,7 @@ public class Main extends Firma {
 			public boolean canExit(EventObject e) {
 				return controller.saveBeforeExit();
 			}
+
 			@Override
 			public void willExit(EventObject e) {
 			}
@@ -92,7 +99,7 @@ public class Main extends Firma {
 		document = injector.getInstance(AppDocument.class);
 		document.loadOptions();
 
-		pkcs11Config = injector.getInstance(Pkcs11Config.class);
+		pkcs11Config = new Pkcs11Config(libraries, injector.getInstance(CallbackHandler.class));
 
 		view = injector.getInstance(AppView.class);
 		initLookAndFeel(SubstanceCremeLookAndFeel.class.toString());
@@ -106,6 +113,17 @@ public class Main extends Firma {
 
 		context.fireAction(this, ACTION_LOAD_PKCS11_WRAPPER);
 
+	}
+
+	private List<String> getExistentsLibs() {
+		String[] libs = SystemUtils.IS_OS_WINDOWS ? winLibs : unixLibs;
+		List<String> exitentsLibs = new ArrayList<>();
+		for (String lib : libs) {
+			if (lib != null && new File(lib).exists()) {
+				exitentsLibs.add(lib);
+			}
+		}
+		return exitentsLibs;
 	}
 
 	@Action(name = ACTION_LOAD_PKCS11_WRAPPER)
