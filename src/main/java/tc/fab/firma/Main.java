@@ -30,7 +30,6 @@ import tc.fab.security.callback.PINCallback;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provides;
 
 public class Main extends Firma {
 
@@ -71,7 +70,6 @@ public class Main extends Firma {
 
 			}
 			
-//			@Provides
 //			MechanismManager provideMechanismManager(AppContext context, CallbackHandler handler)
 //				throws Exception {
 //				return new MechanismManager(context, handler);

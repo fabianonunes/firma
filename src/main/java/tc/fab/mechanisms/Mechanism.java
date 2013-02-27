@@ -8,10 +8,6 @@ import java.util.List;
 
 public interface Mechanism {
 
-	public enum Type {
-		PKCS11, MSCAPI
-	}
-
 	void login() throws Exception;
 
 	void logout() throws Exception;
@@ -21,23 +17,6 @@ public interface Mechanism {
 	X509Certificate getCertificate() throws Exception;
 
 	Certificate[] getCertificateChain() throws Exception;
-
-	public class Entry {
-
-		Mechanism.Type type;
-		String name;
-
-		public Entry(Mechanism.Type type, String name) {
-			this.name = name;
-			this.type = type;
-		}
-
-		@Override
-		public String toString() {
-			return this.name;
-		}
-
-	}
 
 	List<String> aliases() throws KeyStoreException;
 

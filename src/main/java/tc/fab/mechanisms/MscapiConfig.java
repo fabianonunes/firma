@@ -14,6 +14,8 @@ import javax.security.auth.login.LoginException;
 public class MscapiConfig {
 
 	private KeyStore keystore;
+	
+	public final static String MSCAPI_STORE_NAME = "firma.mscapi_certmgr";
 
 	public MscapiConfig() throws KeyStoreException, NoSuchProviderException,
 		NoSuchAlgorithmException, CertificateException, IOException {

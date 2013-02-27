@@ -33,7 +33,6 @@ import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
 import tc.fab.firma.FirmaOptions;
 import tc.fab.mechanisms.Mechanism;
-import tc.fab.mechanisms.Mechanism.Entry;
 import tc.fab.mechanisms.MechanismManager;
 
 public class SignDocumentDialog extends JDialog {
@@ -51,21 +50,20 @@ public class SignDocumentDialog extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 
 	private JComboBox<String> cbAlias;
-	private JComboBox<Mechanism.Entry> cbProvider;
+	private JComboBox<String> cbProvider;
 	private JComboBox<String> comboBox;
 	private MechanismManager providerManager;
 
 	@Inject
 	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document,
 		MechanismManager providersManager) {
-		
+
 		super(context.getMainFrame(), true);
-		
+
 		System.out.println(context);
 		System.out.println(controller);
 		System.out.println(document);
 		System.out.println(providersManager);
-
 
 		// setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -85,13 +83,13 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_SIGN)
 	public void sign() throws Exception {
-		
+
 		String alias = (String) cbAlias.getSelectedItem();
-		Mechanism.Entry provider = cbProvider.getItemAt(cbProvider.getSelectedIndex());
-		
+		String provider = cbProvider.getItemAt(cbProvider.getSelectedIndex());
+
 		options.setAlias(alias);
 		options.setProvider(provider);
-		
+
 		context.fireAction(controller, AppController.ACTION_FILE_PREVIEW);
 
 		byte[] dataToSign = "fabiano nunes parente".getBytes();
@@ -118,16 +116,16 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_FILL_ALIASES, block = BlockingScope.ACTION)
 	public Task<Void, String> fillAliases() {
-		Entry provider = cbProvider.getItemAt(cbProvider.getSelectedIndex());
+		String provider = cbProvider.getItemAt(cbProvider.getSelectedIndex());
 		return new FillAliasesTask(provider);
 	}
 
 	class FillAliasesTask extends Task<Void, String> {
 
-		private Mechanism.Entry provider;
+		private String provider;
 		private List<String> aliases;
 
-		public FillAliasesTask(Mechanism.Entry provider) {
+		public FillAliasesTask(String provider) {
 			super(context.getAppContext().getApplication());
 			this.provider = provider;
 			cbAlias.setEnabled(false);
@@ -162,7 +160,9 @@ public class SignDocumentDialog extends JDialog {
 
 		@Override
 		protected void succeeded(Void result) {
-			cbAlias.setSelectedItem(options.getAlias());
+			if (options.getAlias() != null) {
+				cbAlias.setSelectedItem(options.getAlias());
+			}
 			cbAlias.setEnabled(true);
 		}
 
@@ -174,11 +174,11 @@ public class SignDocumentDialog extends JDialog {
 	}
 
 	private void fillProviders() {
-		List<Entry> libs = providerManager.getAvaliableMechanisms();
-		for (Entry lib : libs) {
+		List<String> libs = providerManager.getAvaliableMechanisms();
+		for (String lib : libs) {
 			cbProvider.addItem(lib);
 		}
-		if (options.getProvider()!=null){
+		if (options.getProvider() != null) {
 			cbProvider.setSelectedItem(options.getProvider());
 		}
 		if (libs.size() > 0) {
