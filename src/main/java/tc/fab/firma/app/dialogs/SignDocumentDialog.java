@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.security.Signature;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -34,7 +33,8 @@ import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
 import tc.fab.firma.FirmaOptions;
 import tc.fab.mechanisms.Mechanism;
-import tc.fab.mechanisms.ProviderManager;
+import tc.fab.mechanisms.Mechanism.Entry;
+import tc.fab.mechanisms.MechanismManager;
 
 public class SignDocumentDialog extends JDialog {
 
@@ -51,13 +51,13 @@ public class SignDocumentDialog extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 
 	private JComboBox<String> cbAlias;
-	private JComboBox<String> cbProvider;
+	private JComboBox<Mechanism.Entry> cbProvider;
 	private JComboBox<String> comboBox;
-	private ProviderManager providerManager;
+	private MechanismManager providerManager;
 
 	@Inject
 	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document,
-		ProviderManager providersManager) {
+		MechanismManager providersManager) {
 
 		super(context.getMainFrame(), true);
 
@@ -79,10 +79,13 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_SIGN)
 	public void sign() throws Exception {
+		
 		String alias = (String) cbAlias.getSelectedItem();
-		String provider = (String) cbProvider.getSelectedItem();
+		Mechanism.Entry provider = cbProvider.getItemAt(cbProvider.getSelectedIndex());
+		
 		options.setAlias(alias);
 		options.setProvider(provider);
+		
 		context.fireAction(controller, AppController.ACTION_FILE_PREVIEW);
 
 		byte[] dataToSign = "fabiano nunes parente".getBytes();
@@ -109,16 +112,16 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_FILL_ALIASES, block = BlockingScope.ACTION)
 	public Task<Void, String> fillAliases() {
-		String provider = cbProvider.getItemAt(cbProvider.getSelectedIndex());
+		Entry provider = cbProvider.getItemAt(cbProvider.getSelectedIndex());
 		return new FillAliasesTask(provider);
 	}
 
 	class FillAliasesTask extends Task<Void, String> {
 
-		private String provider;
-		private ArrayList<String> aliases;
+		private Mechanism.Entry provider;
+		private List<String> aliases;
 
-		public FillAliasesTask(String provider) {
+		public FillAliasesTask(Mechanism.Entry provider) {
 			super(context.getAppContext().getApplication());
 			this.provider = provider;
 			cbAlias.setEnabled(false);
@@ -165,8 +168,8 @@ public class SignDocumentDialog extends JDialog {
 	}
 
 	private void fillProviders() {
-		List<String> libs = providerManager.getProviders();
-		for (String lib : libs) {
+		List<Entry> libs = providerManager.getAvaliableMechanisms();
+		for (Entry lib : libs) {
 			cbProvider.addItem(lib);
 		}
 		cbProvider.setSelectedItem(options.getProvider());
@@ -187,8 +190,8 @@ public class SignDocumentDialog extends JDialog {
 
 	public void initComponents() {
 
-		cbAlias = new JComboBox<String>();
-		cbProvider = new JComboBox<String>();
+		cbAlias = new JComboBox<>();
+		cbProvider = new JComboBox<>();
 
 		JButton btOk = new JButton();
 		JButton btAddProvider = new JButton();

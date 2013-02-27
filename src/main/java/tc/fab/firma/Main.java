@@ -5,7 +5,6 @@ import iaik.pkcs.pkcs11.TokenException;
 import java.awt.AWTEvent;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
-import java.io.IOException;
 import java.util.EventObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,6 +13,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.swing.UIManager;
 
 import org.jdesktop.application.Action;
+import org.jdesktop.application.Resource;
 import org.jdesktop.application.Task;
 import org.jdesktop.application.View;
 import org.jdesktop.swingx.JXErrorPane;
@@ -33,6 +33,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 public class Main extends Firma {
+	
+	@Resource(key = "firma.pkcs11.libs.unix")
+	private String[] unixLibs = new String[20];
+
+	@Resource(key = "firma.pkcs11.libs.win")
+	private String[] winLibs = new String[20];
+
 
 	private static final Logger LOGGER = Logger.getLogger(Firma.class.getName());
 
@@ -64,6 +71,7 @@ public class Main extends Firma {
 				bind(AppController.class).to(FirmaController.class);
 				bind(AppDocument.class).to(FirmaDocument.class);
 
+				// security
 				bind(CallbackHandler.class).to(PINCallback.class);
 
 			}
@@ -76,7 +84,6 @@ public class Main extends Firma {
 			public boolean canExit(EventObject e) {
 				return controller.saveBeforeExit();
 			}
-
 			@Override
 			public void willExit(EventObject e) {
 			}
@@ -97,13 +104,6 @@ public class Main extends Firma {
 
 		show((View) view);
 
-		try {
-			pkcs11Config.loadPkcs11Wrapper();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
 		context.fireAction(this, ACTION_LOAD_PKCS11_WRAPPER);
 
 	}
@@ -121,7 +121,12 @@ public class Main extends Firma {
 
 		@Override
 		protected Void doInBackground() throws Exception {
-
+			try {
+				pkcs11Config.loadPkcs11Wrapper();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			return null;
 		}
 

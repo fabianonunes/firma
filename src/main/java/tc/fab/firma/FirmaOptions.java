@@ -3,13 +3,16 @@ package tc.fab.firma;
 import java.io.Serializable;
 import java.util.List;
 
+import tc.fab.mechanisms.Mechanism;
+import tc.fab.mechanisms.Mechanism.Entry;
+
 public class FirmaOptions implements Serializable {
 
 	private static final long serialVersionUID = -6934691165042731405L;
 
 	private String certificateProvider;
 	private String alias;
-	private String provider;
+	private Mechanism.Entry provider;
 	private List<String> libs;
 
 	public String getCertificateProvider() {
@@ -41,11 +44,11 @@ public class FirmaOptions implements Serializable {
 		this.libs = libs;
 	}
 
-	public String getProvider() {
+	public Entry getProvider() {
 		return provider;
 	}
 
-	public void setProvider(String provider) {
+	public void setProvider(Entry provider) {
 		this.provider = provider;
 	}
 

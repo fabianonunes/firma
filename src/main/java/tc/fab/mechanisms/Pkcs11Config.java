@@ -13,59 +13,69 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
+import java.security.AuthProvider;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.inject.Singleton;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.lang.math.RandomUtils;
-import org.jdesktop.application.Resource;
 
-import tc.fab.app.AppContext;
-import tc.fab.firma.Firma;
+import sun.security.pkcs11.SunPKCS11;
+import tc.fab.firma.utils.SystemHelper;
 
-import com.google.inject.Inject;
-
+@SuppressWarnings("restriction")
 @Singleton
 public class Pkcs11Config {
 
-	private static final Logger LOGGER = Logger.getLogger(Firma.class.getName());
-
-	@Resource(key = "firma.pkcs11.libs.unix")
-	private String[] unixLibs = new String[20];
-	@Resource(key = "firma.pkcs11.libs.win")
-	private String[] winLibs = new String[20];
+	private static final Logger LOGGER = Logger.getLogger(Pkcs11Config.class.getName());
 
 	private Map<String, Module> modules = new HashMap<>();
-	private Map<String, Long> aliasesAndSlot = new HashMap<>();
+	private Map<String, Long> slotIDs = new HashMap<>();
 
 	private File wrapperFile;
 
-	@Inject
-	public Pkcs11Config(AppContext context) {
-		context.getResourceMap().injectFields(this);
+	private List<String> pkcs11Modules;
+
+	private CallbackHandler handler;
+
+	public Pkcs11Config(List<String> pkcs11Modules, CallbackHandler handler) {
+		this.pkcs11Modules = pkcs11Modules;
+		this.handler = handler;
 	}
 
-	public synchronized void loadPkcs11Wrapper() throws IOException {
+	/**
+	 * Load the iaik Pkcs11Wrapper library. Useful for token operations without
+	 * opening a session
+	 * 
+	 * @throws Exception
+	 */
+	public synchronized void loadPkcs11Wrapper() throws Exception {
 
 		String os = SystemUtils.IS_OS_WINDOWS ? "windows" : "unix";
 		String arch = SystemUtils.OS_ARCH.contains("64") ? "64" : "32";
 		String libName = SystemUtils.IS_OS_WINDOWS ? "PKCS11Wrapper.dll" : "libpkcs11wrapper.so";
 
-		wrapperFile = new File(SystemUtils.JAVA_IO_TMPDIR, Integer.toString(RandomUtils.nextInt()));
-		FileUtils.forceMkdir(wrapperFile);
-		wrapperFile = new File(wrapperFile, libName);
-		wrapperFile.getParentFile().deleteOnExit();
+		File wrapperDir = new File(SystemUtils.JAVA_IO_TMPDIR,
+			RandomStringUtils.randomAlphanumeric(10));
+		wrapperDir.mkdir();
+		wrapperDir.getParentFile().deleteOnExit();
+
+		wrapperFile = new File(wrapperDir, libName);
 		wrapperFile.deleteOnExit();
-		
+
 		try (InputStream wrapperLib = Pkcs11Config.class.getResourceAsStream("lib/" + os + "/"
 			+ arch + "/" + libName);
 			OutputStream fout = new FileOutputStream(wrapperFile);) {
@@ -74,34 +84,19 @@ public class Pkcs11Config {
 			LOGGER.warning(e.getMessage());
 		}
 
-		try {
-			addLibraryPath(wrapperFile.getAbsolutePath());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		SystemHelper.addLibraryPath(wrapperFile.getAbsolutePath());
+
 	}
 
 	public List<String> getPkcs11Modules() {
-		List<String> existentsLibs = new ArrayList<>();
-		for (String libPath : Arrays.asList(SystemUtils.IS_OS_LINUX ? unixLibs : winLibs)) {
-			if (libPath != null) {
-				if (new File(libPath).exists()) {
-					existentsLibs.add(libPath);
-				}
-			}
-		}
-		return existentsLibs;
+		return pkcs11Modules;
 	}
 
 	public synchronized ArrayList<String> aliases(String pkcs11Module) throws IOException,
 		TokenException {
 
 		ArrayList<String> aliases = new ArrayList<>();
-
 		Module module = loadModule(pkcs11Module);
-
 		Slot[] slotsWithToken = module.getSlotList(Module.SlotRequirement.TOKEN_PRESENT);
 
 		for (Slot slot : slotsWithToken) {
@@ -124,7 +119,7 @@ public class Pkcs11Config {
 					}
 
 					aliases.add(label);
-					aliasesAndSlot.put(pkcs11Module + label, slot.getSlotID());
+					slotIDs.put(pkcs11Module + label, slot.getSlotID());
 
 				}
 
@@ -140,8 +135,8 @@ public class Pkcs11Config {
 
 	}
 
-	public Long getSlotId(String provider, String alias) {
-		return aliasesAndSlot.get(provider + alias);
+	public Long getSlotId(String pkcs11Module, String alias) {
+		return slotIDs.get(pkcs11Module + alias);
 
 	}
 
@@ -167,29 +162,69 @@ public class Pkcs11Config {
 	}
 
 	/**
-	 * Adds the specified path to the java library path
+	 * Remove all PKCS11 providers and register a new.
 	 * 
-	 * @param pathToAdd
-	 *            the path to add
-	 * @throws Exception
+	 * @param pkcs11Module
+	 *            a complete file path to a pkcs11 module (.so or .dll)
+	 * @param alias
+	 * @param slotId
+	 *            some pkcs11 modules, aetpkss1 e.g., try to load token in all
+	 *            slots. if two smartcards are connected, it may try load the
+	 *            wrong slot and throw CKR_TOKEN_NOT_RECOGNIZED
+	 * @return a new Mechanism
 	 */
-	private static void addLibraryPath(String pathToAdd) throws Exception {
-		final Field usrPaths = ClassLoader.class.getDeclaredField("usr_paths");
-		usrPaths.setAccessible(true);
+	public Mechanism getMechanism(String pkcs11Module, String alias) {
 
-		final String[] paths = (String[]) usrPaths.get(null);
-
-		// check if the path to add is already present
-		for (String path : paths) {
-			if (path.equals(pathToAdd)) {
-				return;
-			}
+		java.security.Provider provider = Security.getProvider("SunPKCS11-Firma");
+		if (provider != null) {
+			Security.removeProvider(provider.getName());
 		}
 
-		// add the new path
-		final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
-		newPaths[newPaths.length - 1] = pathToAdd;
-		usrPaths.set(null, newPaths);
+		StringBuffer config = new StringBuffer();
+		config.append("name = Firma");
+		config.append("\nslot = " + getSlotId(pkcs11Module, alias));
+		config.append("\nlibrary = " + pkcs11Module);
+
+		try (InputStream is = IOUtils.toInputStream(config)) {
+			provider = new SunPKCS11(is);
+		} catch (IOException e) {
+			LOGGER.warning(e.getMessage());
+		}
+
+		Security.addProvider(provider);
+
+		return new Pkcs11Adapter(handler, alias);
+
+	}
+
+	private class Pkcs11Adapter extends CommonMechanism {
+
+		private CallbackHandler handler;
+		private AuthProvider provider;
+
+		public Pkcs11Adapter(CallbackHandler handler, String alias) {
+			this.handler = handler;
+			this.provider = (AuthProvider) Security.getProvider("SunPKCS11-Firma");
+			setAlias(alias);
+		}
+
+		@Override
+		public void login() throws KeyStoreException, NoSuchAlgorithmException,
+			CertificateException, IOException {
+
+			KeyStore.Builder builder = KeyStore.Builder.newInstance("PKCS11", provider,
+				new KeyStore.CallbackHandlerProtection(handler));
+
+			keystore = builder.getKeyStore();
+			keystore.load(null, null);
+		}
+
+		@Override
+		public void logout() throws LoginException {
+			provider.logout();
+			Security.removeProvider(provider.getName());
+		}
+
 	}
 
 }
