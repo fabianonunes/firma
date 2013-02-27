@@ -8,7 +8,10 @@ import java.util.Map;
 import javax.inject.Singleton;
 import javax.security.auth.callback.CallbackHandler;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.functors.NotNullPredicate;
 import org.apache.commons.lang.SystemUtils;
+import org.jdesktop.application.Resource;
 
 import com.google.inject.Inject;
 
@@ -22,6 +25,8 @@ public class MechanismManager {
 
 	@Inject
 	public MechanismManager(List<String> libraries, CallbackHandler handler) throws Exception {
+		
+		CollectionUtils.filter(libraries, NotNullPredicate.INSTANCE);
 
 		pkcs11config = new Pkcs11Config(libraries, handler);
 
