@@ -58,8 +58,14 @@ public class SignDocumentDialog extends JDialog {
 	@Inject
 	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document,
 		MechanismManager providersManager) {
-
+		
 		super(context.getMainFrame(), true);
+		
+		System.out.println(context);
+		System.out.println(controller);
+		System.out.println(document);
+		System.out.println(providersManager);
+
 
 		// setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -172,7 +178,9 @@ public class SignDocumentDialog extends JDialog {
 		for (Entry lib : libs) {
 			cbProvider.addItem(lib);
 		}
-		cbProvider.setSelectedItem(options.getProvider());
+		if (options.getProvider()!=null){
+			cbProvider.setSelectedItem(options.getProvider());
+		}
 		if (libs.size() > 0) {
 			context.fireAction(this, ACTION_FILL_ALIASES);
 		}

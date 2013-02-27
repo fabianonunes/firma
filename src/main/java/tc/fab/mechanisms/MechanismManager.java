@@ -1,6 +1,10 @@
 package tc.fab.mechanisms;
 
+import iaik.pkcs.pkcs11.TokenException;
+
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,14 +13,21 @@ import javax.inject.Singleton;
 import javax.security.auth.callback.CallbackHandler;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.functors.NotNullPredicate;
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.application.Resource;
+
+import tc.fab.app.AppContext;
 
 import com.google.inject.Inject;
 
 @Singleton
 public class MechanismManager {
+
+	@Resource(key = "firma.pkcs11.libs.unix")
+	private String[] unixLibs = new String[20];
+	@Resource(key = "firma.pkcs11.libs.win")
+	private String[] winLibs = new String[20];
 
 	List<Mechanism.Entry> entries = new ArrayList<>();
 	Map<Mechanism.Type, Mechanism> mechanisms = new HashMap<>();
@@ -24,9 +35,24 @@ public class MechanismManager {
 	MscapiConfig mscapi;
 
 	@Inject
-	public MechanismManager(List<String> libraries, CallbackHandler handler) throws Exception {
+	public MechanismManager(AppContext context, CallbackHandler handler) throws Exception {
 		
-		CollectionUtils.filter(libraries, NotNullPredicate.INSTANCE);
+		context.getResourceMap().injectFields(this);
+		
+		List<String> libraries = new ArrayList<>(Arrays.asList(SystemUtils.IS_OS_WINDOWS ? winLibs : unixLibs));
+		
+		CollectionUtils.filter(
+			libraries,
+			new Predicate() {
+				@Override
+				public boolean evaluate(Object object) {
+					if (object != null && new File(object.toString()).exists()){
+						return true;
+					}
+					return false;
+				}
+			}
+		);
 
 		pkcs11config = new Pkcs11Config(libraries, handler);
 
@@ -66,5 +92,14 @@ public class MechanismManager {
 				return null;
 		}
 	}
+	
+	public void loadPkcs11Wrapper() throws Exception {
+		pkcs11config.loadPkcs11Wrapper();
+	}
 
+	public void finalizeModules() throws TokenException  {
+		pkcs11config.finalizeModules();		
+	}
+	
+	
 }

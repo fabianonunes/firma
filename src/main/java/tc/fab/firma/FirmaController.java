@@ -7,7 +7,6 @@ import javax.inject.Singleton;
 import javax.swing.ActionMap;
 
 import org.jdesktop.application.Action;
-import org.jdesktop.application.ResourceMap;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
@@ -87,11 +86,6 @@ public class FirmaController implements AppController {
 
 	@Action(name = AppController.ACTION_SETTINGS)
 	public void settings() {
-	}
-
-	@Override
-	public void detectModules() {
-		ResourceMap resourceMap = context.getAppContext().getResourceMap();
 	}
 
 }

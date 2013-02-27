@@ -15,14 +15,11 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import org.jdesktop.application.FrameView;
-import org.jdesktop.application.ResourceMap;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
@@ -51,20 +48,6 @@ public class FirmaView extends FrameView implements AppView {
 	/**
 	 * @wbp.parser.entryPoint
 	 */
-	private JRootPane getMain () {
-	        JFrame frame;
-	            frame = new JFrame("oi");
-	            frame.setName(MAIN_FRAME_NAME);
-		initComponents();
-		postInitComponents();
-		return getFrame().getRootPane();
-		
-	}
-//	
-//	public static void main(String[] args) {
-//		new FirmaView(null, null);
-//	}
-//	
 	@Override
 	public void initView() {
 		initComponents();

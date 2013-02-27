@@ -18,6 +18,4 @@ public interface AppController {
 
 	void startActionManually(String actionName);
 	
-	void detectModules();
-
 }
