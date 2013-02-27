@@ -22,13 +22,13 @@ public class MscapiConfig {
 	}
 
 	public Mechanism getMechanism(String alias) {
-		return new WindowsMyMechanism(alias, keystore);
+		return new WindowsMyMechanism(alias);
 	}
 
 	private class WindowsMyMechanism extends CommonMechanism {
 
-		public WindowsMyMechanism(String alias, KeyStore keystore) {
-			this.keystore = keystore;
+		public WindowsMyMechanism(String alias) {
+			this.keystore = MscapiConfig.this.keystore;
 			setAlias(alias);
 		}
 
