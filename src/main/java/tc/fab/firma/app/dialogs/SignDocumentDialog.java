@@ -28,6 +28,11 @@ import org.fit.cssbox.swingbox.BrowserPane;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Task;
 import org.jdesktop.application.Task.BlockingScope;
+import org.jdesktop.beansbinding.AutoBinding;
+import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
+import org.jdesktop.beansbinding.BeanProperty;
+import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.ELProperty;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
@@ -364,6 +369,13 @@ public class SignDocumentDialog extends JDialog {
 			cbProvider, btAddProvider, cbAlias, btRefresh, btCertificateInfo }));
 
 		context.getResourceMap().injectComponents(this);
+		initDataBindings();
 
+	}
+	protected void initDataBindings() {
+		ELProperty<JComboBox, Object> jComboBoxEvalutionProperty = ELProperty.create("${selectedItem!=null}");
+		BeanProperty<JButton, Boolean> jButtonBeanProperty = BeanProperty.create("enabled");
+		AutoBinding<JComboBox, Object, JButton, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxEvalutionProperty, btOk, jButtonBeanProperty);
+		autoBinding.bind();
 	}
 }
