@@ -36,6 +36,7 @@ import tc.fab.firma.FirmaOptions;
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.MechanismManager;
 import tc.fab.mechanisms.callback.PINCallback.UserCancelledException;
+import tc.fab.pdf.signer.application.ComponentsInputBlocker;
 
 public class SignDocumentDialog extends JDialog {
 
@@ -55,6 +56,8 @@ public class SignDocumentDialog extends JDialog {
 	private JComboBox<String> cbProvider;
 	private JComboBox<String> comboBox;
 	private MechanismManager providerManager;
+
+	private JButton btOk;
 
 	@Inject
 	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document,
@@ -93,15 +96,20 @@ public class SignDocumentDialog extends JDialog {
 
 		options.setAlias(alias);
 		options.setProvider(provider);
+		
 		byte[] dataToSign = "fabiano nunes parente".getBytes();
+		
 		Signature signature = Signature.getInstance("SHA1withRSA");
 		signature.initSign(m.getPrivateKey());
 		signature.update(dataToSign);
+		
 		byte[] data_signed = signature.sign();
 		System.out.println(Hex.encodeHex(data_signed));
+		
 		signature = Signature.getInstance("SHA1withRSA");
 		signature.initVerify(m.getCertificate());
 		signature.update(dataToSign);
+		
 		System.out.println(signature.verify(data_signed));
 		m.logout();
 
@@ -109,10 +117,16 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_FILL_ALIASES, block = BlockingScope.ACTION)
 	public Task<Void, String> fillAliases() {
+		
 		String provider = cbProvider.getItemAt(cbProvider.getSelectedIndex());
-		return new FillAliasesTask(provider);
+		
+		Task<Void, String> task =  new FillAliasesTask(provider);
+		task.setInputBlocker(ComponentsInputBlocker.builder(task, btOk));
+		
+		return task;
+		
 	}
-
+	
 	class FillAliasesTask extends Task<Void, String> {
 
 		private String provider;
@@ -194,7 +208,7 @@ public class SignDocumentDialog extends JDialog {
 		cbAlias = new JComboBox<>();
 		cbProvider = new JComboBox<>();
 
-		JButton btOk = new JButton();
+		btOk = new JButton();
 		JButton btAddProvider = new JButton();
 		JButton btRefresh = new JButton();
 		JSeparator separator = new JSeparator();
