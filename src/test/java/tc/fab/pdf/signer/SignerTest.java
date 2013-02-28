@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.Pkcs11Config;
+import tc.fab.mechanisms.callback.PINCallback;
 import tc.fab.mechanisms.callback.SimplePasswordCallback;
 
 public class SignerTest {
@@ -24,7 +25,7 @@ public class SignerTest {
 		
 		Pkcs11Config config = new Pkcs11Config(
 			lib,
-			new SimplePasswordCallback("zxcsde7".toCharArray())
+			new PINCallback(null)
 		);
 		
 		config.loadPkcs11Wrapper();
