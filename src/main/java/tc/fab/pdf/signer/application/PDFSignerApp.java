@@ -47,11 +47,11 @@ import tc.fab.file.selector.FileSelector;
 import tc.fab.firma.FirmaView;
 import tc.fab.firma.app.components.JFileTable;
 import tc.fab.firma.app.dialogs.FileSelectorDialog;
+import tc.fab.mechanisms.callback.PINCallback;
 import tc.fab.pdf.signer.FileDropListener;
 import tc.fab.pdf.signer.SignatureAppearance;
 import tc.fab.pdf.signer.options.SignerOptionDialog;
 import tc.fab.pdf.signer.options.SignerOptions;
-import tc.fab.security.callback.PINCallback;
 
 public class PDFSignerApp extends SingleFrameApplication {
 

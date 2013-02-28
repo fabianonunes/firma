@@ -9,7 +9,7 @@ import java.util.Collections;
 
 import javax.security.auth.callback.CallbackHandler;
 
-import tc.fab.security.callback.SimplePasswordCallback;
+import tc.fab.mechanisms.callback.SimplePasswordCallback;
 
 public class SmartCard {
 

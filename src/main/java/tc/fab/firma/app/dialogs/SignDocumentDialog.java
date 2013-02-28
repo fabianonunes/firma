@@ -35,7 +35,7 @@ import tc.fab.app.AppDocument;
 import tc.fab.firma.FirmaOptions;
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.MechanismManager;
-import tc.fab.security.callback.PINCallback.UserCancelledException;
+import tc.fab.mechanisms.callback.PINCallback.UserCancelledException;
 
 public class SignDocumentDialog extends JDialog {
 

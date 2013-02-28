@@ -39,7 +39,7 @@ import org.apache.commons.lang.SystemUtils;
 
 import sun.security.pkcs11.SunPKCS11;
 import tc.fab.firma.utils.SystemHelper;
-import tc.fab.security.callback.PINCallback.UserCancelledException;
+import tc.fab.mechanisms.callback.PINCallback.UserCancelledException;
 
 @SuppressWarnings("restriction")
 @Singleton

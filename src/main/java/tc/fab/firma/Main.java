@@ -27,7 +27,7 @@ import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
 import tc.fab.app.AppView;
 import tc.fab.mechanisms.MechanismManager;
-import tc.fab.security.callback.PINCallback;
+import tc.fab.mechanisms.callback.PINCallback;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
