@@ -2,3 +2,4 @@ TODO
 -- implantar Windows-MY aos providers quando estiver no windows
 -- detectar OS para selececionar a iaik wrapper correta
 -- finalizar módules ao sair
+-- usar pkcs11Module.waitForSlotEvent para detectar a presença de token e atualizar a lista de provider/aliases

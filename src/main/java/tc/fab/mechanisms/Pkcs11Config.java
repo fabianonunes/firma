@@ -30,6 +30,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 
 import org.apache.commons.io.IOUtils;
@@ -105,8 +106,11 @@ public class Pkcs11Config {
 
 			try {
 
-				Session session = slot.getToken().openSession(Token.SessionType.SERIAL_SESSION,
+				Token token = slot.getToken();
+
+				Session session = token.openSession(Token.SessionType.SERIAL_SESSION,
 					Token.SessionReadWriteBehavior.RO_SESSION, null, null);
+
 				Certificate searchTemplate = new Certificate();
 
 				session.findObjectsInit(searchTemplate);
@@ -199,6 +203,10 @@ public class Pkcs11Config {
 
 	}
 
+	public static boolean isCause(Class<? extends Throwable> expected, Throwable exc) {
+		return expected.isInstance(exc) || (exc != null && isCause(expected, exc.getCause()));
+	}
+
 	private class Pkcs11Adapter extends CommonMechanism {
 
 		private CallbackHandler handler;
@@ -212,19 +220,29 @@ public class Pkcs11Config {
 
 		@Override
 		public void login() throws KeyStoreException, NoSuchAlgorithmException,
-			CertificateException, UnsupportedCallbackException, IOException, UserCancelledException {
+			CertificateException, UnsupportedCallbackException, IOException,
+			UserCancelledException, FailedLoginException {
 
-			// CallbackHandlerProtection param = new
-			// KeyStore.CallbackHandlerProtection(handler);
-			// KeyStore.Builder builder = KeyStore.Builder.newInstance("PKCS11",
-			// provider, protection);
-			PasswordCallback callback = new PasswordCallback("Password: ", false);
-
-			handler.handle(new Callback[] { callback });
-			char[] password = callback.getPassword();
-			callback.clearPassword();
 			keystore = KeyStore.getInstance("PKCS11", provider);
-			keystore.load(null, password);
+
+			int tries = 0;
+			while (tries < 3) {
+
+				PasswordCallback callback = new PasswordCallback("Password: ", false);
+				handler.handle(new Callback[] { callback });
+				char[] password = callback.getPassword();
+				callback.clearPassword();
+
+				try {
+					keystore.load(null, password);
+					break;
+				} catch (IOException e) {
+					if (isCause(FailedLoginException.class, e)) {
+						tries++;
+						continue;
+					}
+				}
+			}
 
 		}
 
