@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.security.GeneralSecurityException;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.regex.Matcher;
@@ -43,10 +42,9 @@ public class SignatureAppearance {
 		this.signer = signer;
 	}
 
-	public void sign(File inputFile, File outputFile) throws IOException,
-			DocumentException, GeneralSecurityException {
+	public void sign(File inputFile, File outputFile) throws Exception {
 
-		if (!getOptions().isAbsolute() || getOptions().getOutputMaskRegex()) {
+		if (options!=null && (!getOptions().isAbsolute() || getOptions().getOutputMaskRegex())) {
 			textPosition = new PDFTextPosition(inputFile);
 		}
 
@@ -66,7 +64,9 @@ public class SignatureAppearance {
 
 		appearance = stamper.getSignatureAppearance();
 
-		configAppearance(signer.getCertificate());
+		if (options != null){
+			configAppearance(signer.getCertificate());
+		}
 
 		signer.sign(appearance, false);
 
@@ -316,7 +316,7 @@ public class SignatureAppearance {
 		String inputFilename = inputFile.getName().substring(0,
 				inputFile.getName().lastIndexOf("."));
 
-		if (options.getOutputMaskRegex()) {
+		if (options !=null && options.getOutputMaskRegex()) {
 
 			String r = options.getMaskRegex();
 

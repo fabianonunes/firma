@@ -37,7 +37,9 @@ public class MechanismManager {
 	@Inject
 	public MechanismManager(AppContext context, CallbackHandler handler) throws Exception {
 
-		context.getResourceMap().injectFields(this);
+		if (context != null) {
+			context.getResourceMap().injectFields(this);
+		}
 
 		List<String> libraries = new ArrayList<>(Arrays.asList(SystemUtils.IS_OS_WINDOWS ? winLibs
 			: unixLibs));

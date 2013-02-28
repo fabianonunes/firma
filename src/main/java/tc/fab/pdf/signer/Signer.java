@@ -1,7 +1,5 @@
 package tc.fab.pdf.signer;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
@@ -10,7 +8,6 @@ import java.security.cert.X509Certificate;
 import tc.fab.mechanisms.Mechanism;
 
 import com.google.inject.Inject;
-import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.security.ExternalSignature;
 import com.itextpdf.text.pdf.security.MakeSignature;
@@ -31,7 +28,7 @@ public class Signer {
 	}
 
 	public void sign(PdfSignatureAppearance appearance, boolean timestamp)
-			throws IOException, DocumentException, GeneralSecurityException {
+			throws Exception {
 
 		this.mechanism.login();
 
@@ -50,7 +47,7 @@ public class Signer {
 
 	}
 
-	public X509Certificate getCertificate() throws KeyStoreException {
+	public X509Certificate getCertificate() throws Exception {
 		return mechanism.getCertificate();
 	}
 
