@@ -226,9 +226,10 @@ public class Pkcs11Config {
 			keystore = KeyStore.getInstance("PKCS11", provider);
 
 			int tries = 0;
+			PasswordCallback callback = new PasswordCallback("Password: ", false);
+			
 			while (tries < 3) {
 
-				PasswordCallback callback = new PasswordCallback("Password: ", false);
 				handler.handle(new Callback[] { callback });
 				char[] password = callback.getPassword();
 				callback.clearPassword();
@@ -242,6 +243,7 @@ public class Pkcs11Config {
 						continue;
 					}
 				}
+				
 			}
 
 		}
