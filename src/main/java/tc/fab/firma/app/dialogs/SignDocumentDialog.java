@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.security.InvalidKeyException;
 import java.security.Signature;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import tc.fab.app.AppDocument;
 import tc.fab.firma.FirmaOptions;
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.MechanismManager;
+import tc.fab.security.callback.PINCallback.UserCancelledException;
 
 public class SignDocumentDialog extends JDialog {
 
@@ -60,11 +62,6 @@ public class SignDocumentDialog extends JDialog {
 
 		super(context.getMainFrame(), true);
 
-		System.out.println(context);
-		System.out.println(controller);
-		System.out.println(document);
-		System.out.println(providersManager);
-
 		// setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
 		this.context = context;
@@ -82,34 +79,30 @@ public class SignDocumentDialog extends JDialog {
 	}
 
 	@Action(name = ACTION_SIGN)
-	public void sign() throws Exception {
+	public void sign() throws InvalidKeyException, Exception {
 
 		String alias = (String) cbAlias.getSelectedItem();
 		String provider = cbProvider.getItemAt(cbProvider.getSelectedIndex());
+		Mechanism m = providerManager.getMechanism(provider, alias);
+
+		try {
+			m.login();
+		} catch (UserCancelledException e) {
+			return;
+		}
 
 		options.setAlias(alias);
 		options.setProvider(provider);
-
-		context.fireAction(controller, AppController.ACTION_FILE_PREVIEW);
-
 		byte[] dataToSign = "fabiano nunes parente".getBytes();
-
-		Mechanism m = providerManager.getMechanism(provider, alias);
-		m.login();
-
 		Signature signature = Signature.getInstance("SHA1withRSA");
 		signature.initSign(m.getPrivateKey());
 		signature.update(dataToSign);
-
 		byte[] data_signed = signature.sign();
-
 		System.out.println(Hex.encodeHex(data_signed));
-
 		signature = Signature.getInstance("SHA1withRSA");
 		signature.initVerify(m.getCertificate());
 		signature.update(dataToSign);
 		System.out.println(signature.verify(data_signed));
-
 		m.logout();
 
 	}

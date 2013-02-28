@@ -26,7 +26,10 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.inject.Singleton;
+import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 
 import org.apache.commons.io.IOUtils;
@@ -35,6 +38,7 @@ import org.apache.commons.lang.SystemUtils;
 
 import sun.security.pkcs11.SunPKCS11;
 import tc.fab.firma.utils.SystemHelper;
+import tc.fab.security.callback.PINCallback.UserCancelledException;
 
 @SuppressWarnings("restriction")
 @Singleton
@@ -208,13 +212,20 @@ public class Pkcs11Config {
 
 		@Override
 		public void login() throws KeyStoreException, NoSuchAlgorithmException,
-			CertificateException, IOException {
+			CertificateException, UnsupportedCallbackException, IOException, UserCancelledException {
 
-			KeyStore.Builder builder = KeyStore.Builder.newInstance("PKCS11", provider,
-				new KeyStore.CallbackHandlerProtection(handler));
+			// CallbackHandlerProtection param = new
+			// KeyStore.CallbackHandlerProtection(handler);
+			// KeyStore.Builder builder = KeyStore.Builder.newInstance("PKCS11",
+			// provider, protection);
+			PasswordCallback callback = new PasswordCallback("Password: ", false);
 
-			keystore = builder.getKeyStore();
-			keystore.load(null, null);
+			handler.handle(new Callback[] { callback });
+			char[] password = callback.getPassword();
+			callback.clearPassword();
+			keystore = KeyStore.getInstance("PKCS11", provider);
+			keystore.load(null, password);
+
 		}
 
 		@Override
