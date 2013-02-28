@@ -373,9 +373,9 @@ public class SignDocumentDialog extends JDialog {
 
 	}
 	protected void initDataBindings() {
-		ELProperty<JComboBox, Object> jComboBoxEvalutionProperty = ELProperty.create("${selectedItem!=null}");
+		ELProperty<JComboBox<String>, Object> jComboBoxEvalutionProperty = ELProperty.create("${selectedItem!=null}");
 		BeanProperty<JButton, Boolean> jButtonBeanProperty = BeanProperty.create("enabled");
-		AutoBinding<JComboBox, Object, JButton, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxEvalutionProperty, btOk, jButtonBeanProperty);
+		AutoBinding<JComboBox<String>, Object, JButton, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxEvalutionProperty, btOk, jButtonBeanProperty);
 		autoBinding.bind();
 	}
 }
