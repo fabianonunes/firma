@@ -10,6 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.security.auth.callback.CallbackHandler;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.UIManager;
 
 import org.jdesktop.application.Action;
@@ -134,6 +136,26 @@ public class Main extends Firma {
 	}
 
 	private void initLookAndFeel(String lafClass) {
+		JFrame.setDefaultLookAndFeelDecorated(true);
+		JDialog.setDefaultLookAndFeelDecorated(true);
+
+//		SwingUtilities.invokeLater(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//
+//				try {
+//
+//					String lf = "org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel";
+//
+//					UIManager.setLookAndFeel(lf);
+//
+//				} catch (Exception e) {
+//				}
+//
+//			}
+//
+//		});
 		try {
 			String lf = "org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel";
 			UIManager.setLookAndFeel(lf);
