@@ -42,6 +42,12 @@ public class MscapiConfig {
 		public void logout() throws LoginException {
 		}
 
+		@Override
+		public byte[] sign(byte[] data) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 
 	public List<String> aliases() throws KeyStoreException {

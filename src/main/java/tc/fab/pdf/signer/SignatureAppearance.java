@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.KeyStoreException;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,31 +45,48 @@ public class SignatureAppearance {
 
 	public void sign(File inputFile, File outputFile) throws Exception {
 
-		if (options!=null && (!getOptions().isAbsolute() || getOptions().getOutputMaskRegex())) {
+		if (options != null && (!getOptions().isAbsolute() || getOptions().getOutputMaskRegex())) {
 			textPosition = new PDFTextPosition(inputFile);
 		}
 
-		RandomAccessFileOrArray raf = new RandomAccessFileOrArray(
-				inputFile.getAbsolutePath(), false, true);
+		RandomAccessFileOrArray raf = new RandomAccessFileOrArray(inputFile.getAbsolutePath(),
+			false, true);
 
 		reader = new PdfReader(raf, null);
 
 		File tmpFile = File.createTempFile("pdf", "sgn");
 
 		// TODO: implement memory outputstream
-		FileOutputStream fout = new FileOutputStream(
-				outputFile != null ? outputFile : getOutputFile(inputFile));
+		FileOutputStream fout = new FileOutputStream(outputFile != null ? outputFile
+			: getOutputFile(inputFile));
 
-		PdfStamper stamper = PdfStamper.createSignature(reader, fout, '\0',
-				tmpFile, true);
+		PdfStamper stamper = PdfStamper.createSignature(reader, fout, '\0', tmpFile, true);
 
 		appearance = stamper.getSignatureAppearance();
 
-		if (options != null){
+		if (options != null) {
 			configAppearance(signer.getCertificate());
 		}
 
 		signer.signDetached(appearance, false);
+
+	}
+
+	public byte[] signBlank(File inputFile, File outputFile, Certificate[] chain) throws Exception {
+
+		reader = new PdfReader(inputFile.getPath());
+
+		File tmpFile = File.createTempFile("pdf", "sgn");
+
+		// TODO: implement memory outputstream
+		FileOutputStream fout = new FileOutputStream(outputFile != null ? outputFile
+			: getOutputFile(inputFile));
+
+		PdfStamper stamper = PdfStamper.createSignature(reader, fout, '\0', tmpFile, true);
+
+		appearance = stamper.getSignatureAppearance();
+
+		return signer.signBlank(appearance, chain);
 
 	}
 
@@ -85,8 +103,8 @@ public class SignatureAppearance {
 		return options;
 	}
 
-	protected void configAppearance(X509Certificate certificate)
-			throws IOException, DocumentException, KeyStoreException {
+	protected void configAppearance(X509Certificate certificate) throws IOException,
+		DocumentException, KeyStoreException {
 
 		RenderMode renderMode = getOptions().getRenderMode();
 
@@ -142,8 +160,7 @@ public class SignatureAppearance {
 			if (getOptions().getImageCustom()) {
 				name = getOptions().getImageCustomText();
 			} else {
-				name = CertificateInfo.getSubjectFields(certificate).getField(
-						"CN");
+				name = CertificateInfo.getSubjectFields(certificate).getField("CN");
 			}
 
 			addTextToLayer(2, name);
@@ -166,8 +183,7 @@ public class SignatureAppearance {
 
 			PlainDescription desc = getOptions().getDescription();
 
-			String name = CertificateInfo.getSubjectFields(certificate)
-					.getField("CN");
+			String name = CertificateInfo.getSubjectFields(certificate).getField("CN");
 
 			desc.setName(name);
 
@@ -204,28 +220,24 @@ public class SignatureAppearance {
 
 		if (getOptions().isAbsolute()) {
 
-			pBottom = cmToPoint(getOptions().getFooterDistance()
-					+ getOptions().getMarginBottom());
+			pBottom = cmToPoint(getOptions().getFooterDistance() + getOptions().getMarginBottom());
 
 			pTop = pBottom + signatureHeight;
 
 		} else {
 
-			Float marginBottom = pageHeight
-					- cmToPoint(getOptions().getMarginBottom());
+			Float marginBottom = pageHeight - cmToPoint(getOptions().getMarginBottom());
 
-			Float lastLineDistance = cmToPoint(getOptions()
-					.getLastLineDistance());
+			Float lastLineDistance = cmToPoint(getOptions().getLastLineDistance());
 
 			Float yOffset;
 
 			if (getOptions().getReferenceLastLine()) {
-				yOffset = textPosition.getLastLinePosition(pageToSign,
-						marginBottom);
+				yOffset = textPosition.getLastLinePosition(pageToSign, marginBottom);
 			} else {
 
-				yOffset = textPosition.getCharacterPosition(pageToSign,
-						marginBottom, getOptions().getReferenceText(), true);
+				yOffset = textPosition.getCharacterPosition(pageToSign, marginBottom, getOptions()
+					.getReferenceText(), true);
 
 			}
 
@@ -257,8 +269,8 @@ public class SignatureAppearance {
 
 	}
 
-	public void addImageToLayer(PdfTemplate n2, Image im)
-			throws DocumentException, MalformedURLException, IOException {
+	public void addImageToLayer(PdfTemplate n2, Image im) throws DocumentException,
+		MalformedURLException, IOException {
 
 		n2.beginText();
 
@@ -286,8 +298,7 @@ public class SignatureAppearance {
 
 	}
 
-	public void addTextToLayer(Integer layer, String text) throws IOException,
-			DocumentException {
+	public void addTextToLayer(Integer layer, String text) throws IOException, DocumentException {
 
 		Float fontSize = 10F;
 
@@ -305,8 +316,8 @@ public class SignatureAppearance {
 
 		n2.beginText();
 		n2.setFontAndSize(bf, fontSize);
-		n2.showTextAligned(PdfTemplate.ALIGN_CENTER, text, signatureWidth / 2,
-				signatureHeight - fontSize, 0);
+		n2.showTextAligned(PdfTemplate.ALIGN_CENTER, text, signatureWidth / 2, signatureHeight
+			- fontSize, 0);
 		n2.endText();
 
 	}
@@ -314,9 +325,9 @@ public class SignatureAppearance {
 	public File getOutputFile(File inputFile) throws IOException {
 
 		String inputFilename = inputFile.getName().substring(0,
-				inputFile.getName().lastIndexOf("."));
+			inputFile.getName().lastIndexOf("."));
 
-		if (options !=null && options.getOutputMaskRegex()) {
+		if (options != null && options.getOutputMaskRegex()) {
 
 			String r = options.getMaskRegex();
 
@@ -338,9 +349,8 @@ public class SignatureAppearance {
 
 		String inputParent = inputFile.getParent();
 
-		String outputFilename = inputParent + File.separator
-				+ getOptions().getOutputPreffix() + inputFilename
-				+ getOptions().getOutputSuffix() + ".pdf";
+		String outputFilename = inputParent + File.separator + getOptions().getOutputPreffix()
+			+ inputFilename + getOptions().getOutputSuffix() + ".pdf";
 
 		if (!options.getOutputOverwriteOriginal()) {
 
@@ -354,8 +364,8 @@ public class SignatureAppearance {
 
 			while (outputFile.exists()) {
 
-				outputFile = new File(outputFile.getParentFile(), baseName
-						+ "(" + i++ + ")." + extension);
+				outputFile = new File(outputFile.getParentFile(), baseName + "(" + i++ + ")."
+					+ extension);
 
 			}
 

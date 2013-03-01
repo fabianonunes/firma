@@ -1,43 +1,29 @@
 package tc.fab.pdf.signer;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
-
-import org.apache.commons.io.IOUtils;
 
 import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.security.ExternalBlankSignatureContainer;
 
 public class BlankContainer extends ExternalBlankSignatureContainer {
 
-	private InputStream data;
+	private PostSign postSign;
 
-	public BlankContainer(PdfName filter, PdfName subFilter) {
-		super(filter, subFilter);
+	public BlankContainer(PostSign postSign) {
+		super(PdfName.ADOBE_PPKLITE, PdfName.ADBE_PKCS7_DETACHED);
+		this.postSign = postSign;
 	}
 
 	@Override
 	public byte[] sign(InputStream data) throws GeneralSecurityException {
-		this.setData(data);
-		try {
-			IOUtils.copy(data, new FileOutputStream(new File("/tmp/ram/data2")));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		postSign.save(data);
 		return super.sign(data);
 	}
 
-	public InputStream getData() {
-		return data;
-	}
-
-	public void setData(InputStream data) {
-		this.data = data;
+	public interface PostSign {
+		public void save(InputStream data) throws GeneralSecurityException;
+		public byte[] read();
 	}
 
 }

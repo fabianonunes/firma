@@ -14,10 +14,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.AuthProvider;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -227,7 +231,7 @@ public class Pkcs11Config {
 
 			int tries = 0;
 			PasswordCallback callback = new PasswordCallback("Password: ", false);
-			
+
 			while (tries < 3) {
 
 				handler.handle(new Callback[] { callback });
@@ -243,7 +247,7 @@ public class Pkcs11Config {
 						continue;
 					}
 				}
-				
+
 			}
 
 		}
@@ -252,6 +256,19 @@ public class Pkcs11Config {
 		public void logout() throws LoginException {
 			provider.logout();
 			Security.removeProvider(provider.getName());
+		}
+
+		@Override
+		public byte[] sign(byte[] data) throws NoSuchAlgorithmException, KeyStoreException,
+			InvalidKeyException, UnrecoverableKeyException, SignatureException {
+
+			Signature sig = Signature.getInstance(getCertificate().getSigAlgName());
+			sig.initSign(getPrivateKey());
+			// TODO: buffer the update
+			sig.update(data);
+
+			return sig.sign();
+			
 		}
 
 	}
