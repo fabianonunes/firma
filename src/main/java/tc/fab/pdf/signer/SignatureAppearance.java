@@ -68,7 +68,7 @@ public class SignatureAppearance {
 			configAppearance(signer.getCertificate());
 		}
 
-		signer.sign(appearance, false);
+		signer.signDetached(appearance, false);
 
 	}
 

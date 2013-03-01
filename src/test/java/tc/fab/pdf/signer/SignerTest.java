@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.itextpdf.text.pdf.PdfReader;
+
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.Pkcs11Config;
 import tc.fab.mechanisms.callback.PINCallback;
@@ -17,15 +19,15 @@ public class SignerTest {
 	public void test() throws Exception {
 		
 		File file_to_sign = new File("/tmp/ram/sign.pdf");
-		File file_to_save = new File("/tmp/ram/save.pdf");
+		File file_to_save = new File("/tmp/ram/save_normal.pdf");
 		
-		String pkcs11Module = "/usr/lib/libaetpkss.so";
+		String pkcs11Module = "/usr/lib/libeTPkcs11.so";
 		List<String> lib = new ArrayList<>();
 		lib.add(pkcs11Module);
 		
 		Pkcs11Config config = new Pkcs11Config(
 			lib,
-			new PINCallback(null)
+			new SimplePasswordCallback("".toCharArray())
 		);
 		
 		config.loadPkcs11Wrapper();
@@ -40,7 +42,9 @@ public class SignerTest {
 		
 		SignatureAppearance sapp = new SignatureAppearance(signer);
 		
-		sapp.sign(file_to_sign, file_to_save);
+//		sapp.sign(file_to_sign, file_to_save);
+		
+		signer.signDeferred(new PdfReader("/tmp/ram/save.pdf"), false);
 		
 		
 		
