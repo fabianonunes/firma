@@ -29,8 +29,6 @@ import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.RandomAccessFileOrArray;
 import com.itextpdf.text.pdf.security.CertificateInfo;
 
-import cz.vutbr.web.csskit.antlr.CSSLexer.LexerState.RecoveryMode;
-
 public class SignatureAppearance {
 
 	private SignerOptions options;
