@@ -6,7 +6,7 @@ import iaik.pkcs.pkcs11.Slot;
 import iaik.pkcs.pkcs11.Token;
 import iaik.pkcs.pkcs11.TokenException;
 import iaik.pkcs.pkcs11.objects.Attribute;
-import iaik.pkcs.pkcs11.objects.Certificate;
+import iaik.pkcs.pkcs11.objects.X509PublicKeyCertificate;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -115,13 +115,13 @@ public class Pkcs11Config {
 				Session session = token.openSession(Token.SessionType.SERIAL_SESSION,
 					Token.SessionReadWriteBehavior.RO_SESSION, null, null);
 
-				Certificate searchTemplate = new Certificate();
+				X509PublicKeyCertificate searchTemplate = new X509PublicKeyCertificate();
 
 				session.findObjectsInit(searchTemplate);
 
 				for (Object object : session.findObjects(10)) {
-
-					Certificate certificate = (Certificate) object;
+					
+					X509PublicKeyCertificate certificate = (X509PublicKeyCertificate) object;
 					String label = certificate.getLabel().toString();
 
 					if (label.equals("<NULL_PTR>")) {

@@ -12,6 +12,8 @@ import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.commons.codec.binary.Hex;
+
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.pdf.signer.BlankContainer.PostSign;
 
@@ -39,12 +41,10 @@ public class Signer {
 	@Inject
 	public Signer(Mechanism mechanism) throws KeyStoreException, UnrecoverableKeyException,
 		NoSuchAlgorithmException {
-
 		this.mechanism = mechanism;
-
 	}
 
-	public byte[] signBlank(PdfSignatureAppearance appearance, Certificate[] chain)
+	public byte[] getSignableStream(PdfSignatureAppearance appearance, Certificate[] chain)
 		throws Exception {
 
 		final ExternalDigest externalDigest = new ProviderDigest(null);
@@ -81,21 +81,15 @@ public class Signer {
 		byte[] sh = sgn.getAuthenticatedAttributeBytes(hash, cal, null, null,
 			CryptoStandard.CMS);
 		
-		byte[] extSignature = mechanism.sign(sh);
+		return sh;
 		
-		//TODO: get algorithm from certificate
-		String encryptionAlgorithm = "RSA";
-		
-        sgn.setExternalDigest(extSignature, null, encryptionAlgorithm);
-
-        byte[] encodedSig = sgn.getEncodedPKCS7(hash, cal, null, null, null, CryptoStandard.CMS);
-
-		return encodedSig;
-
 	}
 
-	public void signDeferred(PdfReader reader, File output, final byte[] hash, final byte[] signedHash,
+	public void signDeferred(PdfReader reader, File output, final byte[] hash, final byte[] signature,
 		final Certificate[] chain) throws Exception {
+
+		// String tsa_url = "http://tsa.swisssign.net";
+		// final TSAClient tsc = new TSAClientBouncyCastle(tsa_url, "", "");
 
 		MakeSignature.signDeferred(reader, "Signature1", new FileOutputStream(output),
 			new ExternalSignatureContainer() {
@@ -103,9 +97,11 @@ public class Signer {
 				@Override
 				public byte[] sign(InputStream data) throws GeneralSecurityException {
 					
+					System.out.println("deferred-hash: " + new String(Hex.encodeHex(hash)));
+					
 					ExternalDigest externalDigest = new ProviderDigest(null);
 					PdfPKCS7 sgn = new PdfPKCS7(null, chain, "SHA1", null, externalDigest, false);
-					sgn.setExternalDigest(signedHash, null, "RSA");
+					sgn.setExternalDigest(signature, null, "RSA");
 					
 					Calendar cal = Calendar.getInstance();
 					cal.setTime(new Date(1362145657422L));
@@ -116,17 +112,6 @@ public class Signer {
 
 				@Override
 				public void modifySigningDictionary(PdfDictionary signDic) {
-//					PdfSignature sign = (PdfSignature) signDic;
-//					try {
-//						sign.setCert(chain[0].getEncoded());
-//					} catch (CertificateEncodingException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					} catch (Exception e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-
 				}
 			});
 

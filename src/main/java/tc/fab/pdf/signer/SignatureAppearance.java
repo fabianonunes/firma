@@ -29,6 +29,8 @@ import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.RandomAccessFileOrArray;
 import com.itextpdf.text.pdf.security.CertificateInfo;
 
+import cz.vutbr.web.csskit.antlr.CSSLexer.LexerState.RecoveryMode;
+
 public class SignatureAppearance {
 
 	private SignerOptions options;
@@ -61,9 +63,8 @@ public class SignatureAppearance {
 			: getOutputFile(inputFile));
 
 		PdfStamper stamper = PdfStamper.createSignature(reader, fout, '\0', tmpFile, true);
-
 		appearance = stamper.getSignatureAppearance();
-
+		
 		if (options != null) {
 			configAppearance(signer.getCertificate());
 		}
@@ -84,9 +85,20 @@ public class SignatureAppearance {
 
 		PdfStamper stamper = PdfStamper.createSignature(reader, fout, '\0', tmpFile, true);
 
-		appearance = stamper.getSignatureAppearance();
 
-		return signer.signBlank(appearance, chain);
+		appearance = stamper.getSignatureAppearance();
+		appearance.setCertificate(chain[0]);
+		appearance.setReason("I've written this.");
+		appearance.setLocation("Foobar");
+		appearance.setVisibleSignature(
+			new Rectangle(220, 732, 400, 780), 1, "Signature1"
+		);
+		
+		appearance.setLayer2Text(CertificateInfo.getSubjectFields((X509Certificate) chain[0]).getField("CN"));
+		
+		appearance.setRenderingMode(RenderingMode.NAME_AND_DESCRIPTION);
+
+		return signer.getSignableStream(appearance, chain);
 
 	}
 
@@ -199,7 +211,7 @@ public class SignatureAppearance {
 				appearance.setReason(desc.getReason());
 			}
 
-			// ap.setLayer2Text(description.toString());
+//			 appearance.setLayer2Text(desc.toString());
 
 		}
 

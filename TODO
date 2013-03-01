@@ -3,3 +3,4 @@ TODO
 -- detectar OS para selececionar a iaik wrapper correta
 -- finalizar módules ao sair
 -- usar pkcs11Module.waitForSlotEvent para detectar a presença de token e atualizar a lista de provider/aliases
+-- m.logout(); config.finalizeModules(); ordem correta para finalizar as sessões do token

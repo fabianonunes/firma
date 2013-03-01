@@ -18,7 +18,7 @@ public class BlankContainer extends ExternalBlankSignatureContainer {
 	@Override
 	public byte[] sign(InputStream data) throws GeneralSecurityException {
 		postSign.save(data);
-		return super.sign(data);
+		return new byte[0];
 	}
 
 	public interface PostSign {
