@@ -42,7 +42,7 @@ public class SignerTest extends TestCase {
 
 		ArrayList<String> aliases = config.aliases(pkcs11Module);
 
-		Mechanism m = config.getMechanism(pkcs11Module, aliases.get(0));
+		Mechanism m = config.getMechanism(pkcs11Module, aliases.get(1));
 		m.login();
 
 		Signer signer = new Signer(m);
@@ -53,8 +53,8 @@ public class SignerTest extends TestCase {
 
 		byte[] signed = m.sign(data_to_sign);
 
-		signer.signDeferred(new PdfReader("/tmp/ram/save_blank.pdf"), new File("/tmp/ram/signed.pdf"),
-			signed, m.getCertificate());
+		signer.signDeferred(new PdfReader("/tmp/ram/save_blank.pdf"), new File(
+			"/tmp/ram/signed.pdf"), signer.hash, signed, m.getCertificateChain());
 
 	}
 

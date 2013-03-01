@@ -8,9 +8,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
+import java.util.Date;
 
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.pdf.signer.BlankContainer.PostSign;
@@ -18,7 +18,6 @@ import tc.fab.pdf.signer.BlankContainer.PostSign;
 import com.google.inject.Inject;
 import com.itextpdf.text.pdf.PdfDictionary;
 import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfSignature;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.security.DigestAlgorithms;
 import com.itextpdf.text.pdf.security.ExternalDigest;
@@ -35,6 +34,7 @@ import com.itextpdf.text.pdf.security.TSAClientBouncyCastle;
 public class Signer {
 
 	private Mechanism mechanism;
+	public byte[] hash = null;
 
 	@Inject
 	public Signer(Mechanism mechanism) throws KeyStoreException, UnrecoverableKeyException,
@@ -52,12 +52,11 @@ public class Signer {
 		PdfPKCS7 sgn = new PdfPKCS7(null, chain, hashAlgorithm, null, externalDigest, false);
 
 		PostSign postSign = new PostSign() {
-			byte[] hash;
 
 			@Override
-			public void save(InputStream data) throws GeneralSecurityException {
+			public void save(InputStream dataToSign) throws GeneralSecurityException {
 				try {
-					hash = DigestAlgorithms.digest(data,
+					hash = DigestAlgorithms.digest(dataToSign,
 						externalDigest.getMessageDigest(hashAlgorithm));
 				} catch (Exception e) {
 					throw new GeneralSecurityException(e);
@@ -74,7 +73,10 @@ public class Signer {
 		BlankContainer container = new BlankContainer(postSign);
 
 		MakeSignature.signExternalContainer(appearance, container, 15000);
+		
 		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date(1362145657422L));
+		
 		byte[] hash = postSign.read();
 		byte[] sh = sgn.getAuthenticatedAttributeBytes(hash, cal, null, null,
 			CryptoStandard.CMS);
@@ -92,29 +94,38 @@ public class Signer {
 
 	}
 
-	public void signDeferred(PdfReader reader, File output, final byte[] signedHash,
-		final Certificate certificate) throws Exception {
+	public void signDeferred(PdfReader reader, File output, final byte[] hash, final byte[] signedHash,
+		final Certificate[] chain) throws Exception {
 
 		MakeSignature.signDeferred(reader, "Signature1", new FileOutputStream(output),
 			new ExternalSignatureContainer() {
 
 				@Override
 				public byte[] sign(InputStream data) throws GeneralSecurityException {
-					return signedHash;
+					
+					ExternalDigest externalDigest = new ProviderDigest(null);
+					PdfPKCS7 sgn = new PdfPKCS7(null, chain, "SHA1", null, externalDigest, false);
+					sgn.setExternalDigest(signedHash, null, "RSA");
+					
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(new Date(1362145657422L));
+					
+					return sgn.getEncodedPKCS7(hash, cal, null, null, null, CryptoStandard.CMS);
+					
 				}
 
 				@Override
 				public void modifySigningDictionary(PdfDictionary signDic) {
-					PdfSignature sign = (PdfSignature) signDic;
-					try {
-						sign.setCert(certificate.getEncoded());
-					} catch (CertificateEncodingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+//					PdfSignature sign = (PdfSignature) signDic;
+//					try {
+//						sign.setCert(chain[0].getEncoded());
+//					} catch (CertificateEncodingException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					} catch (Exception e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
 
 				}
 			});
