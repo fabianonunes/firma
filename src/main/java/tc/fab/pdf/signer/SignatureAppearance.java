@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
 
 import tc.fab.pdf.PDFTextPosition;
+import tc.fab.pdf.signer.Signer.Message;
 import tc.fab.pdf.signer.options.PlainDescription;
 import tc.fab.pdf.signer.options.SignerOptions;
 import tc.fab.pdf.signer.options.SignerOptions.RenderMode;
@@ -71,7 +72,7 @@ public class SignatureAppearance {
 
 	}
 
-	public byte[] signBlank(File inputFile, File outputFile, Certificate[] chain) throws Exception {
+	public Message signBlank(File inputFile, File outputFile, Certificate[] chain) throws Exception {
 
 		reader = new PdfReader(inputFile.getPath());
 

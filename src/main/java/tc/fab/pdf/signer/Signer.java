@@ -3,6 +3,7 @@ package tc.fab.pdf.signer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.security.GeneralSecurityException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -11,8 +12,6 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
-
-import org.apache.commons.codec.binary.Hex;
 
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.pdf.signer.BlankContainer.PostSign;
@@ -36,7 +35,6 @@ import com.itextpdf.text.pdf.security.TSAClientBouncyCastle;
 public class Signer {
 
 	private Mechanism mechanism;
-	public byte[] hash = null;
 
 	@Inject
 	public Signer(Mechanism mechanism) throws KeyStoreException, UnrecoverableKeyException,
@@ -44,7 +42,7 @@ public class Signer {
 		this.mechanism = mechanism;
 	}
 
-	public byte[] getSignableStream(PdfSignatureAppearance appearance, Certificate[] chain)
+	public Message getSignableStream(PdfSignatureAppearance appearance, Certificate[] chain)
 		throws Exception {
 
 		final ExternalDigest externalDigest = new ProviderDigest(null);
@@ -52,6 +50,8 @@ public class Signer {
 		PdfPKCS7 sgn = new PdfPKCS7(null, chain, hashAlgorithm, null, externalDigest, false);
 
 		PostSign postSign = new PostSign() {
+
+			byte[] hash = null;
 
 			@Override
 			public void save(InputStream dataToSign) throws GeneralSecurityException {
@@ -73,41 +73,37 @@ public class Signer {
 		BlankContainer container = new BlankContainer(postSign);
 
 		MakeSignature.signExternalContainer(appearance, container, 15000);
-		
+
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(new Date(1362145657422L));
-		
+
 		byte[] hash = postSign.read();
-		byte[] sh = sgn.getAuthenticatedAttributeBytes(hash, cal, null, null,
+		byte[] dataToSign = sgn.getAuthenticatedAttributeBytes(hash, cal, null, null,
 			CryptoStandard.CMS);
-		
-		return sh;
-		
+
+		return new Message(hash, dataToSign, cal.getTimeInMillis());
+
 	}
 
-	public void signDeferred(PdfReader reader, File output, final byte[] hash, final byte[] signature,
-		final Certificate[] chain) throws Exception {
-
-		// String tsa_url = "http://tsa.swisssign.net";
-		// final TSAClient tsc = new TSAClientBouncyCastle(tsa_url, "", "");
+	public void signDeferred(PdfReader reader, File output, final SignatureClaim claim)
+		throws Exception {
 
 		MakeSignature.signDeferred(reader, "Signature1", new FileOutputStream(output),
 			new ExternalSignatureContainer() {
 
 				@Override
 				public byte[] sign(InputStream data) throws GeneralSecurityException {
-					
-					System.out.println("deferred-hash: " + new String(Hex.encodeHex(hash)));
-					
+
 					ExternalDigest externalDigest = new ProviderDigest(null);
-					PdfPKCS7 sgn = new PdfPKCS7(null, chain, "SHA1", null, externalDigest, false);
-					sgn.setExternalDigest(signature, null, "RSA");
-					
+					PdfPKCS7 sgn = new PdfPKCS7(null, claim.getChain(), "SHA1", null,
+						externalDigest, false);
+					sgn.setExternalDigest(claim.getSignature(), null, "RSA");
+
 					Calendar cal = Calendar.getInstance();
-					cal.setTime(new Date(1362145657422L));
-					
-					return sgn.getEncodedPKCS7(hash, cal, null, null, null, CryptoStandard.CMS);
-					
+					cal.setTime(new Date(claim.getDate()));
+
+					return sgn.getEncodedPKCS7(claim.getHash(), cal, null, null, null,
+						CryptoStandard.CMS);
+
 				}
 
 				@Override
@@ -139,6 +135,95 @@ public class Signer {
 
 	public X509Certificate getCertificate() throws Exception {
 		return mechanism.getCertificate();
+	}
+
+	public class Message implements Serializable {
+
+		private static final long serialVersionUID = 3050579502760433630L;
+		private byte[] hash;
+		private long time;
+		private byte[] dataToSign;
+
+		public Message(byte[] hash, byte[] dataToSign, long time) {
+			this.hash = hash;
+			this.dataToSign = dataToSign;
+			this.time = time;
+		}
+
+		public byte[] getHash() {
+			return hash;
+		}
+
+		public void setHash(byte[] hash) {
+			this.hash = hash;
+		}
+
+		public long getTime() {
+			return time;
+		}
+
+		public void setTime(long time) {
+			this.time = time;
+		}
+
+		public byte[] getDataToSign() {
+			return dataToSign;
+		}
+
+		public void setDataToSign(byte[] dataToSign) {
+			this.dataToSign = dataToSign;
+		}
+
+	}
+
+	public class SignatureClaim implements Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		private byte[] hash;
+		private byte[] signature;
+		private Certificate[] chain;
+		private long date;
+
+		public SignatureClaim(byte[] hash, byte[] signature, Certificate[] chain, long date) {
+			super();
+			this.hash = hash;
+			this.signature = signature;
+			this.chain = chain;
+			this.date = date;
+		}
+
+		public byte[] getHash() {
+			return hash;
+		}
+
+		public void setHash(byte[] hash) {
+			this.hash = hash;
+		}
+
+		public byte[] getSignature() {
+			return signature;
+		}
+
+		public void setSignature(byte[] signature) {
+			this.signature = signature;
+		}
+
+		public Certificate[] getChain() {
+			return chain;
+		}
+
+		public void setChain(Certificate[] chain) {
+			this.chain = chain;
+		}
+
+		public long getDate() {
+			return date;
+		}
+
+		public void setDate(long date) {
+			this.date = date;
+		}
 	}
 
 }
