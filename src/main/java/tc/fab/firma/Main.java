@@ -4,14 +4,11 @@ import iaik.pkcs.pkcs11.TokenException;
 
 import java.awt.AWTEvent;
 import java.awt.EventQueue;
-import java.awt.Toolkit;
 import java.util.EventObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.security.auth.callback.CallbackHandler;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.UIManager;
 
 import org.jdesktop.application.Action;
@@ -100,8 +97,8 @@ public class Main extends Firma {
 		view = injector.getInstance(AppView.class);
 		initLookAndFeel(SubstanceCremeLookAndFeel.class.toString());
 
-		EventQueue queue = Toolkit.getDefaultToolkit().getSystemEventQueue();
-		queue.push(new EventQueueProxy());
+//		EventQueue queue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+//		queue.push(new EventQueueProxy());
 
 		view.initView();
 
@@ -136,8 +133,8 @@ public class Main extends Firma {
 	}
 
 	private void initLookAndFeel(String lafClass) {
-		JFrame.setDefaultLookAndFeelDecorated(true);
-		JDialog.setDefaultLookAndFeelDecorated(true);
+//		JFrame.setDefaultLookAndFeelDecorated(true);
+//		JDialog.setDefaultLookAndFeelDecorated(true);
 
 //		SwingUtilities.invokeLater(new Runnable() {
 //

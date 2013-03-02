@@ -3,33 +3,20 @@ package tc.fab.pdf.signer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.Pkcs11Config;
 import tc.fab.mechanisms.callback.SimplePasswordCallback;
-import tc.fab.pdf.signer.Signer.Message;
-import tc.fab.pdf.signer.Signer.SignatureClaim;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.InstanceCreator;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.itextpdf.text.pdf.PdfReader;
+import tc.fab.pdf.signer.message.Envelope;
+import tc.fab.pdf.signer.message.Message;
+import tc.fab.pdf.signer.message.MessageAdapter;
+import tc.fab.pdf.signer.message.SignatureClaim;
 
 public class SignerTest extends TestCase {
 
@@ -65,29 +52,32 @@ public class SignerTest extends TestCase {
 
 		SignatureAppearance sapp = new SignatureAppearance(signer);
 
-		Message message = sapp.signBlank(file_to_sign, file_to_save, m.getCertificateChain());
+		Message envelope = sapp.signBlank(file_to_sign, file_to_save, m.getCertificateChain());
 
-		GsonBuilder gsonBuilder = new GsonBuilder();
-		gsonBuilder.registerTypeAdapter(byte[].class, new ByteArrayToBase64TypeAdapter());
-		Gson gson = gsonBuilder.setPrettyPrinting().create();
+		String jsonMessage = envelope.toJson();
 
-		System.out.println(gson.toJson(message));
-		
-		message = gson.fromJson(gson.toJson(message), Message.class);
+		System.out.println(jsonMessage);
 
-		byte[] signed = m.sign(message.getDataToSign());
+		// ///////////////////////////////////////////////
 
-		SignatureClaim claim = signer.new SignatureClaim(message.getHash(), signed,
-			m.getCertificateChain(), message.getTime());
-		
-		String messageClaim = gson.toJson(claim);
-		System.out.println(messageClaim);
-		
-		
-		claim = gson.fromJson(messageClaim, SignatureClaim.class);
+		envelope = MessageAdapter.fromJson(jsonMessage, Envelope.class);
 
-		signer.signDeferred(new PdfReader("/tmp/ram/save_blank.pdf"), new File(
-			"/tmp/ram/signed.pdf"), claim);
+		byte[] signed = m.sign(envelope.getMessage());
+
+		SignatureClaim claim = new SignatureClaim(envelope.getHash(), signed,
+			m.getCertificateChain(), envelope.getTime());
+
+		String jsonClaim = claim.toJson();
+
+		System.out.println(jsonClaim);
+
+		claim = (SignatureClaim) MessageAdapter.fromJson(jsonClaim, SignatureClaim.class);
+
+		System.out.println(claim.getChain()[0]);
+
+		// signer.signDeferred(new PdfReader("/tmp/ram/save_blank.pdf"), new
+		// File(
+		// "/tmp/ram/signed.pdf"), claim);
 
 	}
 
@@ -96,24 +86,6 @@ public class SignerTest extends TestCase {
 		System.out.println("tearing down...");
 		m.logout();
 		config.finalizeModules();
-	}
-
-	private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>,
-		JsonDeserializer<byte[]> {
-		public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-			throws JsonParseException {
-			try {
-				return Hex.decodeHex(json.getAsString().toCharArray());
-			} catch (DecoderException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return null;
-		}
-
-		public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
-			return new JsonPrimitive(new String(Hex.encodeHex(src)));
-		}
 	}
 
 }
