@@ -13,6 +13,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JSeparator;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
@@ -20,8 +21,6 @@ import javax.swing.border.EmptyBorder;
 import org.jdesktop.application.Action;
 
 import tc.fab.app.AppContext;
-import javax.swing.JSeparator;
-import java.awt.Dialog.ModalityType;
 
 public class PINDialog extends JDialog {
 
@@ -37,7 +36,6 @@ public class PINDialog extends JDialog {
 	@Inject
 	public PINDialog(AppContext context) {
 		super(context.getMainFrame(), true);
-		setModalityType(ModalityType.TOOLKIT_MODAL);
 		this.context = context;
 		initComponents();
 		open();

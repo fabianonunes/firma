@@ -43,8 +43,6 @@ import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.MechanismManager;
 import tc.fab.mechanisms.callback.PINCallback.UserCancelledException;
 import tc.fab.pdf.signer.application.ComponentsInputBlocker;
-import java.awt.Dialog.ModalExclusionType;
-import java.awt.Dialog.ModalityType;
 
 public class SignDocumentDialog extends JDialog {
 
