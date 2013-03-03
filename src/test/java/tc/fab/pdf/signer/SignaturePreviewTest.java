@@ -2,6 +2,7 @@ package tc.fab.pdf.signer;
 
 import static org.junit.Assert.fail;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -23,16 +24,15 @@ public class SignaturePreviewTest {
 	@Before
 	public void setUp() throws Exception {
 
-
 		byte[] data = Hex.decodeHex(CERTIFICATE_CHAIN.toCharArray());
 
 		cert = CertificateFactory.getInstance("X.509").generateCertificate(
 			new ByteArrayInputStream(data));
 
-		preview = new SignaturePreview(cert);
-		
+		preview = new SignaturePreview(cert, new Dimension(400, 100));
+
 		BufferedImage img = preview.getImagePreview();
-		
+
 		ImageIO.write(img, "PNG", new File("/tmp/ram/signature.png"));
 	}
 

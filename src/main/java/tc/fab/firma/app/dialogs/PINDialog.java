@@ -36,6 +36,7 @@ public class PINDialog extends JDialog {
 	@Inject
 	public PINDialog(AppContext context) {
 		super(context.getMainFrame(), true);
+		setTitle("PIN");
 		this.context = context;
 		initComponents();
 		open();
@@ -120,5 +121,11 @@ public class PINDialog extends JDialog {
 	public void open() {
 		setLocationRelativeTo(context.getMainFrame());
 		setVisible(true);
+		java.awt.EventQueue.invokeLater(new Runnable() {
+		    @Override
+		    public void run() {
+		        toFront();
+		    }
+		});
 	}
 }

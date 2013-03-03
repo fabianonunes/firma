@@ -5,9 +5,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Signature;
+import java.security.cert.Certificate;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -32,6 +35,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Converter;
 import org.jdesktop.beansbinding.ELProperty;
 import org.jdesktop.swingx.JXImageView;
 
@@ -42,6 +46,7 @@ import tc.fab.firma.FirmaOptions;
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.MechanismManager;
 import tc.fab.mechanisms.callback.PINCallback.UserCancelledException;
+import tc.fab.pdf.signer.SignaturePreview;
 import tc.fab.pdf.signer.application.ComponentsInputBlocker;
 
 public class SignDocumentDialog extends JDialog {
@@ -50,9 +55,11 @@ public class SignDocumentDialog extends JDialog {
 
 	private static final String ACTION_FILL_ALIASES = "firma.dlg.sign_document.fill_aliases";
 	private static final String ACTION_ADD_PROVIDER = "firma.dlg.sign_document.add_provider";
+	private static final String ACTION_PREVIEW = "firma.dlg.sign_document.preview";
 	private static final String ACTION_SIGN = "firma.dlg.sign_document.sign";
 
 	private AppContext context;
+	@SuppressWarnings("unused")
 	private AppController controller;
 	private FirmaOptions options;
 
@@ -73,7 +80,6 @@ public class SignDocumentDialog extends JDialog {
 		MechanismManager providersManager) throws IOException {
 
 		super(context.getMainFrame(), true);
-		setModalExclusionType(ModalExclusionType.NO_EXCLUDE);
 
 		// setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -88,7 +94,7 @@ public class SignDocumentDialog extends JDialog {
 		// the action setup must be after initial fulfillment to avoid double
 		// fire
 		cbProvider.setAction(context.getAction(this, ACTION_FILL_ALIASES));
-		
+		cbAlias.setAction(context.getAction(this, ACTION_PREVIEW));
 
 	}
 
@@ -123,6 +129,50 @@ public class SignDocumentDialog extends JDialog {
 
 		System.out.println(signature.verify(data_signed));
 		m.logout();
+		
+		setVisible(false);
+		
+	}
+
+	@Action(name = ACTION_PREVIEW, block = BlockingScope.ACTION)
+	public Task<BufferedImage, Void> preview() {
+		String selected = cbAlias.getItemAt(cbAlias.getSelectedIndex());
+		if (selected != null && !selected.equals(context.getResReader().getString("firma.dlg.waiting"))) {
+			PreviewTask task = new PreviewTask(selected);
+			task.setInputBlocker(ComponentsInputBlocker.builder(task, btOk, cbProvider, cbAlias));
+			return task;
+		}
+		return null;
+
+	}
+
+	class PreviewTask extends Task<BufferedImage, Void> {
+
+		private String alias;
+
+		public PreviewTask(String alias) {
+			super(context.getAppContext().getApplication());
+			this.alias = alias;
+		}
+
+		@Override
+		protected BufferedImage doInBackground() throws Exception {
+			Certificate cert = providerManager.getCertificate(cbProvider.getSelectedItem()
+				.toString(), alias);
+			SignaturePreview preview = new SignaturePreview(cert, imagePane.getSize());
+			return preview.getImagePreview();
+		}
+
+		@Override
+		protected void succeeded(BufferedImage result) {
+			imagePane.setImage(result);
+		}
+
+		@Override
+		protected void failed(Throwable cause) {
+			cause.printStackTrace();
+			imagePane.setImage((BufferedImage) null);
+		}
 
 	}
 
@@ -132,7 +182,7 @@ public class SignDocumentDialog extends JDialog {
 		String provider = cbProvider.getItemAt(cbProvider.getSelectedIndex());
 
 		Task<Void, String> task = new FillAliasesTask(provider);
-		task.setInputBlocker(ComponentsInputBlocker.builder(task, btOk));
+		task.setInputBlocker(ComponentsInputBlocker.builder(task, btOk, cbAlias));
 
 		return task;
 
@@ -146,7 +196,7 @@ public class SignDocumentDialog extends JDialog {
 		public FillAliasesTask(String provider) {
 			super(context.getAppContext().getApplication());
 			this.provider = provider;
-			cbAlias.setEnabled(false);
+			// cbAlias.setEnabled(false);
 			cbAlias.removeAllItems();
 			cbAlias.addItem(context.getResReader().getString("firma.dlg.waiting"));
 		}
@@ -181,12 +231,14 @@ public class SignDocumentDialog extends JDialog {
 			if (options.getAlias() != null) {
 				cbAlias.setSelectedItem(options.getAlias());
 			}
-			cbAlias.setEnabled(true);
+			// cbAlias.setEnabled(true);
 		}
 
 		@Override
 		protected void finished() {
-			cbAlias.removeItemAt(0);
+			if (cbAlias.getItemCount() > 0) {
+				cbAlias.removeItemAt(0);
+			}
 		}
 
 	}
@@ -206,9 +258,6 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_ADD_PROVIDER)
 	public void addProvider() {
-		
-		System.out.println(imagePane.getSize());
-
 	}
 
 	public void open() {
@@ -391,5 +440,40 @@ public class SignDocumentDialog extends JDialog {
 			.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxEvalutionProperty, btOk,
 				jButtonBeanProperty);
 		autoBinding.bind();
+		//
+		// BeanProperty<JXImageView, Image> jXImageViewBeanProperty =
+		// BeanProperty.create("image");
+		// BeanProperty<JComboBox<String>, String> jComboBoxBeanProperty =
+		// BeanProperty
+		// .create("selectedItem");
+		// AutoBinding<JComboBox<String>, String, JXImageView, Image>
+		// autoBinding_1 = Bindings
+		// .createAutoBinding(UpdateStrategy.READ, cbAlias,
+		// jComboBoxBeanProperty, imagePane,
+		// jXImageViewBeanProperty);
+		//
+		// autoBinding_1.setConverter(new AliasToPreviewConverter());
+		// autoBinding_1.bind();
 	}
+
+	class AliasToPreviewConverter extends Converter<String, Image> {
+		@Override
+		public Image convertForward(String alias) {
+			try {
+				Certificate cert = providerManager.getCertificate(cbProvider.getSelectedItem()
+					.toString(), alias);
+				SignaturePreview preview = new SignaturePreview(cert, imagePane.getSize());
+				return preview.getImagePreview();
+			} catch (Exception e) {
+				return null;
+			}
+		}
+
+		@Override
+		public String convertReverse(Image value) {
+			return null;
+		}
+
+	}
+
 }

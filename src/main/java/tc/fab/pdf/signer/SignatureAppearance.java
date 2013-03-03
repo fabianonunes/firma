@@ -21,6 +21,8 @@ import tc.fab.pdf.signer.options.SignerOptions.RenderMode;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.io.RandomAccessSource;
+import com.itextpdf.text.io.RandomAccessSourceFactory;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
@@ -50,8 +52,10 @@ public class SignatureAppearance {
 			textPosition = new PDFTextPosition(inputFile);
 		}
 
-		RandomAccessFileOrArray raf = new RandomAccessFileOrArray(inputFile.getAbsolutePath(),
-			false, true);
+		RandomAccessSource factory = new RandomAccessSourceFactory().createBestSource(inputFile
+			.getAbsolutePath());
+
+		RandomAccessFileOrArray raf = new RandomAccessFileOrArray(factory);
 
 		reader = new PdfReader(raf, null);
 
@@ -63,7 +67,7 @@ public class SignatureAppearance {
 
 		PdfStamper stamper = PdfStamper.createSignature(reader, fout, '\0', tmpFile, true);
 		appearance = stamper.getSignatureAppearance();
-		
+
 		if (options != null) {
 			configAppearance(signer.getCertificate());
 		}
@@ -72,7 +76,8 @@ public class SignatureAppearance {
 
 	}
 
-	public Envelope signBlank(File inputFile, File outputFile, Certificate[] chain) throws Exception {
+	public Envelope signBlank(File inputFile, File outputFile, Certificate[] chain)
+		throws Exception {
 
 		reader = new PdfReader(inputFile.getPath());
 
@@ -84,17 +89,15 @@ public class SignatureAppearance {
 
 		PdfStamper stamper = PdfStamper.createSignature(reader, fout, '\0', tmpFile, true);
 
-
 		appearance = stamper.getSignatureAppearance();
 		appearance.setCertificate(chain[0]);
 		appearance.setReason("I've written this.");
 		appearance.setLocation("Foobar");
-		appearance.setVisibleSignature(
-			new Rectangle(220, 732, 400, 780), 1, "Signature1"
-		);
-		
-		appearance.setLayer2Text(CertificateInfo.getSubjectFields((X509Certificate) chain[0]).getField("CN"));
-		
+		appearance.setVisibleSignature(new Rectangle(220, 732, 400, 780), 1, "Signature1");
+
+		appearance.setLayer2Text(CertificateInfo.getSubjectFields((X509Certificate) chain[0])
+			.getField("CN"));
+
 		appearance.setRenderingMode(RenderingMode.NAME_AND_DESCRIPTION);
 
 		return signer.getSignableStream(appearance, chain);
@@ -210,7 +213,7 @@ public class SignatureAppearance {
 				appearance.setReason(desc.getReason());
 			}
 
-//			 appearance.setLayer2Text(desc.toString());
+			// appearance.setLayer2Text(desc.toString());
 
 		}
 

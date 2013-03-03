@@ -8,6 +8,7 @@ import iaik.pkcs.pkcs11.TokenException;
 import iaik.pkcs.pkcs11.objects.Attribute;
 import iaik.pkcs.pkcs11.objects.X509PublicKeyCertificate;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -23,8 +24,12 @@ import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +60,7 @@ public class Pkcs11Config {
 	private Map<String, Module> modules = new HashMap<>();
 	private Map<String, Long> slotIDs = new HashMap<>();
 	private Map<String, Pkcs11Adapter> adapters = new HashMap<>();
+	private Map<String, X509PublicKeyCertificate> certificates = new HashMap<>();
 
 	private File wrapperFile;
 	private List<String> pkcs11Modules;
@@ -124,6 +130,7 @@ public class Pkcs11Config {
 				for (Object object : session.findObjects(10)) {
 
 					X509PublicKeyCertificate certificate = (X509PublicKeyCertificate) object;
+
 					String label = certificate.getLabel().toString();
 
 					if (label.equals("<NULL_PTR>")) {
@@ -132,6 +139,9 @@ public class Pkcs11Config {
 
 					aliases.add(label);
 					slotIDs.put(pkcs11Module + label, slot.getSlotID());
+					// TODO: se a função aliases não for chamada antes, o mapa
+					// de certificados vai ficar em branco
+					certificates.put(pkcs11Module + label, certificate);
 
 				}
 
@@ -210,7 +220,7 @@ public class Pkcs11Config {
 
 			Security.addProvider(provider);
 
-			adapters.put(adapterId, new Pkcs11Adapter(handler, alias, provider));
+			adapters.put(adapterId, new Pkcs11Adapter(handler, alias, pkcs11Module, provider));
 		}
 
 		return adapters.get(adapterId);
@@ -225,15 +235,19 @@ public class Pkcs11Config {
 
 		private CallbackHandler handler;
 		private AuthProvider provider;
+		private boolean isLogged = false;
+		private String pkcs11Module;
 
-		public Pkcs11Adapter(CallbackHandler handler, String alias, Provider provider) {
+		public Pkcs11Adapter(CallbackHandler handler, String alias, String pkcs11Module,
+			Provider provider) {
 			this.handler = handler;
+			this.pkcs11Module = pkcs11Module;
 			this.provider = (AuthProvider) provider;
 			setAlias(alias);
 		}
 
 		@Override
-		public void login() throws KeyStoreException, NoSuchAlgorithmException,
+		public synchronized void login() throws KeyStoreException, NoSuchAlgorithmException,
 			CertificateException, UnsupportedCallbackException, IOException,
 			UserCancelledException, FailedLoginException {
 
@@ -250,6 +264,7 @@ public class Pkcs11Config {
 
 				try {
 					keystore.load(null, password);
+					isLogged = true;
 					break;
 				} catch (IOException e) {
 					if (isCause(FailedLoginException.class, e)) {
@@ -264,6 +279,7 @@ public class Pkcs11Config {
 
 		@Override
 		public void logout() throws LoginException {
+			isLogged = false;
 			provider.logout();
 			// Security.removeProvider(provider.getName());
 		}
@@ -279,6 +295,33 @@ public class Pkcs11Config {
 
 			return sig.sign();
 
+		}
+
+		@Override
+		public X509Certificate getCertificate() throws KeyStoreException {
+			if (isLogged) {
+				return (X509Certificate) keystore.getCertificate(alias);
+			} else {
+				byte[] encoded = certificates.get(pkcs11Module + alias).getValue()
+					.getByteArrayValue();
+				try {
+					return (X509Certificate) CertificateFactory.getInstance("X.509")
+						.generateCertificate(new ByteArrayInputStream(encoded));
+				} catch (CertificateException e) {
+					return null;
+				}
+			}
+
+		}
+
+		@Override
+		public Certificate[] getCertificateChain() throws KeyStoreException {
+			return keystore.getCertificateChain(alias);
+		}
+
+		@Override
+		public List<String> aliases() throws KeyStoreException {
+			return Collections.list(keystore.aliases());
 		}
 
 	}
