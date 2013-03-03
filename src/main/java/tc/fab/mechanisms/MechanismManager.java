@@ -10,16 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import javax.security.auth.callback.CallbackHandler;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.application.Resource;
 
 import tc.fab.app.AppContext;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.inject.Inject;
 
 @Singleton
@@ -45,10 +46,10 @@ public class MechanismManager {
 		List<String> libraries = new ArrayList<>(Arrays.asList(SystemUtils.IS_OS_WINDOWS ? winLibs
 			: unixLibs));
 
-		CollectionUtils.filter(libraries, new Predicate() {
+		Collections2.filter(libraries, new Predicate<String>() {
 			@Override
-			public boolean evaluate(Object object) {
-				if (object != null && new File(object.toString()).exists()) {
+			public boolean apply(@Nullable String object) {
+				if (object != null && new File(object).exists()) {
 					return true;
 				}
 				return false;

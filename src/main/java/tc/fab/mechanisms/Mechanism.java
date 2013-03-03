@@ -10,7 +10,7 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-public interface Mechanism {
+public interface Mechanism extends AutoCloseable {
 
 	void login() throws Exception;
 

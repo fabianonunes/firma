@@ -187,7 +187,8 @@ public class Pkcs11Config {
 			}
 		}
 		for (Pkcs11Adapter adapter : adapters.values()) {
-			Security.removeProvider(adapter.provider.getName());		}
+			Security.removeProvider(adapter.provider.getName());
+		}
 
 	}
 

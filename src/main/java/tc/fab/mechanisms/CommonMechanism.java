@@ -55,5 +55,11 @@ public abstract class CommonMechanism implements Mechanism {
 	public void setAlias(String alias) {
 		this.alias = alias;
 	}
+	
+	@Override
+	public void close() throws Exception {
+		this.logout();
+	}
+
 
 }
