@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>tc.fab</groupId>
 	<artifactId>firma</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.9-SNAPSHOT</version>
 
 	<repositories>
 		<repository>
@@ -15,7 +15,6 @@
 		</repository>
 		<repository>
 			<id>itextpdf.com</id>
-			<name>Maven Repository for iText</name>
 			<url>http://maven.itextpdf.com/</url>
 		</repository>
 		<repository>
@@ -178,11 +177,6 @@
 			<version>1.2.18</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-collections</groupId>
-			<artifactId>commons-collections</artifactId>
-			<version>3.2.1</version>
-		</dependency>
-		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.2.2</version>
@@ -212,6 +206,11 @@
 			<groupId>org.ostermiller</groupId>
 			<artifactId>utils</artifactId>
 			<version>1.07.00</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.collections</groupId>
+			<artifactId>google-collections</artifactId>
+			<version>1.0</version>
 		</dependency>
 	</dependencies>
 
