@@ -51,7 +51,7 @@ import tc.fab.mechanisms.callback.PINCallback;
 import tc.fab.pdf.signer.FileDropListener;
 import tc.fab.pdf.signer.SignatureAppearance;
 import tc.fab.pdf.signer.options.SignerOptionDialog;
-import tc.fab.pdf.signer.options.SignerOptions;
+import tc.fab.pdf.signer.options.AppearanceOptions;
 
 public class PDFSignerApp extends SingleFrameApplication {
 
@@ -73,7 +73,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 	private FirmaView view;
 
-	private SignerOptions options;
+	private AppearanceOptions options;
 
 	public PDFSignerApp() throws IOException {
 		super();
@@ -130,7 +130,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 	protected void configureWindow(java.awt.Window root) {
 	}
 
-	public SignerOptions getOptions() {
+	public AppearanceOptions getOptions() {
 		return options;
 	}
 
@@ -167,7 +167,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 	protected void initialize(String[] args) {
 		super.initialize(args);
 		try {
-			setOptions(SignerOptions.newInstance());
+			setOptions(AppearanceOptions.newInstance());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -212,7 +212,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 	}
 
-	public void setOptions(SignerOptions options) {
+	public void setOptions(AppearanceOptions options) {
 		this.options = options;
 	}
 

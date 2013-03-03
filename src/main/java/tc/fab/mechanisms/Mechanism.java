@@ -16,11 +16,12 @@ public interface Mechanism extends AutoCloseable {
 
 	void logout() throws Exception;
 
-	PrivateKey getPrivateKey() throws Exception;
+	PrivateKey getPrivateKey() throws UnrecoverableKeyException, KeyStoreException,
+		NoSuchAlgorithmException;
 
 	X509Certificate getCertificate() throws Exception;
 
-	Certificate[] getCertificateChain() throws Exception;
+	Certificate[] getCertificateChain() throws KeyStoreException;
 
 	List<String> aliases() throws KeyStoreException;
 

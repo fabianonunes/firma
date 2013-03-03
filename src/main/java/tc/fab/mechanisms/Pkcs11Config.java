@@ -4,6 +4,8 @@ import iaik.pkcs.pkcs11.Module;
 import iaik.pkcs.pkcs11.Session;
 import iaik.pkcs.pkcs11.Slot;
 import iaik.pkcs.pkcs11.Token;
+import iaik.pkcs.pkcs11.Token.SessionReadWriteBehavior;
+import iaik.pkcs.pkcs11.Token.SessionType;
 import iaik.pkcs.pkcs11.TokenException;
 import iaik.pkcs.pkcs11.objects.Attribute;
 import iaik.pkcs.pkcs11.objects.X509PublicKeyCertificate;
@@ -29,6 +31,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -63,10 +66,10 @@ public class Pkcs11Config {
 	private Map<String, X509PublicKeyCertificate> certificates = new HashMap<>();
 
 	private File wrapperFile;
-	private List<String> pkcs11Modules;
+	private Collection<String> pkcs11Modules;
 	private CallbackHandler handler;
 
-	public Pkcs11Config(List<String> pkcs11Modules, CallbackHandler handler) {
+	public Pkcs11Config(Collection<String> pkcs11Modules, CallbackHandler handler) {
 		this.pkcs11Modules = pkcs11Modules;
 		this.handler = handler;
 	}
@@ -103,7 +106,7 @@ public class Pkcs11Config {
 
 	}
 
-	public List<String> getPkcs11Modules() {
+	public Collection<String> getPkcs11Modules() {
 		return pkcs11Modules;
 	}
 
@@ -120,23 +123,19 @@ public class Pkcs11Config {
 
 				Token token = slot.getToken();
 
-				Session session = token.openSession(Token.SessionType.SERIAL_SESSION,
-					Token.SessionReadWriteBehavior.RO_SESSION, null, null);
+				Session session = token.openSession(SessionType.SERIAL_SESSION,
+					SessionReadWriteBehavior.RO_SESSION, null, null);
 
 				X509PublicKeyCertificate searchTemplate = new X509PublicKeyCertificate();
-
 				session.findObjectsInit(searchTemplate);
 
 				for (Object object : session.findObjects(10)) {
 
 					X509PublicKeyCertificate certificate = (X509PublicKeyCertificate) object;
-
 					String label = certificate.getLabel().toString();
-
 					if (label.equals("<NULL_PTR>")) {
 						label = "0x" + certificate.getAttributeTable().get(Attribute.ID);
 					}
-
 					aliases.add(label);
 					slotIDs.put(pkcs11Module + label, slot.getSlotID());
 					// TODO: se a função aliases não for chamada antes, o mapa
@@ -171,7 +170,12 @@ public class Pkcs11Config {
 		return modules.get(pkcs11Module);
 	}
 
-	public void finalizeModules() throws TokenException {
+	public void finalizeModules() throws TokenException, LoginException {
+
+		for (Pkcs11Adapter adapter : adapters.values()) {
+			adapter.provider.logout();
+			Security.removeProvider(adapter.provider.getName());
+		}
 		for (Module module : modules.values()) {
 			for (Slot slot : module.getSlotList(Module.SlotRequirement.TOKEN_PRESENT)) {
 				try {
@@ -185,9 +189,6 @@ public class Pkcs11Config {
 			} catch (TokenException e) {
 				// silent
 			}
-		}
-		for (Pkcs11Adapter adapter : adapters.values()) {
-			Security.removeProvider(adapter.provider.getName());
 		}
 
 	}

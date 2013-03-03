@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.regex.Matcher;
@@ -12,11 +11,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 
-import tc.fab.pdf.PDFTextPosition;
 import tc.fab.pdf.signer.message.Envelope;
-import tc.fab.pdf.signer.options.PlainDescription;
-import tc.fab.pdf.signer.options.SignerOptions;
-import tc.fab.pdf.signer.options.SignerOptions.RenderMode;
+import tc.fab.pdf.signer.options.PDFTextPosition;
 
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
@@ -34,15 +30,14 @@ import com.itextpdf.text.pdf.security.CertificateInfo;
 
 public class SignatureAppearance {
 
-	private SignerOptions options;
 	private PdfReader reader;
 	private Float signatureWidth;
 	private Float signatureHeight;
 	private PdfSignatureAppearance appearance;
 	private PDFTextPosition textPosition;
-	private Signer signer;
+	private DocumentSigner signer;
 
-	public SignatureAppearance(Signer signer) {
+	public SignatureAppearance(DocumentSigner signer) {
 		this.signer = signer;
 	}
 
@@ -68,11 +63,7 @@ public class SignatureAppearance {
 		PdfStamper stamper = PdfStamper.createSignature(reader, fout, '\0', tmpFile, true);
 		appearance = stamper.getSignatureAppearance();
 
-		if (options != null) {
-			configAppearance(signer.getCertificate());
-		}
-
-		signer.signDetached(appearance, false);
+		signer.sign(appearance, false);
 
 	}
 
@@ -107,116 +98,6 @@ public class SignatureAppearance {
 	// TODO: tirar este método daqui
 	public static Float cmToPoint(Number cm) {
 		return (cm.floatValue() / 2.54F) * 72;
-	}
-
-	public void setOptions(SignerOptions options) {
-		this.options = options;
-	}
-
-	public SignerOptions getOptions() {
-		return options;
-	}
-
-	protected void configAppearance(X509Certificate certificate) throws IOException,
-		DocumentException, KeyStoreException {
-
-		RenderMode renderMode = getOptions().getRenderMode();
-
-		Image img = null;
-
-		signatureHeight = getOptions().getSignatureHeight();
-		signatureWidth = getOptions().getSignatureWidth();
-
-		// ap.setAcro6Layers(true);
-
-		if (getOptions().hasGraphic()) {
-			img = Image.getInstance(getOptions().getImage().getAbsolutePath());
-		}
-
-		if (renderMode.equals(RenderMode.Graphic)) {
-
-			appearance.setRenderingMode(RenderingMode.GRAPHIC);
-
-			Float scale = getOptions().getImageScale();
-
-			if (getOptions().isSignatureAutomaticSize()) {
-				signatureWidth = img.getWidth() * scale;
-				signatureHeight = img.getHeight() * scale;
-			} else {
-				// TODO: nesse caso, expande a imagem ao tamanho total da
-				// assinatura
-				scale = -1F;
-			}
-
-			appearance.setSignatureGraphic(img);
-			// ap.setImage(img);
-			// ap.setLayer2Text("");
-
-			offsetSignature();
-
-			// TODO: descobrir pq o Acrobat 7 não mostra a imagem qdo na layer2
-			// addImageToLayer(ap.getLayer(2), img);
-
-		} else if (renderMode.equals(RenderMode.GraphicAndDescription)) {
-
-			appearance.setRenderingMode(RenderingMode.GRAPHIC_AND_DESCRIPTION);
-
-			appearance.setSignatureGraphic(img);
-
-			offsetSignature();
-
-		} else if (renderMode.equals(RenderMode.Name)) {
-
-			appearance.setRenderingMode(RenderingMode.DESCRIPTION);
-
-			String name;
-
-			if (getOptions().getImageCustom()) {
-				name = getOptions().getImageCustomText();
-			} else {
-				name = CertificateInfo.getSubjectFields(certificate).getField("CN");
-			}
-
-			addTextToLayer(2, name);
-
-		} else if (renderMode.equals(RenderMode.Description)) {
-
-			appearance.setRenderingMode(RenderingMode.DESCRIPTION);
-			offsetSignature();
-
-		} else if (renderMode.equals(RenderMode.NameAndDescription)) {
-
-			appearance.setRenderingMode(RenderingMode.NAME_AND_DESCRIPTION);
-			offsetSignature();
-
-		}
-
-		if (getOptions().hasDescription()) {
-
-			// TODO: implementar description
-
-			PlainDescription desc = getOptions().getDescription();
-
-			String name = CertificateInfo.getSubjectFields(certificate).getField("CN");
-
-			desc.setName(name);
-
-			// StringTemplate description = new
-			// StringTemplate(desc.getTemplate());
-			// description.setAttribute("description", desc);
-
-			if (desc.getLocation() != null) {
-				appearance.setLocation(desc.getLocation());
-			}
-
-			if (desc.getReason() != null) {
-				appearance.setReason(desc.getReason());
-			}
-
-			// appearance.setLayer2Text(desc.toString());
-
-		}
-
 	}
 
 	protected void offsetSignature() throws IOException {

@@ -14,7 +14,7 @@ import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.Pkcs11Config;
 import tc.fab.mechanisms.callback.SimplePasswordCallback;
 import tc.fab.pdf.signer.SignatureAppearance;
-import tc.fab.pdf.signer.Signer;
+import tc.fab.pdf.signer.DocumentSigner;
 import tc.fab.pdf.signer.message.Envelope;
 import tc.fab.pdf.signer.message.Message;
 import tc.fab.pdf.signer.message.MessageAdapter;
@@ -50,7 +50,7 @@ public class SignerTest extends TestCase {
 		m = config.getMechanism(pkcs11Module, aliases.get(0));
 		m.login();
 
-		Signer signer = new Signer(m);
+		DocumentSigner signer = new DocumentSigner(m);
 
 		SignatureAppearance sapp = new SignatureAppearance(signer);
 

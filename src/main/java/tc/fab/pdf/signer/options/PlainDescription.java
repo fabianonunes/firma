@@ -6,11 +6,11 @@ import java.util.Locale;
 
 public class PlainDescription {
 
-	private SignerOptions options;
+	private AppearanceOptions options;
 	private String name;
 	private String template;
 
-	public PlainDescription(SignerOptions options) {
+	public PlainDescription(AppearanceOptions options) {
 		this.options = options;
 	}
 

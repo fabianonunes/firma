@@ -7,7 +7,7 @@ import tc.fab.file.drop.FileDrop;
 import tc.fab.file.selector.DirectorySelector;
 import tc.fab.file.selector.FileSelector;
 import tc.fab.pdf.signer.application.PDFSignerApp;
-import tc.fab.pdf.signer.options.SignerOptions;
+import tc.fab.pdf.signer.options.AppearanceOptions;
 
 public class FileDropListener implements FileDrop.Listener {
 
@@ -27,7 +27,7 @@ public class FileDropListener implements FileDrop.Listener {
 	@Override
 	public void filesDropped(File[] files) {
 
-		SignerOptions opt = PDFSignerApp.getApplication().getOptions();
+		AppearanceOptions opt = PDFSignerApp.getApplication().getOptions();
 
 		FileSelector fs = new FileSelector();
 		fs.setFilter(PDFSignerApp.acceptedFiles);

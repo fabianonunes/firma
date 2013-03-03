@@ -1,6 +1,5 @@
-package tc.fab.pdf;
+package tc.fab.pdf.signer.options;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.Normalizer;
 
@@ -9,16 +8,10 @@ import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 
 public class PDFTextPosition {
 
-	private PdfReader reader;
 	private PdfReaderContentParser parser;
 
-	public PDFTextPosition(String filename) throws IOException {
-		reader = new PdfReader(filename);
+	public PDFTextPosition(PdfReader reader) throws IOException {
 		parser = new PdfReaderContentParser(reader);
-	}
-
-	public PDFTextPosition(File file) throws IOException {
-		this(file.getAbsolutePath());
 	}
 
 	public Float getCharacterPosition(Integer pageNumber, Float marginBottom,

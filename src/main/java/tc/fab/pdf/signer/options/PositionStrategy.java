@@ -1,4 +1,4 @@
-package tc.fab.pdf;
+package tc.fab.pdf.signer.options;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -36,9 +36,7 @@ public class PositionStrategy implements RenderListener {
 		StringBuffer buffer = new StringBuffer();
 
 		for (TextChunk chunk : locationalResult) {
-
 			buffer.append(chunk.text);
-
 		}
 
 		return buffer.toString();
@@ -68,19 +66,12 @@ public class PositionStrategy implements RenderListener {
 		Set<Float> ys = new TreeSet<Float>();
 
 		for (TextChunk chunk : locationalResult) {
-
 			Rectangle2D.Float r = chunk.boundingRectange;
-
 			if ((r.y + r.height) < marginFooter) {
-
 				if (chunk.text.trim().length() > 0) {
-
 					ys.add(r.y);
-
 				}
-
 			}
-
 		}
 
 		return Collections.max(ys);
@@ -174,6 +165,7 @@ public class PositionStrategy implements RenderListener {
 
 		public TextChunk(String string, Vector startLocation,
 				Vector endLocation, float charSpaceWidth, Rectangle2D.Float float1) {
+			
 			this.text = string;
 			this.startLocation = startLocation;
 			this.endLocation = endLocation;

@@ -6,6 +6,7 @@ import java.io.File;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,10 +44,10 @@ public class MechanismManager {
 			context.getResourceMap().injectFields(this);
 		}
 
-		List<String> libraries = new ArrayList<>(Arrays.asList(SystemUtils.IS_OS_WINDOWS ? winLibs
+		Collection<String> libraries = new ArrayList<>(Arrays.asList(SystemUtils.IS_OS_WINDOWS ? winLibs
 			: unixLibs));
 
-		Collections2.filter(libraries, new Predicate<String>() {
+		libraries = Collections2.filter(libraries, new Predicate<String>() {
 			@Override
 			public boolean apply(@Nullable String object) {
 				if (object != null && new File(object).exists()) {
@@ -55,7 +56,7 @@ public class MechanismManager {
 				return false;
 			}
 		});
-
+		
 		pkcs11config = new Pkcs11Config(libraries, handler);
 
 		if (SystemUtils.IS_OS_WINDOWS) {

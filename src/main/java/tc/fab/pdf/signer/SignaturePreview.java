@@ -47,7 +47,7 @@ public class SignaturePreview {
 
 		CircularByteBuffer createBuffer = new CircularByteBuffer(CircularByteBuffer.INFINITE_SIZE);
 
-		Signer signer = new Signer(null);
+		DocumentSigner signer = new DocumentSigner(null);
 
 		try (InputStream in = createBuffer.getInputStream();
 			OutputStream out = createBuffer.getOutputStream();) {

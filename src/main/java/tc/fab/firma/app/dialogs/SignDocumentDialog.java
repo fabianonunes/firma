@@ -31,7 +31,6 @@ import org.apache.commons.codec.binary.Hex;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Task;
-import org.jdesktop.application.Task.BlockingScope;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -145,7 +144,7 @@ public class SignDocumentDialog extends JDialog {
 
 	}
 
-	@Action(name = ACTION_PREVIEW, block = BlockingScope.ACTION)
+	@Action(name = ACTION_PREVIEW)
 	public Task<BufferedImage, Void> preview() {
 		String selected = getAlias();
 		if (selected != null
@@ -186,7 +185,7 @@ public class SignDocumentDialog extends JDialog {
 
 	}
 
-	@Action(name = ACTION_FILL_ALIASES, block = BlockingScope.ACTION)
+	@Action(name = ACTION_FILL_ALIASES)
 	public Task<Void, String> fillAliases() {
 
 		Task<Void, String> task = new FillAliasesTask(getProvider());
