@@ -177,10 +177,23 @@ public class Pkcs11Config {
 				try {
 					slot.getToken().closeAllSessions();
 				} catch (Exception e) {
+					// silent
 				}
 			}
-			module.finalize(null);
+			try {
+				module.finalize(null);
+			} catch (TokenException e) {
+				// silent
+			}
 		}
+		for (Pkcs11Adapter adapter : adapters.values()) {
+			try {
+				adapter.logout();
+			} catch (LoginException e) {
+				// silent
+			}
+		}
+
 	}
 
 	/**
@@ -209,8 +222,6 @@ public class Pkcs11Config {
 			config.append("name = Firma-" + adapterId.hashCode());
 			config.append("\nslot = " + slotId);
 			config.append("\nlibrary = " + pkcs11Module);
-
-			System.out.println(config.toString());
 
 			try (InputStream is = IOUtils.toInputStream(config)) {
 				provider = new SunPKCS11(is);
