@@ -187,12 +187,7 @@ public class Pkcs11Config {
 			}
 		}
 		for (Pkcs11Adapter adapter : adapters.values()) {
-			try {
-				adapter.logout();
-			} catch (LoginException e) {
-				// silent
-			}
-		}
+			Security.removeProvider(adapter.provider.getName());		}
 
 	}
 
@@ -292,7 +287,6 @@ public class Pkcs11Config {
 		public void logout() throws LoginException {
 			isLogged = false;
 			provider.logout();
-			// Security.removeProvider(provider.getName());
 		}
 
 		@Override
@@ -319,7 +313,7 @@ public class Pkcs11Config {
 					return (X509Certificate) CertificateFactory.getInstance("X.509")
 						.generateCertificate(new ByteArrayInputStream(encoded));
 				} catch (CertificateException e) {
-					return null;
+					throw new KeyStoreException(e);
 				}
 			}
 

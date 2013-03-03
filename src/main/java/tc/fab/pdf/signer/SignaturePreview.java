@@ -49,18 +49,12 @@ public class SignaturePreview {
 		PdfStamper stamper = PdfStamper.createSignature(reader, signBuffer.getOutputStream(), '\0');
 
 		Signer signer = new Signer(null);
+
 		PdfSignatureAppearance appearance = stamper.getSignatureAppearance();
 		appearance.setVisibleSignature(new Rectangle(0, 0, width, height), 1, "Signature1");
+		appearance.setCertificate(cert);
 		appearance.setRenderingMode(RenderingMode.NAME_AND_DESCRIPTION);
 
-		// BufferedImage img = ImageIO.read(new File("/tmp/ram/im.png"));
-		// img = transform(img, 0.2f);
-		//
-		// Image image = Image.getInstance(img, null);
-		//
-		// appearance.setImage(image);
-		// appearance.setImageScale(-1f);
-		appearance.setCertificate(cert);
 		signer.getSignableStream(appearance, new Certificate[] { cert });
 		signBuffer.getOutputStream().close();
 
@@ -70,7 +64,7 @@ public class SignaturePreview {
 		BufferedImage buffered = page.convertToImage();
 
 		pddoc.close();
-		createBuffer.getOutputStream().close();
+		createBuffer.getInputStream().close();
 		signBuffer.getInputStream().close();
 
 		return buffered;
