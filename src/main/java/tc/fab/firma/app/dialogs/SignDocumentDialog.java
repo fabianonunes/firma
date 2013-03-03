@@ -48,6 +48,7 @@ import tc.fab.mechanisms.MechanismManager;
 import tc.fab.mechanisms.callback.PINCallback.UserCancelledException;
 import tc.fab.pdf.signer.SignaturePreview;
 import tc.fab.pdf.signer.application.ComponentsInputBlocker;
+import javax.swing.JTextField;
 
 public class SignDocumentDialog extends JDialog {
 
@@ -74,6 +75,7 @@ public class SignDocumentDialog extends JDialog {
 	private JLabel lblAssinarComo;
 
 	private JXImageView imagePane;
+	private JTextField textField;
 
 	@Inject
 	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document,
@@ -100,7 +102,7 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_SIGN)
 	public void sign() throws InvalidKeyException, Exception {
-
+		
 		String alias = (String) cbAlias.getSelectedItem();
 		String provider = cbProvider.getItemAt(cbProvider.getSelectedIndex());
 		Mechanism m = providerManager.getMechanism(provider, alias);
@@ -273,7 +275,6 @@ public class SignDocumentDialog extends JDialog {
 		btOk = new JButton();
 		JButton btAddProvider = new JButton();
 		JButton btRefresh = new JButton();
-		JSeparator separator = new JSeparator();
 
 		btOk.setAction(context.getAction(this, ACTION_SIGN));
 		btRefresh.setAction(context.getAction(this, ACTION_FILL_ALIASES));
@@ -303,98 +304,76 @@ public class SignDocumentDialog extends JDialog {
 		imagePane.setEditable(false);
 		imagePane.setDragEnabled(false);
 		imagePane.setBorder(new LineBorder(Color.LIGHT_GRAY));
+		
+		JLabel lblNewLabel = new JLabel();
+		lblNewLabel.setName("firma.dlg.sign_document.location");
+		
+		textField = new JTextField();
+		textField.setPreferredSize(new Dimension(0, 24));
+		textField.setColumns(10);
+		
+		JSeparator separator_1 = new JSeparator();
 		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
-		gl_contentPanel
-			.setHorizontalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(
-					Alignment.TRAILING,
-					gl_contentPanel
-						.createSequentialGroup()
-						.addContainerGap()
-						.addGroup(
-							gl_contentPanel
-								.createParallelGroup(Alignment.TRAILING)
-								.addComponent(imagePane, Alignment.LEADING,
-									GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE)
-								.addComponent(separator, GroupLayout.DEFAULT_SIZE, 428,
-									Short.MAX_VALUE)
-								.addGroup(
-									gl_contentPanel
-										.createSequentialGroup()
-										.addGroup(
-											gl_contentPanel.createParallelGroup(Alignment.LEADING)
-												.addComponent(lblTipoDoCertificado)
-												.addComponent(lblAssinarComo))
-										.addPreferredGap(ComponentPlacement.RELATED)
-										.addGroup(
-											gl_contentPanel
-												.createParallelGroup(Alignment.TRAILING)
-												.addComponent(cbAlias, Alignment.LEADING, 0, 369,
-													Short.MAX_VALUE)
-												.addComponent(cbProvider, Alignment.LEADING, 0,
-													369, Short.MAX_VALUE))
-										.addPreferredGap(ComponentPlacement.RELATED)
-										.addGroup(
-											gl_contentPanel
-												.createParallelGroup(Alignment.LEADING)
-												.addComponent(btRefresh,
-													GroupLayout.PREFERRED_SIZE, 41,
-													GroupLayout.PREFERRED_SIZE)
-												.addComponent(btAddProvider,
-													GroupLayout.PREFERRED_SIZE, 41,
-													GroupLayout.PREFERRED_SIZE)))
-								.addGroup(
-									Alignment.LEADING,
-									gl_contentPanel
-										.createSequentialGroup()
-										.addComponent(btCertificateInfo,
-											GroupLayout.PREFERRED_SIZE, 101,
-											GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(ComponentPlacement.RELATED, 177,
-											Short.MAX_VALUE)
-										.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 138,
-											GroupLayout.PREFERRED_SIZE))).addContainerGap()));
-		gl_contentPanel.setVerticalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
-			.addGroup(
-				gl_contentPanel
-					.createSequentialGroup()
+		gl_contentPanel.setHorizontalGroup(
+			gl_contentPanel.createParallelGroup(Alignment.TRAILING)
+				.addComponent(separator_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 498, Short.MAX_VALUE)
+				.addGroup(Alignment.LEADING, gl_contentPanel.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(
-						gl_contentPanel
-							.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lblTipoDoCertificado)
-							.addComponent(cbProvider, GroupLayout.PREFERRED_SIZE,
-								GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addComponent(btAddProvider, GroupLayout.PREFERRED_SIZE,
-								GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addComponent(btCertificateInfo, GroupLayout.PREFERRED_SIZE, 101, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED, 235, Short.MAX_VALUE)
+					.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 138, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap())
+				.addGroup(gl_contentPanel.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_contentPanel.createParallelGroup(Alignment.TRAILING)
+						.addComponent(imagePane, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+						.addGroup(Alignment.LEADING, gl_contentPanel.createSequentialGroup()
+							.addGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
+								.addComponent(lblTipoDoCertificado)
+								.addComponent(lblAssinarComo))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(gl_contentPanel.createParallelGroup(Alignment.TRAILING)
+								.addComponent(cbAlias, Alignment.LEADING, 0, 355, Short.MAX_VALUE)
+								.addComponent(cbProvider, Alignment.LEADING, 0, 355, Short.MAX_VALUE))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
+								.addComponent(btRefresh, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btAddProvider, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE)))
+						.addComponent(textField, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+						.addComponent(lblNewLabel, Alignment.LEADING))
+					.addContainerGap())
+		);
+		gl_contentPanel.setVerticalGroup(
+			gl_contentPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_contentPanel.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_contentPanel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblTipoDoCertificado)
+						.addComponent(cbProvider, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btAddProvider, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(
-						gl_contentPanel
-							.createParallelGroup(Alignment.BASELINE)
-							.addComponent(lblAssinarComo)
-							.addComponent(cbAlias, GroupLayout.PREFERRED_SIZE,
-								GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addComponent(btRefresh, GroupLayout.PREFERRED_SIZE, 25,
-								GroupLayout.PREFERRED_SIZE))
+					.addGroup(gl_contentPanel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblAssinarComo)
+						.addComponent(cbAlias, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btRefresh, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(separator, GroupLayout.PREFERRED_SIZE, 2,
-						GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(imagePane, GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
+					.addComponent(imagePane, GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(
-						gl_contentPanel
-							.createParallelGroup(Alignment.LEADING)
-							.addComponent(btCertificateInfo, Alignment.TRAILING,
-								GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-								GroupLayout.PREFERRED_SIZE)
-							.addComponent(comboBox, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE,
-								GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))));
+					.addGroup(gl_contentPanel.createParallelGroup(Alignment.TRAILING)
+						.addComponent(btCertificateInfo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(separator_1, GroupLayout.PREFERRED_SIZE, 2, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(lblNewLabel)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+		);
 
 		setName("firma.dlg.sign_document");
 		setResizable(false);
 		setModal(true);
-		setBounds(100, 100, 450, 292);
+		setBounds(100, 100, 510, 355);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -475,5 +454,4 @@ public class SignDocumentDialog extends JDialog {
 		}
 
 	}
-
 }
