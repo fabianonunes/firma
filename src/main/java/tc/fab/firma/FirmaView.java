@@ -26,11 +26,11 @@ import tc.fab.app.AppController;
 import tc.fab.app.AppView;
 import tc.fab.file.drop.DialogDrop;
 import tc.fab.firma.app.components.JFileTable;
-import tc.fab.pdf.signer.options.SignerOptionDialog;
 
 @Singleton
 public class FirmaView extends FrameView implements AppView {
 
+	@SuppressWarnings("unused")
 	private AppContext context;
 
 	private AppController controller;
@@ -140,7 +140,7 @@ public class FirmaView extends FrameView implements AppView {
 	private JScrollPane scrollPane;
 	private JFileTable fileTable;
 	private JPanel mainPanel;
-	private SignerOptionDialog optionsDialog;
+	@SuppressWarnings("unused")
 	private DialogDrop dd;
 
 	private void setupWindowIcons() {

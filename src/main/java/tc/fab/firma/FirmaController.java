@@ -21,7 +21,9 @@ import com.google.inject.Provider;
 public class FirmaController implements AppController {
 
 	private AppContext context;
+	@SuppressWarnings("unused")
 	private AppView view;
+	@SuppressWarnings("unused")
 	private AppDocument document;
 
 	private ActionMap actionMap;
@@ -59,7 +61,7 @@ public class FirmaController implements AppController {
 
 	@Action(name = AppController.ACTION_FILES_ADD)
 	public void addFile() {
-		File[] selectedFile = fileDialog.get().selectFile();
+//		File[] selectedFile = fileDialog.get().selectFile();
 	}
 
 	@Action(name = AppController.ACTION_FOLDER_ADD)
