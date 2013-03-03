@@ -22,6 +22,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -48,7 +49,6 @@ import tc.fab.mechanisms.MechanismManager;
 import tc.fab.mechanisms.callback.PINCallback.UserCancelledException;
 import tc.fab.pdf.signer.SignaturePreview;
 import tc.fab.pdf.signer.application.ComponentsInputBlocker;
-import javax.swing.JTextField;
 
 public class SignDocumentDialog extends JDialog {
 
@@ -113,34 +113,35 @@ public class SignDocumentDialog extends JDialog {
 
 		String alias = getAlias();
 		String provider = getProvider();
-		Mechanism m = providerManager.getMechanism(provider, alias);
 
-		try {
-			m.login();
-		} catch (UserCancelledException e) {
-			return;
+		try (Mechanism m = providerManager.getMechanism(provider, alias)) {
+			try {
+				m.login();
+			} catch (UserCancelledException e) {
+				return;
+			}
+
+			options.setAlias(alias);
+			options.setProvider(provider);
+
+			byte[] dataToSign = "fabiano nunes parente".getBytes();
+
+			Signature signature = Signature.getInstance("SHA1withRSA");
+			signature.initSign(m.getPrivateKey());
+			signature.update(dataToSign);
+
+			byte[] data_signed = signature.sign();
+			System.out.println(Hex.encodeHex(data_signed));
+
+			signature = Signature.getInstance("SHA1withRSA");
+			signature.initVerify(m.getCertificate());
+			signature.update(dataToSign);
+
+			System.out.println(signature.verify(data_signed));
+
+			setVisible(false);
+
 		}
-
-		options.setAlias(alias);
-		options.setProvider(provider);
-
-		byte[] dataToSign = "fabiano nunes parente".getBytes();
-
-		Signature signature = Signature.getInstance("SHA1withRSA");
-		signature.initSign(m.getPrivateKey());
-		signature.update(dataToSign);
-
-		byte[] data_signed = signature.sign();
-		System.out.println(Hex.encodeHex(data_signed));
-
-		signature = Signature.getInstance("SHA1withRSA");
-		signature.initVerify(m.getCertificate());
-		signature.update(dataToSign);
-
-		System.out.println(signature.verify(data_signed));
-		m.logout();
-
-		setVisible(false);
 
 	}
 
