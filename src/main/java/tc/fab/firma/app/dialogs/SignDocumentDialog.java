@@ -180,7 +180,6 @@ public class SignDocumentDialog extends JDialog {
 
 		@Override
 		protected void failed(Throwable cause) {
-			cause.printStackTrace();
 			imagePane.setImage((BufferedImage) null);
 		}
 

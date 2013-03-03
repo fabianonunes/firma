@@ -4,6 +4,10 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.RescaleOp;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.GeneralSecurityException;
 import java.security.cert.Certificate;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -11,6 +15,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 
 import com.Ostermiller.util.CircularByteBuffer;
 import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
@@ -32,42 +37,40 @@ public class SignaturePreview {
 
 	}
 
-	public BufferedImage getImagePreview() throws Exception {
+	public BufferedImage getImagePreview() throws DocumentException, IOException,
+		GeneralSecurityException {
 
 		CircularByteBuffer createBuffer = new CircularByteBuffer(CircularByteBuffer.INFINITE_SIZE);
-		CircularByteBuffer signBuffer = new CircularByteBuffer(CircularByteBuffer.INFINITE_SIZE);
-
-		Document doc = new Document(new Rectangle(width, height));
-		PdfWriter writer = PdfWriter.getInstance(doc, createBuffer.getOutputStream());
-		doc.open();
-		doc.newPage();
-		writer.setPageEmpty(false);
-		doc.close();
-		createBuffer.getOutputStream().close();
-
-		PdfReader reader = new PdfReader(createBuffer.getInputStream());
-		PdfStamper stamper = PdfStamper.createSignature(reader, signBuffer.getOutputStream(), '\0');
 
 		Signer signer = new Signer(null);
 
-		PdfSignatureAppearance appearance = stamper.getSignatureAppearance();
-		appearance.setVisibleSignature(new Rectangle(0, 0, width, height), 1, "Signature1");
-		appearance.setCertificate(cert);
-		appearance.setRenderingMode(RenderingMode.NAME_AND_DESCRIPTION);
+		try (
+			InputStream in = createBuffer.getInputStream();
+			OutputStream out = createBuffer.getOutputStream();
+		) {
+			Document doc = new Document(new Rectangle(width, height));
+			PdfWriter writer = PdfWriter.getInstance(doc, out);
+			doc.open();
+			doc.newPage();
+			writer.setPageEmpty(false);
+			doc.close();
 
-		signer.getSignableStream(appearance, new Certificate[] { cert });
-		signBuffer.getOutputStream().close();
+			PdfReader reader = new PdfReader(in);
+			createBuffer.clear();
 
-		PDDocument pddoc = PDDocument.load(signBuffer.getInputStream());
-		PDPage page = (PDPage) pddoc.getDocumentCatalog().getAllPages().get(0);
+			PdfStamper stamper = PdfStamper.createSignature(reader, out, '\0');
+			PdfSignatureAppearance appearance = stamper.getSignatureAppearance();
+			appearance.setVisibleSignature(new Rectangle(0, 0, width, height), 1, "Signature1");
+			appearance.setCertificate(cert);
+			appearance.setRenderingMode(RenderingMode.NAME_AND_DESCRIPTION);
+			signer.getSignableStream(appearance, new Certificate[] { cert });
 
-		BufferedImage buffered = page.convertToImage();
-
-		pddoc.close();
-		createBuffer.getInputStream().close();
-		signBuffer.getInputStream().close();
-
-		return buffered;
+			PDDocument pddoc = PDDocument.load(in);
+			PDPage page = (PDPage) pddoc.getDocumentCatalog().getAllPages().get(0);
+			BufferedImage buffered = page.convertToImage();
+			pddoc.close();
+			return buffered;
+		}
 
 	}
 

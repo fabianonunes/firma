@@ -2,6 +2,7 @@ package tc.fab.pdf.signer;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyStoreException;
@@ -18,6 +19,7 @@ import tc.fab.pdf.signer.message.Envelope;
 import tc.fab.pdf.signer.message.SignatureClaim;
 
 import com.google.inject.Inject;
+import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfDictionary;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
@@ -44,7 +46,7 @@ public class Signer {
 	}
 
 	public Envelope getSignableStream(PdfSignatureAppearance appearance, Certificate[] chain)
-		throws Exception {
+		throws GeneralSecurityException, IOException, DocumentException {
 
 		final ExternalDigest externalDigest = new ProviderDigest(null);
 		final String hashAlgorithm = "SHA1";
@@ -137,6 +139,5 @@ public class Signer {
 	public X509Certificate getCertificate() throws Exception {
 		return mechanism.getCertificate();
 	}
-
 
 }
