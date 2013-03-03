@@ -18,6 +18,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
@@ -53,6 +54,7 @@ public class Pkcs11Config {
 
 	private Map<String, Module> modules = new HashMap<>();
 	private Map<String, Long> slotIDs = new HashMap<>();
+	private Map<String, Pkcs11Adapter> adapters = new HashMap<>();
 
 	private File wrapperFile;
 	private List<String> pkcs11Modules;
@@ -120,7 +122,7 @@ public class Pkcs11Config {
 				session.findObjectsInit(searchTemplate);
 
 				for (Object object : session.findObjects(10)) {
-					
+
 					X509PublicKeyCertificate certificate = (X509PublicKeyCertificate) object;
 					String label = certificate.getLabel().toString();
 
@@ -185,25 +187,33 @@ public class Pkcs11Config {
 	 */
 	public Mechanism getMechanism(String pkcs11Module, String alias) {
 
-		java.security.Provider provider = Security.getProvider("SunPKCS11-Firma");
-		if (provider != null) {
-			Security.removeProvider(provider.getName());
+		Long slotId = getSlotId(pkcs11Module, alias);
+
+		String adapterId = pkcs11Module + alias + slotId;
+
+		if (!adapters.containsKey(adapterId)) {
+
+			Provider provider = null;
+
+			StringBuffer config = new StringBuffer();
+			config.append("name = Firma-" + adapterId.hashCode());
+			config.append("\nslot = " + slotId);
+			config.append("\nlibrary = " + pkcs11Module);
+
+			System.out.println(config.toString());
+
+			try (InputStream is = IOUtils.toInputStream(config)) {
+				provider = new SunPKCS11(is);
+			} catch (IOException e) {
+				LOGGER.warning(e.getMessage());
+			}
+
+			Security.addProvider(provider);
+
+			adapters.put(adapterId, new Pkcs11Adapter(handler, alias, provider));
 		}
 
-		StringBuffer config = new StringBuffer();
-		config.append("name = Firma");
-		config.append("\nslot = " + getSlotId(pkcs11Module, alias));
-		config.append("\nlibrary = " + pkcs11Module);
-
-		try (InputStream is = IOUtils.toInputStream(config)) {
-			provider = new SunPKCS11(is);
-		} catch (IOException e) {
-			LOGGER.warning(e.getMessage());
-		}
-
-		Security.addProvider(provider);
-
-		return new Pkcs11Adapter(handler, alias);
+		return adapters.get(adapterId);
 
 	}
 
@@ -216,9 +226,9 @@ public class Pkcs11Config {
 		private CallbackHandler handler;
 		private AuthProvider provider;
 
-		public Pkcs11Adapter(CallbackHandler handler, String alias) {
+		public Pkcs11Adapter(CallbackHandler handler, String alias, Provider provider) {
 			this.handler = handler;
-			this.provider = (AuthProvider) Security.getProvider("SunPKCS11-Firma");
+			this.provider = (AuthProvider) provider;
 			setAlias(alias);
 		}
 
@@ -255,7 +265,7 @@ public class Pkcs11Config {
 		@Override
 		public void logout() throws LoginException {
 			provider.logout();
-			Security.removeProvider(provider.getName());
+			// Security.removeProvider(provider.getName());
 		}
 
 		@Override
@@ -268,7 +278,7 @@ public class Pkcs11Config {
 			sig.update(data);
 
 			return sig.sign();
-			
+
 		}
 
 	}

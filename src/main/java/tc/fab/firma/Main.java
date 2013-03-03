@@ -4,11 +4,14 @@ import iaik.pkcs.pkcs11.TokenException;
 
 import java.awt.AWTEvent;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.util.EventObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.security.auth.callback.CallbackHandler;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.UIManager;
 
 import org.jdesktop.application.Action;
@@ -35,7 +38,7 @@ public class Main extends Firma {
 	private static final Logger LOGGER = Logger.getLogger(Firma.class.getName());
 
 	private static final String ACTION_LOAD_PKCS11_WRAPPER = "firma.main.load_pkcs11_wrapper";
-	
+
 	private AppContext context;
 	private AppController controller;
 	private AppView view;
@@ -63,17 +66,12 @@ public class Main extends Firma {
 				bind(AppView.class).to(FirmaView.class);
 				bind(AppController.class).to(FirmaController.class);
 				bind(AppDocument.class).to(FirmaDocument.class);
-				
+
 				// security
 				bind(CallbackHandler.class).to(PINCallback.class);
 
 			}
-			
-//			MechanismManager provideMechanismManager(AppContext context, CallbackHandler handler)
-//				throws Exception {
-//				return new MechanismManager(context, handler);
-//			}
-			
+
 		});
 
 		controller = injector.getInstance(AppController.class);
@@ -93,12 +91,12 @@ public class Main extends Firma {
 		document.loadOptions();
 
 		manager = injector.getInstance(MechanismManager.class);
-		
+
 		view = injector.getInstance(AppView.class);
 		initLookAndFeel(SubstanceCremeLookAndFeel.class.toString());
 
-//		EventQueue queue = Toolkit.getDefaultToolkit().getSystemEventQueue();
-//		queue.push(new EventQueueProxy());
+		EventQueue queue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+		queue.push(new EventQueueProxy());
 
 		view.initView();
 
@@ -133,26 +131,21 @@ public class Main extends Firma {
 	}
 
 	private void initLookAndFeel(String lafClass) {
-//		JFrame.setDefaultLookAndFeelDecorated(true);
-//		JDialog.setDefaultLookAndFeelDecorated(true);
+		JFrame.setDefaultLookAndFeelDecorated(true);
+		JDialog.setDefaultLookAndFeelDecorated(true);
 
-//		SwingUtilities.invokeLater(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//
-//				try {
-//
-//					String lf = "org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel";
-//
-//					UIManager.setLookAndFeel(lf);
-//
-//				} catch (Exception e) {
-//				}
-//
-//			}
-//
-//		});
+		// SwingUtilities.invokeLater(new Runnable() {
+		// @Override
+		// public void run() {
+		// try {
+		// String lf =
+		// "org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel";
+		// UIManager.setLookAndFeel(lf);
+		// } catch (Exception e) {
+		// }
+		// }
+		//
+		// });
 		try {
 			String lf = "org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel";
 			UIManager.setLookAndFeel(lf);

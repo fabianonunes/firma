@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Signature;
 import java.util.List;
@@ -24,7 +25,6 @@ import javax.swing.border.LineBorder;
 
 import org.apache.commons.codec.binary.Hex;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
-import org.fit.cssbox.swingbox.BrowserPane;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Task;
 import org.jdesktop.application.Task.BlockingScope;
@@ -33,6 +33,7 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.ELProperty;
+import org.jdesktop.swingx.JXImageView;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
@@ -42,6 +43,8 @@ import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.MechanismManager;
 import tc.fab.mechanisms.callback.PINCallback.UserCancelledException;
 import tc.fab.pdf.signer.application.ComponentsInputBlocker;
+import java.awt.Dialog.ModalExclusionType;
+import java.awt.Dialog.ModalityType;
 
 public class SignDocumentDialog extends JDialog {
 
@@ -63,12 +66,16 @@ public class SignDocumentDialog extends JDialog {
 	private MechanismManager providerManager;
 
 	private JButton btOk;
+	private JLabel lblAssinarComo;
+
+	private JXImageView imagePane;
 
 	@Inject
 	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document,
-		MechanismManager providersManager) {
+		MechanismManager providersManager) throws IOException {
 
 		super(context.getMainFrame(), true);
+		setModalExclusionType(ModalExclusionType.NO_EXCLUDE);
 
 		// setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -83,6 +90,7 @@ public class SignDocumentDialog extends JDialog {
 		// the action setup must be after initial fulfillment to avoid double
 		// fire
 		cbProvider.setAction(context.getAction(this, ACTION_FILL_ALIASES));
+		
 
 	}
 
@@ -101,20 +109,20 @@ public class SignDocumentDialog extends JDialog {
 
 		options.setAlias(alias);
 		options.setProvider(provider);
-		
+
 		byte[] dataToSign = "fabiano nunes parente".getBytes();
-		
+
 		Signature signature = Signature.getInstance("SHA1withRSA");
 		signature.initSign(m.getPrivateKey());
 		signature.update(dataToSign);
-		
+
 		byte[] data_signed = signature.sign();
 		System.out.println(Hex.encodeHex(data_signed));
-		
+
 		signature = Signature.getInstance("SHA1withRSA");
 		signature.initVerify(m.getCertificate());
 		signature.update(dataToSign);
-		
+
 		System.out.println(signature.verify(data_signed));
 		m.logout();
 
@@ -122,16 +130,16 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_FILL_ALIASES, block = BlockingScope.ACTION)
 	public Task<Void, String> fillAliases() {
-		
+
 		String provider = cbProvider.getItemAt(cbProvider.getSelectedIndex());
-		
-		Task<Void, String> task =  new FillAliasesTask(provider);
+
+		Task<Void, String> task = new FillAliasesTask(provider);
 		task.setInputBlocker(ComponentsInputBlocker.builder(task, btOk));
-		
+
 		return task;
-		
+
 	}
-	
+
 	class FillAliasesTask extends Task<Void, String> {
 
 		private String provider;
@@ -200,6 +208,8 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_ADD_PROVIDER)
 	public void addProvider() {
+		
+		System.out.println(imagePane.getSize());
 
 	}
 
@@ -228,7 +238,7 @@ public class SignDocumentDialog extends JDialog {
 		JLabel lblTipoDoCertificado = new JLabel();
 		lblTipoDoCertificado.setName("firma.dlg.sign_document.provider");
 
-		JLabel lblAssinarComo = new JLabel();
+		lblAssinarComo = new JLabel();
 		lblAssinarComo.setName("firma.dlg.sign_document.alias");
 
 		JButton btCertificateInfo = new JButton();
@@ -242,8 +252,10 @@ public class SignDocumentDialog extends JDialog {
 		comboBox = new JComboBox<>();
 		comboBox.setPreferredSize(new Dimension(0, 24));
 
-		BrowserPane browserPane = new BrowserPane();
-		browserPane.setBorder(new LineBorder(Color.LIGHT_GRAY));
+		imagePane = new JXImageView();
+		imagePane.setEditable(false);
+		imagePane.setDragEnabled(false);
+		imagePane.setBorder(new LineBorder(Color.LIGHT_GRAY));
 		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
 		gl_contentPanel
 			.setHorizontalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
@@ -255,7 +267,7 @@ public class SignDocumentDialog extends JDialog {
 						.addGroup(
 							gl_contentPanel
 								.createParallelGroup(Alignment.TRAILING)
-								.addComponent(browserPane, Alignment.LEADING,
+								.addComponent(imagePane, Alignment.LEADING,
 									GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE)
 								.addComponent(separator, GroupLayout.DEFAULT_SIZE, 428,
 									Short.MAX_VALUE)
@@ -321,7 +333,7 @@ public class SignDocumentDialog extends JDialog {
 					.addComponent(separator, GroupLayout.PREFERRED_SIZE, 2,
 						GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(browserPane, GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
+					.addComponent(imagePane, GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(
 						gl_contentPanel
@@ -372,10 +384,14 @@ public class SignDocumentDialog extends JDialog {
 		initDataBindings();
 
 	}
+
 	protected void initDataBindings() {
-		ELProperty<JComboBox<String>, Object> jComboBoxEvalutionProperty = ELProperty.create("${selectedItem!=null}");
+		ELProperty<JComboBox<String>, Object> jComboBoxEvalutionProperty = ELProperty
+			.create("${selectedItem!=null}");
 		BeanProperty<JButton, Boolean> jButtonBeanProperty = BeanProperty.create("enabled");
-		AutoBinding<JComboBox<String>, Object, JButton, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxEvalutionProperty, btOk, jButtonBeanProperty);
+		AutoBinding<JComboBox<String>, Object, JButton, Boolean> autoBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxEvalutionProperty, btOk,
+				jButtonBeanProperty);
 		autoBinding.bind();
 	}
 }

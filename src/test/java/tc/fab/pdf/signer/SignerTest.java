@@ -13,6 +13,8 @@ import org.apache.commons.io.IOUtils;
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.Pkcs11Config;
 import tc.fab.mechanisms.callback.SimplePasswordCallback;
+import tc.fab.pdf.signer.SignatureAppearance;
+import tc.fab.pdf.signer.Signer;
 import tc.fab.pdf.signer.message.Envelope;
 import tc.fab.pdf.signer.message.Message;
 import tc.fab.pdf.signer.message.MessageAdapter;

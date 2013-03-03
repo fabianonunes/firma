@@ -40,7 +40,7 @@ public class SignatureAppearance {
 	private PDFTextPosition textPosition;
 	private Signer signer;
 
-	SignatureAppearance(Signer signer) {
+	public SignatureAppearance(Signer signer) {
 		this.signer = signer;
 	}
 

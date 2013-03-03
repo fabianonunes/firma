@@ -21,6 +21,7 @@ import org.jdesktop.application.Action;
 
 import tc.fab.app.AppContext;
 import javax.swing.JSeparator;
+import java.awt.Dialog.ModalityType;
 
 public class PINDialog extends JDialog {
 
@@ -36,6 +37,7 @@ public class PINDialog extends JDialog {
 	@Inject
 	public PINDialog(AppContext context) {
 		super(context.getMainFrame(), true);
+		setModalityType(ModalityType.TOOLKIT_MODAL);
 		this.context = context;
 		initComponents();
 		open();

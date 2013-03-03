@@ -3,6 +3,7 @@ package tc.fab.mechanisms;
 import iaik.pkcs.pkcs11.TokenException;
 
 import java.io.File;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -84,6 +85,14 @@ public class MechanismManager {
 			return mscapi.getMechanism(alias);
 		} else {
 			return pkcs11config.getMechanism(entry, alias);
+		}
+	}
+	
+	public Certificate getCertificate(String entry, String alias) throws Exception {
+		if (entry.equals(MscapiConfig.MSCAPI_STORE_NAME)) {
+			return mscapi.getMechanism(alias).getCertificate();
+		} else {
+			return pkcs11config.getMechanism(entry, alias).getCertificate();
 		}
 	}
 
