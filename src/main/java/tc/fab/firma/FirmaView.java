@@ -24,8 +24,8 @@ import org.jdesktop.application.FrameView;
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppView;
-import tc.fab.file.drop.DialogDrop;
 import tc.fab.firma.app.components.JFileTable;
+import tc.fab.pdf.signer.deprecated.DialogDrop;
 
 @Singleton
 public class FirmaView extends FrameView implements AppView {

@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginException;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
@@ -133,19 +134,6 @@ public class Main extends Firma {
 	private void initLookAndFeel(String lafClass) {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		JDialog.setDefaultLookAndFeelDecorated(true);
-
-		// SwingUtilities.invokeLater(new Runnable() {
-		// @Override
-		// public void run() {
-		// try {
-		// String lf =
-		// "org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel";
-		// UIManager.setLookAndFeel(lf);
-		// } catch (Exception e) {
-		// }
-		// }
-		//
-		// });
 		try {
 			String lf = "org.pushingpixels.substance.api.skin.SubstanceCremeLookAndFeel";
 			UIManager.setLookAndFeel(lf);
@@ -160,7 +148,7 @@ public class Main extends Firma {
 		document.storeOptions();
 		try {
 			manager.finalizeModules();
-		} catch (TokenException e) {
+		} catch (TokenException | LoginException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

@@ -74,7 +74,7 @@ public class SignDocumentDialog extends JDialog {
 	private JLabel lblAssinarComo;
 
 	private JXImageView imagePane;
-	private JTextField textField;
+	private JTextField positionReference;
 
 	@Inject
 	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document,
@@ -153,6 +153,7 @@ public class SignDocumentDialog extends JDialog {
 			task.setInputBlocker(ComponentsInputBlocker.builder(task, btOk, cbProvider, cbAlias));
 			return task;
 		}
+		imagePane.setImage((BufferedImage) null);
 		return null;
 
 	}
@@ -169,8 +170,7 @@ public class SignDocumentDialog extends JDialog {
 		@Override
 		protected BufferedImage doInBackground() throws Exception {
 			Certificate cert = providerManager.getCertificate(getProvider(), alias);
-			SignaturePreview preview = new SignaturePreview(cert, imagePane.getSize());
-			return preview.getImagePreview();
+			return SignaturePreview.generate(cert, imagePane.getSize());
 		}
 
 		@Override
@@ -180,6 +180,7 @@ public class SignDocumentDialog extends JDialog {
 
 		@Override
 		protected void failed(Throwable cause) {
+			cause.printStackTrace();
 			imagePane.setImage((BufferedImage) null);
 		}
 
@@ -313,9 +314,9 @@ public class SignDocumentDialog extends JDialog {
 		JLabel lblNewLabel = new JLabel();
 		lblNewLabel.setName("firma.dlg.sign_document.location");
 
-		textField = new JTextField();
-		textField.setPreferredSize(new Dimension(0, 24));
-		textField.setColumns(10);
+		positionReference = new JTextField();
+		positionReference.setPreferredSize(new Dimension(0, 24));
+		positionReference.setColumns(10);
 
 		JSeparator separator_1 = new JSeparator();
 		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
@@ -369,7 +370,7 @@ public class SignDocumentDialog extends JDialog {
 												.addComponent(btAddProvider,
 													GroupLayout.PREFERRED_SIZE, 41,
 													GroupLayout.PREFERRED_SIZE)))
-								.addComponent(textField, GroupLayout.DEFAULT_SIZE, 414,
+								.addComponent(positionReference, GroupLayout.DEFAULT_SIZE, 414,
 									Short.MAX_VALUE).addComponent(lblNewLabel, Alignment.LEADING))
 						.addContainerGap()));
 		gl_contentPanel.setVerticalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
@@ -410,7 +411,7 @@ public class SignDocumentDialog extends JDialog {
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(lblNewLabel)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+					.addComponent(positionReference, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
 						GroupLayout.PREFERRED_SIZE)));
 
 		setName("firma.dlg.sign_document");
@@ -454,38 +455,12 @@ public class SignDocumentDialog extends JDialog {
 
 	}
 
-	protected void initDataBindings() {
-		ELProperty<JComboBox<String>, Object> jComboBoxEvalutionProperty = ELProperty
-			.create("${selectedItem!=null}");
-		BeanProperty<JButton, Boolean> jButtonBeanProperty = BeanProperty.create("enabled");
-		AutoBinding<JComboBox<String>, Object, JButton, Boolean> autoBinding = Bindings
-			.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxEvalutionProperty, btOk,
-				jButtonBeanProperty);
-		autoBinding.bind();
-		//
-		// BeanProperty<JXImageView, Image> jXImageViewBeanProperty =
-		// BeanProperty.create("image");
-		// BeanProperty<JComboBox<String>, String> jComboBoxBeanProperty =
-		// BeanProperty
-		// .create("selectedItem");
-		// AutoBinding<JComboBox<String>, String, JXImageView, Image>
-		// autoBinding_1 = Bindings
-		// .createAutoBinding(UpdateStrategy.READ, cbAlias,
-		// jComboBoxBeanProperty, imagePane,
-		// jXImageViewBeanProperty);
-		//
-		// autoBinding_1.setConverter(new AliasToPreviewConverter());
-		// autoBinding_1.bind();
-	}
-
 	class AliasToPreviewConverter extends Converter<String, Image> {
 		@Override
 		public Image convertForward(String alias) {
 			try {
-				Certificate cert = providerManager.getCertificate(cbProvider.getSelectedItem()
-					.toString(), alias);
-				SignaturePreview preview = new SignaturePreview(cert, imagePane.getSize());
-				return preview.getImagePreview();
+				Certificate cert = providerManager.getCertificate(getProvider(), alias);
+				return SignaturePreview.generate(cert, imagePane.getSize());
 			} catch (Exception e) {
 				return null;
 			}
@@ -496,5 +471,11 @@ public class SignDocumentDialog extends JDialog {
 			return null;
 		}
 
+	}
+	protected void initDataBindings() {
+		ELProperty<JComboBox<String>, Object> jComboBoxEvalutionProperty = ELProperty.create("${selectedItem!=null}");
+		BeanProperty<JButton, Boolean> jButtonBeanProperty = BeanProperty.create("enabled");
+		AutoBinding<JComboBox<String>, Object, JButton, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxEvalutionProperty, btOk, jButtonBeanProperty);
+		autoBinding.bind();
 	}
 }

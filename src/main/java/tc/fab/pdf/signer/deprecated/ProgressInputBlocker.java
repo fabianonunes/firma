@@ -3,7 +3,7 @@
  * subject to license terms.
  */
 
-package tc.fab.pdf.signer.application;
+package tc.fab.pdf.signer.deprecated;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -40,6 +40,7 @@ import org.jdesktop.application.ApplicationAction;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.Task;
 
+@Deprecated
 final class ProgressInputBlocker extends Task.InputBlocker {
 
 	private static final Logger logger = Logger.getLogger(ProgressInputBlocker.class.getName());

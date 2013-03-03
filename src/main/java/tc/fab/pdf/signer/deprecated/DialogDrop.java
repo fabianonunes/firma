@@ -9,7 +9,7 @@
  * Created on 07/05/2009, 13:55:05
  */
 
-package tc.fab.file.drop;
+package tc.fab.pdf.signer.deprecated;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -25,6 +25,7 @@ import javax.swing.SwingUtilities;
 import com.sun.awt.AWTUtilities;
 
 @SuppressWarnings("restriction")
+@Deprecated
 public class DialogDrop extends javax.swing.JWindow {
 
 	DialogDrop				dialog;

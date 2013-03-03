@@ -19,7 +19,7 @@ public interface Mechanism extends AutoCloseable {
 	PrivateKey getPrivateKey() throws UnrecoverableKeyException, KeyStoreException,
 		NoSuchAlgorithmException;
 
-	X509Certificate getCertificate() throws Exception;
+	X509Certificate getCertificate() throws KeyStoreException;
 
 	Certificate[] getCertificateChain() throws KeyStoreException;
 

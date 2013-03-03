@@ -3,6 +3,8 @@ package tc.fab.firma;
 import java.io.Serializable;
 import java.util.List;
 
+import tc.fab.pdf.signer.options.AppearanceOptions;
+
 public class FirmaOptions implements Serializable {
 
 	private static final long serialVersionUID = -6934691165042731405L;
@@ -11,6 +13,7 @@ public class FirmaOptions implements Serializable {
 	private String alias;
 	private String provider;
 	private List<String> libs;
+	private AppearanceOptions appearance;
 
 	public String getCertificateProvider() {
 		return certificateProvider;
@@ -30,6 +33,7 @@ public class FirmaOptions implements Serializable {
 
 	public static FirmaOptions createDefaultInstance() {
 		FirmaOptions options = new FirmaOptions();
+		options.setAppearance(new AppearanceOptions());
 		return options;
 	}
 
@@ -47,6 +51,14 @@ public class FirmaOptions implements Serializable {
 
 	public void setProvider(String provider) {
 		this.provider = provider;
+	}
+
+	public AppearanceOptions getAppearance() {
+		return appearance;
+	}
+
+	public void setAppearance(AppearanceOptions appearance) {
+		this.appearance = appearance;
 	}
 
 }

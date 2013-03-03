@@ -3,6 +3,7 @@ package tc.fab.mechanisms;
 import iaik.pkcs.pkcs11.TokenException;
 
 import java.io.File;
+import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +15,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.LoginException;
 
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.application.Resource;
@@ -44,8 +46,8 @@ public class MechanismManager {
 			context.getResourceMap().injectFields(this);
 		}
 
-		Collection<String> libraries = new ArrayList<>(Arrays.asList(SystemUtils.IS_OS_WINDOWS ? winLibs
-			: unixLibs));
+		Collection<String> libraries = new ArrayList<>(
+			Arrays.asList(SystemUtils.IS_OS_WINDOWS ? winLibs : unixLibs));
 
 		libraries = Collections2.filter(libraries, new Predicate<String>() {
 			@Override
@@ -56,7 +58,7 @@ public class MechanismManager {
 				return false;
 			}
 		});
-		
+
 		pkcs11config = new Pkcs11Config(libraries, handler);
 
 		if (SystemUtils.IS_OS_WINDOWS) {
@@ -89,8 +91,8 @@ public class MechanismManager {
 			return pkcs11config.getMechanism(entry, alias);
 		}
 	}
-	
-	public Certificate getCertificate(String entry, String alias) throws Exception {
+
+	public Certificate getCertificate(String entry, String alias) throws KeyStoreException {
 		if (entry.equals(MscapiConfig.MSCAPI_STORE_NAME)) {
 			return mscapi.getMechanism(alias).getCertificate();
 		} else {
@@ -102,7 +104,7 @@ public class MechanismManager {
 		pkcs11config.loadPkcs11Wrapper();
 	}
 
-	public void finalizeModules() throws TokenException {
+	public void finalizeModules() throws TokenException, LoginException {
 		pkcs11config.finalizeModules();
 	}
 

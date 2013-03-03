@@ -28,18 +28,29 @@ import com.itextpdf.text.pdf.PdfStamper;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.security.CertificateInfo;
 
-public class SignaturePreview {
+public class SignaturePreview implements AutoCloseable {
 
 	private Certificate cert;
 	float height;
 	float width;
+	private PdfWriter writer;
+	private PdfStamper stamper;
+	private PDDocument pddoc;
 
-	public SignaturePreview(Certificate cert, Dimension dimension) throws Exception {
+	public static BufferedImage generate(Certificate cert, Dimension dimension)
+		throws DocumentException, IOException, GeneralSecurityException {
+
+		try (SignaturePreview preview = new SignaturePreview(cert, dimension)) {
+			return preview.getImagePreview();
+		}
+
+	}
+
+	protected SignaturePreview(Certificate cert, Dimension dimension) {
 		this.cert = cert;
 		// PDFBox generates the page images in double screen resolution
 		height = dimension.height / 2;
 		width = dimension.width / 2;
-
 	}
 
 	public BufferedImage getImagePreview() throws DocumentException, IOException,
@@ -47,13 +58,11 @@ public class SignaturePreview {
 
 		CircularByteBuffer createBuffer = new CircularByteBuffer(CircularByteBuffer.INFINITE_SIZE);
 
-		DocumentSigner signer = new DocumentSigner(null);
-
 		try (InputStream in = createBuffer.getInputStream();
 			OutputStream out = createBuffer.getOutputStream();) {
 
 			Document doc = new Document(new Rectangle(width, height));
-			PdfWriter writer = PdfWriter.getInstance(doc, out);
+			writer = PdfWriter.getInstance(doc, out);
 			doc.open();
 			doc.newPage();
 			writer.setPageEmpty(false);
@@ -62,22 +71,22 @@ public class SignaturePreview {
 			PdfReader reader = new PdfReader(in);
 			createBuffer.clear();
 
-			Map<String, ArrayList<String>> values = CertificateInfo.getSubjectFields((X509Certificate) cert).getFields();
+			Map<String, ArrayList<String>> values = CertificateInfo.getSubjectFields(
+				(X509Certificate) cert).getFields();
 			String layer2Text = Joiner.on(", ").withKeyValueSeparator("=").join(values);
 
-			PdfStamper stamper = PdfStamper.createSignature(reader, out, '\0');
+			stamper = PdfStamper.createSignature(reader, out, '\0');
 
 			PdfSignatureAppearance appearance = stamper.getSignatureAppearance();
 			appearance.setVisibleSignature(new Rectangle(0, 0, width, height), 1, "Signature1");
 			appearance.setCertificate(cert);
 			appearance.setRenderingMode(RenderingMode.NAME_AND_DESCRIPTION);
 			appearance.setLayer2Text(layer2Text);
-			signer.getSignableStream(appearance, new Certificate[] { cert });
-			
-			PDDocument pddoc = PDDocument.load(in);
+			SteppedSigner.getSignableStream(appearance, new Certificate[] { cert });
+
+			pddoc = PDDocument.load(in);
 			PDPage page = (PDPage) pddoc.getDocumentCatalog().getAllPages().get(0);
 			BufferedImage buffered = page.convertToImage();
-			pddoc.close();
 			return buffered;
 		}
 
@@ -100,6 +109,28 @@ public class SignaturePreview {
 
 	public void setCert(Certificate cert) {
 		this.cert = cert;
+	}
+
+	@Override
+	public void close() {
+		if (writer != null) {
+			try {
+				writer.close();
+			} catch (Exception e) {
+			}
+		}
+		if (stamper != null) {
+			try {
+				stamper.close();
+			} catch (Exception e) {
+			}
+		}
+		if (pddoc != null) {
+			try {
+				pddoc.close();
+			} catch (Exception e) {
+			}
+		}
 	}
 
 }

@@ -1,54 +1,46 @@
 package tc.fab.pdf.signer.options;
 
 import java.io.File;
+import java.io.Serializable;
 
-import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.PdfSignatureAppearance.RenderingMode;
 
-public class AppearanceOptions {
+public class AppearanceOptions implements Serializable {
+
+	private static final long serialVersionUID = 5407956656681711303L;
 
 	private RenderingMode renderMode = RenderingMode.NAME_AND_DESCRIPTION;
 
 	private File image = null;
 
 	// Position
-	private Float signatureWidth = 10f;
-	private Float signatureHeight = 4f;
-	private Integer pageToSign = -1;
+	private float signatureWidth = 10f;
+	private float signatureHeight = 2f;
+	private int pageToSign = -1;
+	private float referenceDistance = 0.4f;
 	private String referenceText = null;
 
 	// Description
-	private Boolean showName = true;
-	private Boolean showDate = true;
-	private Boolean sbowLocal = false;
-	private Boolean showReason = false;
-	private Boolean showLabels = false;
+	private boolean showName = true;
+	private boolean showDate = true;
+	private boolean sbowLocal = false;
+	private boolean showReason = false;
+	private boolean showLabels = false;
 	private String local = null;
 	private String reason = null;
 
 	public AppearanceOptions() {
 	}
 
-	public void applyTo(PdfSignatureAppearance appearance) {
-		
-		appearance.setRenderingMode(renderMode);
-		appearance.setLocation(local);
-
-	}
-
-	private static Float cmToPoint(Number cm) {
-		return (cm.floatValue() / 2.54F) * 72;
-	}
-
 	public File getImage() {
 		return image;
 	}
 
-	public String getLocal() {
+	public String getLocation() {
 		return local;
 	}
 
-	public Integer getPageToSign() {
+	public int getPageToSign() {
 		return pageToSign;
 	}
 
@@ -56,35 +48,43 @@ public class AppearanceOptions {
 		return reason;
 	}
 
+	public float getReferenceDistance() {
+		return referenceDistance;
+	}
+
 	public String getReferenceText() {
 		return referenceText;
 	}
 
-	public Boolean getSbowLocal() {
+	public RenderingMode getRenderMode() {
+		return renderMode;
+	}
+
+	public boolean getSbowLocal() {
 		return sbowLocal;
 	}
 
-	public Boolean getShowDate() {
+	public boolean getShowDate() {
 		return showDate;
 	}
 
-	public Boolean getShowLabels() {
+	public boolean getShowLabels() {
 		return showLabels;
 	}
 
-	public Boolean getShowName() {
+	public boolean getShowName() {
 		return showName;
 	}
 
-	public Boolean getShowReason() {
+	public boolean getShowReason() {
 		return showReason;
 	}
 
-	public Float getSignatureHeight() {
+	public float getSignatureHeight() {
 		return signatureHeight;
 	}
 
-	public Float getSignatureWidth() {
+	public float getSignatureWidth() {
 		return signatureWidth;
 	}
 
@@ -96,7 +96,7 @@ public class AppearanceOptions {
 		this.local = local;
 	}
 
-	public void setPageToSign(Integer pageToSign) {
+	public void setPageToSign(int pageToSign) {
 		this.pageToSign = pageToSign;
 	}
 
@@ -104,35 +104,43 @@ public class AppearanceOptions {
 		this.reason = reason;
 	}
 
+	public void setReferenceDistance(float referenceDistance) {
+		this.referenceDistance = referenceDistance;
+	}
+
 	public void setReferenceText(String referenceText) {
 		this.referenceText = referenceText;
 	}
 
-	public void setSbowLocal(Boolean sbowLocal) {
+	public void setRenderMode(RenderingMode renderMode) {
+		this.renderMode = renderMode;
+	}
+
+	public void setSbowLocal(boolean sbowLocal) {
 		this.sbowLocal = sbowLocal;
 	}
 
-	public void setShowDate(Boolean showDate) {
+	public void setShowDate(boolean showDate) {
 		this.showDate = showDate;
 	}
 
-	public void setShowLabels(Boolean showLabels) {
+	public void setShowLabels(boolean showLabels) {
 		this.showLabels = showLabels;
 	}
 
-	public void setShowName(Boolean showName) {
+	public void setShowName(boolean showName) {
 		this.showName = showName;
 	}
 
-	public void setShowReason(Boolean showReason) {
+	public void setShowReason(boolean showReason) {
 		this.showReason = showReason;
 	}
 
-	public void setSignatureHeight(Float signatureHeight) {
+	public void setSignatureHeight(float signatureHeight) {
 		this.signatureHeight = signatureHeight;
 	}
 
-	public void setSignatureWidth(Float signatureWidth) {
+	public void setSignatureWidth(float signatureWidth) {
 		this.signatureWidth = signatureWidth;
 	}
 

@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.pdf.signer.options.AppearanceOptions;
+import tc.fab.pdf.signer.options.PDFTextPosition;
 
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
@@ -24,17 +25,21 @@ import com.itextpdf.text.pdf.security.MakeSignature.CryptoStandard;
 import com.itextpdf.text.pdf.security.PrivateKeySignature;
 import com.itextpdf.text.pdf.security.ProviderDigest;
 
-public class DocumentSigner {
+public class DocumentSigner implements AutoCloseable {
 
-	private Mechanism mechanism;
-	private PdfStamper stamper;
-	private PdfSignatureAppearance appearance;
-	private PdfReader reader;
 	private AppearanceOptions options;
 
-	public DocumentSigner(Mechanism mechanism, AppearanceOptions options) {
-		this.mechanism = mechanism;
+	private PdfReader reader;
+	private PdfStamper stamper;
+	private PDFTextPosition textPosition;
+	private PdfSignatureAppearance appearance;
+
+	private File inputFile;
+
+	public DocumentSigner(AppearanceOptions options, File inputFile) throws IOException,
+		DocumentException {
 		this.options = options;
+		this.inputFile = inputFile;
 	}
 
 	/**
@@ -48,17 +53,16 @@ public class DocumentSigner {
 	 * @throws IOException
 	 * @throws DocumentException
 	 */
-	public void sign(File inputFile, File outputFile)
-		throws GeneralSecurityException, IOException, DocumentException {
+	public void sign(Mechanism mechanism, File outputFile) throws GeneralSecurityException,
+		IOException, DocumentException {
+
+		close();
 
 		File tmpFile = File.createTempFile("pdf", "sgn");
 
-		RandomAccessSource factory = new RandomAccessSourceFactory().createBestSource(inputFile
-			.getAbsolutePath());
-		RandomAccessFileOrArray raf = new RandomAccessFileOrArray(factory);
-
-		reader = new PdfReader(raf, null);
+		reader = new PdfReader(makeRaf(), null);
 		stamper = PdfStamper.createSignature(reader, null, '\0', tmpFile, true);
+		textPosition = new PDFTextPosition(reader, getPageToSign());
 		appearance = stamper.getSignatureAppearance();
 
 		applyOptions(options);
@@ -71,22 +75,81 @@ public class DocumentSigner {
 		MakeSignature.signDetached(appearance, externalDigest, external,
 			mechanism.getCertificateChain(), null, null, null, 0, CryptoStandard.CMS);
 
+		outputFile.delete();
+
 		FileUtils.moveFile(tmpFile, outputFile);
 
 	}
 
-	private void applyOptions(AppearanceOptions options) {
+	private RandomAccessFileOrArray makeRaf() throws IOException {
+		RandomAccessSource factory = new RandomAccessSourceFactory().createBestSource(inputFile
+			.getAbsolutePath());
+		return new RandomAccessFileOrArray(factory);
+	}
 
-		Float pLeft;
-		Float pRight;
-		Float pTop;
-		Float pBottom;
-		Integer pageToSign = getOptions().getPageToSign(reader);
+	private void applyOptions(AppearanceOptions options) throws IOException {
+
+		String reference = options.getReferenceText();
+		Integer pageToSign = getPageToSign();
+
+		float signatureWidth = cmToPoint(options.getSignatureWidth());
+		float signatureHeight = cmToPoint(options.getSignatureHeight());
+
 		Rectangle pageSize = reader.getPageSize(pageToSign);
+		float pageWidth = pageSize.getWidth();
 
-		Float pageHeight = pageSize.getHeight();
-		Float pageWidth = pageSize.getWidth();
+		float yOffset = (reference != null) ? textPosition.getCharacterPosition(reference)
+			: textPosition.getLastLinePosition();
 
+		float pLeft = pageWidth / 2 - signatureWidth / 2;
+		float pRight = pLeft + signatureWidth;
+
+		float pTop = yOffset + cmToPoint(options.getReferenceDistance()) + signatureHeight;
+		float pBottom = pTop - signatureHeight;
+
+		Rectangle pCoords = new Rectangle(pLeft, pBottom, pRight, pTop);
+
+		appearance.setRenderingMode(options.getRenderMode());
+		appearance.setLocation(options.getLocation());
+		appearance.setReason(options.getReason());
+		appearance.setVisibleSignature(pCoords, pageToSign, null);
+
+	}
+
+	/**
+	 * utility methodo to convert a measure in cm to pdf points (72 dpi)
+	 * 
+	 * @param cm
+	 * @return
+	 */
+	private static Float cmToPoint(Number cm) {
+		return (cm.floatValue() / 2.54F) * 72;
+	}
+
+	private Integer getPageToSign() {
+		Integer pageToSign = options.getPageToSign();
+		Integer totalPages = reader.getNumberOfPages();
+		if (pageToSign <= 0) {
+			return totalPages;
+		} else {
+			return (pageToSign > totalPages) ? totalPages : pageToSign;
+		}
+	}
+
+	@Override
+	public void close() {
+		if (reader != null) {
+			try {
+				reader.close();
+			} catch (Exception e) {
+			}
+		}
+		if (stamper != null) {
+			try {
+				stamper.close();
+			} catch (Exception e) {
+			}
+		}
 	}
 
 	// TSAClient tsc = null;

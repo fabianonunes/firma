@@ -23,9 +23,8 @@ public class PositionStrategy implements RenderListener {
 
 		LineSegment segment = renderInfo.getBaseline();
 
-		TextChunk location = new TextChunk(renderInfo.getText(),
-				segment.getStartPoint(), segment.getEndPoint(),
-				renderInfo.getSingleSpaceWidth(), segment.getBoundingRectange());
+		TextChunk location = new TextChunk(renderInfo.getText(), segment.getStartPoint(),
+			segment.getEndPoint(), renderInfo.getSingleSpaceWidth(), segment.getBoundingRectange());
 
 		locationalResult.add(location);
 
@@ -64,6 +63,7 @@ public class PositionStrategy implements RenderListener {
 	public Float getLastLinePosition(Float marginFooter) {
 
 		Set<Float> ys = new TreeSet<Float>();
+		ys.add(0f);
 
 		for (TextChunk chunk : locationalResult) {
 			Rectangle2D.Float r = chunk.boundingRectange;
@@ -78,8 +78,7 @@ public class PositionStrategy implements RenderListener {
 
 	}
 
-	public Float getReferencePosition(Float marginFooter, String reference,
-			Boolean lastOccurrence) {
+	public Float getReferencePosition(Float marginFooter, String reference, Boolean lastOccurrence) {
 
 		reference = Normalizer.normalize(reference, Normalizer.Form.NFD);
 		reference = reference.replaceAll("[^\\p{ASCII}]", "");
@@ -89,6 +88,7 @@ public class PositionStrategy implements RenderListener {
 
 		TreeSet<Float> encounters = new TreeSet<Float>();
 		Set<Float> ys = new TreeSet<Float>();
+		ys.add(0f);
 
 		for (TextChunk chunk : locationalResult) {
 
@@ -100,11 +100,9 @@ public class PositionStrategy implements RenderListener {
 
 					ys.add(r.y);
 
-					String charFound = Normalizer.normalize(chunk.text,
-							Normalizer.Form.NFD);
+					String charFound = Normalizer.normalize(chunk.text, Normalizer.Form.NFD);
 					charFound = charFound.replaceAll("[^\\p{ASCII}]", "");
-					charFound = charFound.trim().toLowerCase()
-							.replaceAll("\\s+", "");
+					charFound = charFound.trim().toLowerCase().replaceAll("\\s+", "");
 
 					buf.append(charFound);
 
@@ -163,9 +161,9 @@ public class PositionStrategy implements RenderListener {
 		final float charSpaceWidth;
 		public final Rectangle2D.Float boundingRectange;
 
-		public TextChunk(String string, Vector startLocation,
-				Vector endLocation, float charSpaceWidth, Rectangle2D.Float float1) {
-			
+		public TextChunk(String string, Vector startLocation, Vector endLocation,
+			float charSpaceWidth, Rectangle2D.Float float1) {
+
 			this.text = string;
 			this.startLocation = startLocation;
 			this.endLocation = endLocation;
@@ -173,9 +171,8 @@ public class PositionStrategy implements RenderListener {
 			this.boundingRectange = float1;
 
 			orientationVector = endLocation.subtract(startLocation).normalize();
-			orientationMagnitude = (int) (Math.atan2(
-					orientationVector.get(Vector.I2),
-					orientationVector.get(Vector.I1)) * 1000);
+			orientationMagnitude = (int) (Math.atan2(orientationVector.get(Vector.I2),
+				orientationVector.get(Vector.I1)) * 1000);
 
 			// see
 			// http://mathworld.wolfram.com/Point-LineDistance2-Dimensional.html
@@ -184,8 +181,8 @@ public class PositionStrategy implements RenderListener {
 			// in the z-axis (out of plane) direction, so we just take the I3
 			// component of the result
 			Vector origin = new Vector(0, 0, 1);
-			distPerpendicular = (int) (startLocation.subtract(origin)).cross(
-					orientationVector).get(Vector.I3);
+			distPerpendicular = (int) (startLocation.subtract(origin)).cross(orientationVector)
+				.get(Vector.I3);
 
 			distParallelStart = orientationVector.dot(startLocation);
 			distParallelEnd = orientationVector.dot(endLocation);

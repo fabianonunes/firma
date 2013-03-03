@@ -1,14 +1,12 @@
-package tc.fab.pdf.signer;
+package tc.fab.pdf.signer.deprecated;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import tc.fab.file.drop.FileDrop;
 import tc.fab.file.selector.DirectorySelector;
 import tc.fab.file.selector.FileSelector;
-import tc.fab.pdf.signer.application.PDFSignerApp;
-import tc.fab.pdf.signer.options.AppearanceOptions;
 
+@Deprecated
 public class FileDropListener implements FileDrop.Listener {
 
 	FileDrop.Listener listener;
@@ -27,13 +25,11 @@ public class FileDropListener implements FileDrop.Listener {
 	@Override
 	public void filesDropped(File[] files) {
 
-		AppearanceOptions opt = PDFSignerApp.getApplication().getOptions();
-
 		FileSelector fs = new FileSelector();
-		fs.setFilter(PDFSignerApp.acceptedFiles);
+		// fs.setFilter(PDFSignerApp.acceptedFiles);
 
 		DirectorySelector ds = new DirectorySelector();
-		ds.setFilter(PDFSignerApp.acceptedFiles);
+		// ds.setFilter(PDFSignerApp.acceptedFiles);
 		ds.setRecursive(Boolean.TRUE);
 
 		for (File file : files) {
@@ -54,12 +50,12 @@ public class FileDropListener implements FileDrop.Listener {
 
 		}
 
-		try {
-			opt.addSelection(ds);
-			opt.addSelection(fs);
-		} catch (FileNotFoundException e) {
-			// Quietly
-		}
+		// try {
+		// opt.addSelection(ds);
+		// sopt.addSelection(fs);
+		// } catch (FileNotFoundException e) {
+		// Quietly
+		// }
 
 	}
 
