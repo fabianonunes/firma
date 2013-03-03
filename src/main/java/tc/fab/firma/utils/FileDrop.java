@@ -1,4 +1,4 @@
-package tc.fab.pdf.signer.deprecated;
+package tc.fab.firma.utils;
 
 import java.awt.datatransfer.DataFlavor;
 import java.io.BufferedReader;
@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Reader;
-
 
 /**
  * This class makes it easy to drag and drop files from the operating system to
@@ -22,7 +21,7 @@ import java.io.Reader;
  *      JPanel myPanel = new JPanel();
  *      new FileDrop( myPanel, new FileDrop.Listener()
  *      {   public void filesDropped( java.io.File[] files )
- *          {
+ *          {   
  *              // handle file drop
  *              ...
  *          }   // end filesDropped
@@ -43,17 +42,22 @@ import java.io.Reader;
  * I'm releasing this code into the Public Domain. Enjoy.
  * </p>
  * <p>
- * <em>Original author: Robert Harder, rharder@usa.net</em>
+ * Original author: Robert Harder, rob@iharder.net
  * </p>
  * <p>
- * 2007-09-12 Nathan Blomquist -- Linux (KDE/Gnome) support added.
+ * Additional support:
  * </p>
+ * <ul>
+ * <li>September 2007, Nathan Blomquist -- Linux (KDE/Gnome) support added.</li>
+ * <li>December 2010, Joshua Gerth</li>
+ * </ul>
  * 
  * @author Robert Harder
  * @author rharder@users.sf.net
- * @version 1.0.1
+ * @version 1.1.1
  */
-@Deprecated
+
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class FileDrop {
 	private transient javax.swing.border.Border normalBorder;
 	private transient java.awt.dnd.DropTargetListener dropListener;
@@ -117,7 +121,6 @@ public class FileDrop {
 	 * 
 	 * @param out
 	 *            PrintStream to record debugging info or null for no debugging.
-	 * @param out
 	 * @param c
 	 *            Component on which files will be dropped.
 	 * @param listener
@@ -144,7 +147,6 @@ public class FileDrop {
 	 * 
 	 * @param out
 	 *            PrintStream to record debugging info or null for no debugging.
-	 * @param out
 	 * @param c
 	 *            Component on which files will be dropped.
 	 * @param recursive
@@ -258,11 +260,13 @@ public class FileDrop {
 					log(out, "FileDrop: dragEnter event.");
 
 					// Is this an acceptable drag event?
-					if (isDragOk(out, evt)) {
+					if (isDragOk(out, evt) && c.isEnabled()) {
 						// If it's a Swing component, set its border
 						if (c instanceof javax.swing.JComponent) {
 							javax.swing.JComponent jc = (javax.swing.JComponent) c;
-							normalBorder = jc.getBorder();
+							if (normalBorder == null) {
+								normalBorder = jc.getBorder();
+							} // end if: border not yet saved
 							log(out, "FileDrop: normal border saved.");
 							jc.setBorder(dragBorder);
 							log(out, "FileDrop: drag border set.");
@@ -296,7 +300,6 @@ public class FileDrop {
 																				// target.
 				} // end dragOver
 
-				@SuppressWarnings("rawtypes")
 				public void drop(java.awt.dnd.DropTargetDropEvent evt) {
 					log(out, "FileDrop: drop event.");
 					try { // Get whatever was dropped
@@ -312,7 +315,7 @@ public class FileDrop {
 							log(out, "FileDrop: file list accepted.");
 
 							// Get a useful list
-							java.util.List<?> fileList = (java.util.List) tr
+							java.util.List fileList = (java.util.List) tr
 								.getTransferData(java.awt.datatransfer.DataFlavor.javaFileListFlavor);
 
 							// Convert list to array
@@ -424,7 +427,6 @@ public class FileDrop {
 		if (supportsDnD == null) {
 			boolean support = false;
 			try {
-				Class.forName("java.awt.dnd.DnDConstants");
 				support = true;
 			} // end try
 			catch (Exception e) {
@@ -440,7 +442,7 @@ public class FileDrop {
 
 	private static File[] createFileArray(BufferedReader bReader, PrintStream out) {
 		try {
-			java.util.List<File> list = new java.util.ArrayList<File>();
+			java.util.List list = new java.util.ArrayList();
 			java.lang.String line = null;
 			while ((line = bReader.readLine()) != null) {
 				try {
@@ -636,8 +638,8 @@ public class FileDrop {
 
 	/**
 	 * This is the event that is passed to the
-	 * {@link FileDropListener#filesDropped filesDropped(...)} method in your
-	 * {@link FileDropListener} when files are dropped onto a registered drop
+	 * {@link FileDrop.Listener#filesDropped filesDropped(...)} method in your
+	 * {@link FileDrop.Listener} when files are dropped onto a registered drop
 	 * target.
 	 * 
 	 * <p>
@@ -650,7 +652,7 @@ public class FileDrop {
 	 */
 	public static class Event extends java.util.EventObject {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = -8794380477085345270L;
 		private java.io.File[] files;
 
 		/**
@@ -659,7 +661,8 @@ public class FileDrop {
 		 * 
 		 * @param files
 		 *            The array of files that were dropped
-		 * @source The event source
+		 * @param source
+		 *            The event source
 		 * @since 1.1
 		 */
 		public Event(java.io.File[] files, Object source) {
@@ -802,7 +805,7 @@ public class FileDrop {
 		 *            The {@link Fetcher} that will return the data object
 		 * @since 1.1
 		 */
-		public TransferableObject(Class<?> dataClass, Fetcher fetcher) {
+		public TransferableObject(Class dataClass, Fetcher fetcher) {
 			this.fetcher = fetcher;
 			this.customFlavor = new java.awt.datatransfer.DataFlavor(dataClass, MIME_TYPE);
 		} // end constructor
@@ -827,7 +830,7 @@ public class FileDrop {
 		 * data flavor, if one was created in the constructors, second the
 		 * default {@link #DATA_FLAVOR} associated with
 		 * {@link TransferableObject}, and third the
-		 * {@link java.awt.datatransfer.DataFlavor.stringFlavor}.
+		 * {@link java.awt.datatransfer.DataFlavor#stringFlavor}.
 		 * 
 		 * @return An array of supported data flavors
 		 * @since 1.1
@@ -906,7 +909,6 @@ public class FileDrop {
 		 * getObject()} method will be called.
 		 * 
 		 * @author Robert Harder
-		 * @copyright 2001
 		 * @version 1.1
 		 * @since 1.1
 		 */
@@ -924,4 +926,3 @@ public class FileDrop {
 	} // end class TransferableObject
 
 } // end class FileDrop
-

@@ -3,9 +3,11 @@ package tc.fab.pdf.signer.options;
 import java.io.File;
 import java.io.Serializable;
 
+import tc.fab.firma.utils.PropertyObservable;
+
 import com.itextpdf.text.pdf.PdfSignatureAppearance.RenderingMode;
 
-public class AppearanceOptions implements Serializable {
+public class AppearanceOptions extends PropertyObservable implements Serializable {
 
 	private static final long serialVersionUID = 5407956656681711303L;
 

@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 
 import tc.fab.file.selector.DirectorySelector;
 import tc.fab.file.selector.FileSelector;
+import tc.fab.firma.utils.FileDrop;
 
 @Deprecated
 public class FileDropListener implements FileDrop.Listener {

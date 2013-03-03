@@ -27,6 +27,7 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 
 import tc.fab.firma.FirmaView;
+import tc.fab.firma.utils.FileDrop;
 import tc.fab.pdf.signer.options.AppearanceOptions;
 
 @Deprecated

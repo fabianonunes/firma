@@ -320,59 +320,57 @@ public class SignDocumentDialog extends JDialog {
 
 		JSeparator separator_1 = new JSeparator();
 		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
-		gl_contentPanel
-			.setHorizontalGroup(gl_contentPanel
-				.createParallelGroup(Alignment.TRAILING)
-				.addComponent(separator_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 498,
-					Short.MAX_VALUE)
-				.addGroup(
-					Alignment.LEADING,
-					gl_contentPanel
-						.createSequentialGroup()
-						.addContainerGap()
-						.addComponent(btCertificateInfo, GroupLayout.PREFERRED_SIZE, 101,
-							GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED, 235, Short.MAX_VALUE)
-						.addComponent(cbRenderMode, GroupLayout.PREFERRED_SIZE, 138,
-							GroupLayout.PREFERRED_SIZE).addContainerGap())
-				.addGroup(
-					gl_contentPanel
-						.createSequentialGroup()
-						.addContainerGap()
-						.addGroup(
-							gl_contentPanel
-								.createParallelGroup(Alignment.TRAILING)
-								.addComponent(imagePane, Alignment.LEADING,
-									GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
-								.addGroup(
-									Alignment.LEADING,
-									gl_contentPanel
-										.createSequentialGroup()
-										.addGroup(
-											gl_contentPanel.createParallelGroup(Alignment.LEADING)
-												.addComponent(lblTipoDoCertificado)
-												.addComponent(lblAssinarComo))
-										.addPreferredGap(ComponentPlacement.RELATED)
-										.addGroup(
-											gl_contentPanel
-												.createParallelGroup(Alignment.TRAILING)
-												.addComponent(cbAlias, Alignment.LEADING, 0, 355,
-													Short.MAX_VALUE)
-												.addComponent(cbProvider, Alignment.LEADING, 0,
-													355, Short.MAX_VALUE))
-										.addPreferredGap(ComponentPlacement.RELATED)
-										.addGroup(
-											gl_contentPanel
-												.createParallelGroup(Alignment.LEADING)
-												.addComponent(btRefresh,
-													GroupLayout.PREFERRED_SIZE, 41,
-													GroupLayout.PREFERRED_SIZE)
-												.addComponent(btAddProvider,
-													GroupLayout.PREFERRED_SIZE, 41,
-													GroupLayout.PREFERRED_SIZE)))
-								.addComponent(positionReference, GroupLayout.DEFAULT_SIZE, 414,
-									Short.MAX_VALUE).addComponent(lblNewLabel, Alignment.LEADING))
-						.addContainerGap()));
+		gl_contentPanel.setHorizontalGroup(gl_contentPanel
+			.createParallelGroup(Alignment.TRAILING)
+			.addComponent(separator_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 498,
+				Short.MAX_VALUE)
+			.addGroup(
+				Alignment.LEADING,
+				gl_contentPanel
+					.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(btCertificateInfo, GroupLayout.PREFERRED_SIZE, 101,
+						GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED, 235, Short.MAX_VALUE)
+					.addComponent(cbRenderMode, GroupLayout.PREFERRED_SIZE, 138,
+						GroupLayout.PREFERRED_SIZE).addContainerGap())
+			.addGroup(
+				gl_contentPanel
+					.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(
+						gl_contentPanel
+							.createParallelGroup(Alignment.TRAILING)
+							.addComponent(imagePane, Alignment.LEADING, GroupLayout.DEFAULT_SIZE,
+								414, Short.MAX_VALUE)
+							.addGroup(
+								Alignment.LEADING,
+								gl_contentPanel
+									.createSequentialGroup()
+									.addGroup(
+										gl_contentPanel.createParallelGroup(Alignment.LEADING)
+											.addComponent(lblTipoDoCertificado)
+											.addComponent(lblAssinarComo))
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(
+										gl_contentPanel
+											.createParallelGroup(Alignment.TRAILING)
+											.addComponent(cbAlias, Alignment.LEADING, 0, 355,
+												Short.MAX_VALUE)
+											.addComponent(cbProvider, Alignment.LEADING, 0, 355,
+												Short.MAX_VALUE))
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(
+										gl_contentPanel
+											.createParallelGroup(Alignment.LEADING)
+											.addComponent(btRefresh, GroupLayout.PREFERRED_SIZE,
+												41, GroupLayout.PREFERRED_SIZE)
+											.addComponent(btAddProvider,
+												GroupLayout.PREFERRED_SIZE, 41,
+												GroupLayout.PREFERRED_SIZE)))
+							.addComponent(positionReference, GroupLayout.DEFAULT_SIZE, 414,
+								Short.MAX_VALUE).addComponent(lblNewLabel, Alignment.LEADING))
+					.addContainerGap()));
 		gl_contentPanel.setVerticalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
 			.addGroup(
 				gl_contentPanel
@@ -411,8 +409,8 @@ public class SignDocumentDialog extends JDialog {
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(lblNewLabel)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(positionReference, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-						GroupLayout.PREFERRED_SIZE)));
+					.addComponent(positionReference, GroupLayout.PREFERRED_SIZE,
+						GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)));
 
 		setName("firma.dlg.sign_document");
 		setResizable(false);
@@ -472,10 +470,24 @@ public class SignDocumentDialog extends JDialog {
 		}
 
 	}
+
 	protected void initDataBindings() {
-		ELProperty<JComboBox<String>, Object> jComboBoxEvalutionProperty = ELProperty.create("${selectedItem!=null}");
+		ELProperty<JComboBox<String>, Object> jComboBoxEvalutionProperty = ELProperty
+			.create("${selectedItem!=null}");
 		BeanProperty<JButton, Boolean> jButtonBeanProperty = BeanProperty.create("enabled");
-		AutoBinding<JComboBox<String>, Object, JButton, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxEvalutionProperty, btOk, jButtonBeanProperty);
+		AutoBinding<JComboBox<String>, Object, JButton, Boolean> autoBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxEvalutionProperty, btOk,
+				jButtonBeanProperty);
 		autoBinding.bind();
+		//
+		BeanProperty<JTextField, String> jTextFieldBeanProperty = BeanProperty
+			.create("text_ON_FOCUS_LOST");
+		ELProperty<FirmaOptions, String> firmaOptionsBeanProperty = ELProperty
+			.create("${appearance.referenceText}");
+		AutoBinding<FirmaOptions, String, JTextField, String> autoBinding_1 = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, firmaOptionsBeanProperty,
+				positionReference, jTextFieldBeanProperty);
+
+		autoBinding_1.bind();
 	}
 }

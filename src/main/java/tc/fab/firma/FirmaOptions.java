@@ -3,9 +3,10 @@ package tc.fab.firma;
 import java.io.Serializable;
 import java.util.List;
 
+import tc.fab.firma.utils.PropertyObservable;
 import tc.fab.pdf.signer.options.AppearanceOptions;
 
-public class FirmaOptions implements Serializable {
+public class FirmaOptions extends PropertyObservable implements Serializable {
 
 	private static final long serialVersionUID = -6934691165042731405L;
 
@@ -54,6 +55,9 @@ public class FirmaOptions implements Serializable {
 	}
 
 	public AppearanceOptions getAppearance() {
+		if (appearance == null) {
+			appearance = new AppearanceOptions();
+		}
 		return appearance;
 	}
 
