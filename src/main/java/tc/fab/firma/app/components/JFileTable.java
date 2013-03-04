@@ -1,11 +1,15 @@
 package tc.fab.firma.app.components;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import org.pushingpixels.substance.api.renderers.SubstanceDefaultTableCellRenderer;
 
@@ -13,16 +17,20 @@ import tc.fab.firma.FirmaView;
 import tc.fab.firma.utils.FormatUtils;
 
 public class JFileTable extends JTable {
+	
+	enum ColumnId { STATUS, ICON, FILENAME, SIZE };
 
 	private static final long serialVersionUID = 1L;
 	private ImageIcon loadingIcon;
 	private ImageIcon errorIcon;
 	private ImageIcon doneIcon;
 
-	public JFileTable() {
+	public JFileTable(Vector<FileModel> model) {
 
 		super();
-
+		
+		
+		
 		loadingIcon = new ImageIcon(FirmaView.class.getResource("/icons/loader.gif"));
 		loadingIcon.setImageObserver(this);
 
@@ -38,29 +46,27 @@ public class JFileTable extends JTable {
 		setShowHorizontalLines(true);
 		setRowSelectionAllowed(true);
 		setFocusable(false);
+		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		FileTableModel tableModel = new FileTableModel();
 		setModel(tableModel);
-
-		TableColumn column = null;
-		column = getColumnModel().getColumn(0);
-		column.setMinWidth(28);
-		column.setMaxWidth(28);
-		column.setCellRenderer(getDefaultRenderer(ImageIcon.class));
-
-		column = getColumnModel().getColumn(1);
-		column.setPreferredWidth(300);
-
-		column = getColumnModel().getColumn(2);
-		column.setMaxWidth(110);
-		column.setMinWidth(110);
-
-		column.setCellRenderer(new FileSizeRenderer());
+		tableModel.addTableModelListener(this);
+		
+		List<ColumnId> columns = Arrays.asList(ColumnId.values());
+		TableColumnModel tcModel = getColumnModel();
+		
+		tcModel.getColumn(columns.indexOf(ColumnId.STATUS)).setPreferredWidth(28);
+		tcModel.getColumn(columns.indexOf(ColumnId.ICON)).setPreferredWidth(28);
+		tcModel.getColumn(columns.indexOf(ColumnId.SIZE)).setPreferredWidth(110);
+		
+//	
+//		column.setCellRenderer(getDefaultRenderer(ImageIcon.class));
+//		column.setCellRenderer(new FileSizeRenderer());
 
 		setAutoCreateColumnsFromModel(false);
 
 	}
-
+	
 	static class FileSizeRenderer extends SubstanceDefaultTableCellRenderer {
 		private static final long serialVersionUID = -8245332154395631871L;
 
@@ -120,19 +126,17 @@ public class JFileTable extends JTable {
 
 	}
 
-	private class FileTableModel extends DefaultTableModel {
-
-		public FileTableModel() {
-			addColumn("");
-			addColumn("Arquivo");
-			addColumn("Tamanho");
-		}
+	private static class FileTableModel extends AbstractTableModel {
+		
+//		public FileTableModel() {
+////			addColumn("");
+////			addColumn("Arquivo");
+////			addColumn("Tamanho");
+//		}
 
 		private static final long serialVersionUID = 1L;
 
-		boolean[] canEdit = new boolean[] { false, false, false };
-
-		Class<?>[] types = new Class[] { ImageIcon.class, Object.class, Long.class };
+		Class<?>[] types = new Class[] { ImageIcon.class, ImageIcon.class, File.class, Long.class };
 
 		@Override
 		public Class<?> getColumnClass(int columnIndex) {
@@ -141,9 +145,80 @@ public class JFileTable extends JTable {
 
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			return canEdit[columnIndex];
+			return false;
 		}
 
+		@Override
+		public String getColumnName(int column) {
+			return getColumnNameById(ColumnId.values()[column]);
+		}
+
+		public String getColumnNameById(ColumnId colId) {
+			switch (colId) {
+				case STATUS:
+					return "";
+				case ICON:
+					return "";
+				case FILENAME:
+					return "Arquivo";
+				case SIZE:
+					return "Tamanho";
+				default:
+					return colId.toString();
+			}
+		}
+
+		@Override
+		public int getRowCount() {
+			return model;
+		}
+
+		@Override
+		public int getColumnCount() {
+			return ColumnId.values().length;
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	}
+	
+	public static class FileModel {
+		
+		enum Status {IDLE, STARTING, DONE, FAILED };
+		private Status status;
+		private String fileName;
+		private long size;
+
+		public FileModel(Status status, String fileName, long size) {
+			super();
+			this.status = status;
+			this.fileName = fileName;
+			this.size = size;
+		}
+		
+		public Status getStatus() {
+			return status;
+		}
+		public void setStatus(Status status) {
+			this.status = status;
+		}
+		public String getFileName() {
+			return fileName;
+		}
+		public void setFileName(String fileName) {
+			this.fileName = fileName;
+		}
+		public long getSize() {
+			return size;
+		}
+		public void setSize(long size) {
+			this.size = size;
+		}
+		
 	}
 
 }
