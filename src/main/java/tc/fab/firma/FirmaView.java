@@ -20,6 +20,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.table.DefaultTableModel;
 
 import org.jdesktop.application.FrameView;
 
@@ -187,19 +188,33 @@ public class FirmaView extends FrameView implements AppView {
 		new FileDrop(scrollPane, new Listener() {
 			@Override
 			public void filesDropped(File[] files) {
-				Vector<Object> row = new Vector<>();
-				row.add(loadImage("/icons/application-pdf.png"));
-				row.add("fabiano");
-				row.add(1099l);
-				fileTable.getModel().addRow(row);
+				for (File file : files) {
+					Vector<Object> row = new Vector<>();
+					ImageIcon icon = new ImageIcon(
+						FirmaView.class.getResource("/icons/page_white_acrobat.png"));
+					icon.setImageObserver(fileTable);
+					row.add(icon);
+					row.add(file.getName());
+					row.add(file.length());
+					fileTable.getModel().addRow(row);
+				}
 			}
 		});
 
 	}
 
 	@Override
+	public DefaultTableModel getFileModel() {
+		return fileTable.getModel();
+	}
+
+	@Override
 	public JComponent getStatusBar() {
-		// TODO Auto-generated method stub
 		return super.getStatusBar();
+	}
+
+	@Override
+	public JFileTable getFileTable() {
+		return fileTable;
 	}
 }

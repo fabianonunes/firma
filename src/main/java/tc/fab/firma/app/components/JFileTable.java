@@ -4,24 +4,39 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
+import org.pushingpixels.substance.api.renderers.SubstanceDefaultTableCellRenderer;
+
+import tc.fab.firma.FirmaView;
 import tc.fab.firma.utils.FormatUtils;
 
 public class JFileTable extends JTable {
 
 	private static final long serialVersionUID = 1L;
+	private ImageIcon loadingIcon;
+	private ImageIcon doneIcon;
 
 	public JFileTable() {
 
 		super();
 
+		loadingIcon = new ImageIcon(FirmaView.class.getResource("/icons/loading.gif"));
+		loadingIcon.setImageObserver(this);
+
+		doneIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_error.png"));
+		doneIcon.setImageObserver(this);
+
 		setAutoCreateRowSorter(true);
 
-		setModel(new FileTableModel());
+		setShowGrid(false);
+		setShowHorizontalLines(true);
+		setRowSelectionAllowed(true);
+		setFocusable(false);
+
+		FileTableModel tableModel = new FileTableModel();
+		setModel(tableModel);
 
 		TableColumn column = null;
 		column = getColumnModel().getColumn(0);
@@ -36,26 +51,39 @@ public class JFileTable extends JTable {
 		column.setMaxWidth(110);
 		column.setMinWidth(110);
 
-		column.setCellRenderer(new DefaultTableCellRenderer() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void setValue(Object value) {
-				setHorizontalAlignment(SwingConstants.RIGHT);
-				value = FormatUtils.format((Number) value);
-				super.setValue(value);
-			}
-
-		});
+		column.setCellRenderer(new FileSizeRenderer());
 
 		setAutoCreateColumnsFromModel(false);
 
 	}
-	
+
+	static class FileSizeRenderer extends SubstanceDefaultTableCellRenderer {
+		private static final long serialVersionUID = -8245332154395631871L;
+
+		public FileSizeRenderer() {
+			super();
+			setHorizontalAlignment(RIGHT);
+		}
+
+		@Override
+		public void setValue(Object value) {
+			value = FormatUtils.format((Number) value);
+			super.setValue(value);
+		}
+
+	}
+
 	@Override
 	public DefaultTableModel getModel() {
 		return (DefaultTableModel) super.getModel();
+	}
+
+	public void setWaiting(int rowIndex) {
+		getModel().setValueAt(loadingIcon, rowIndex, 0);
+	}
+
+	public void setDone(int rowIndex) {
+		getModel().setValueAt(doneIcon, rowIndex, 0);
 	}
 
 	public void removeSelecteds() {
