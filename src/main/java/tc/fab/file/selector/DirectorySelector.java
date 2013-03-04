@@ -12,9 +12,9 @@ import javax.swing.filechooser.FileFilter;
 
 public class DirectorySelector implements IFileSelection {
 
-	private List<File>	dirs		= Collections.synchronizedList(new Vector<File>());
-	private Boolean		recursive	= false;
-	private FileFilter	filter;
+	private List<File> dirs = Collections.synchronizedList(new Vector<File>());
+	private Boolean recursive = false;
+	private FileFilter filter;
 
 	public DirectorySelector(File source, Boolean recursive) throws FileNotFoundException {
 		addSource(source);

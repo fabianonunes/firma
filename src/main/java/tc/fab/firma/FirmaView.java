@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Vector;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -183,10 +184,14 @@ public class FirmaView extends FrameView implements AppView {
 			new Dimension(fileTable.getTableHeader().getWidth(), 21));
 		fileTable.setRowHeight(24);
 
-		new FileDrop(fileTable, new Listener() {
+		new FileDrop(scrollPane, new Listener() {
 			@Override
 			public void filesDropped(File[] files) {
-				System.out.println(Arrays.toString(files));
+				Vector<Object> row = new Vector<>();
+				row.add(loadImage("/icons/application-pdf.png"));
+				row.add("fabiano");
+				row.add(1099l);
+				fileTable.getModel().addRow(row);
 			}
 		});
 

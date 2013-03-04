@@ -52,6 +52,11 @@ public class JFileTable extends JTable {
 		setAutoCreateColumnsFromModel(false);
 
 	}
+	
+	@Override
+	public DefaultTableModel getModel() {
+		return (DefaultTableModel) super.getModel();
+	}
 
 	public void removeSelecteds() {
 

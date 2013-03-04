@@ -8,15 +8,15 @@ import javax.swing.filechooser.FileFilter;
 
 public interface IFileSelection {
 
-    public Vector<String> getChildNames() throws FileNotFoundException;
+	public Vector<String> getChildNames() throws FileNotFoundException;
 
-    public Vector<File> getChilds() throws FileNotFoundException;
+	public Vector<File> getChilds() throws FileNotFoundException;
 
-    public void addSource(File source) throws FileNotFoundException;
+	public void addSource(File source) throws FileNotFoundException;
 
-    public void setFilter(FileFilter filter);
+	public void setFilter(FileFilter filter);
 
-    public FileFilter getFilter();
-    
-    public void removeSource(File source);
+	public FileFilter getFilter();
+
+	public void removeSource(File source);
 }
