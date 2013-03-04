@@ -108,7 +108,7 @@ public class FirmaController implements AppController {
 
 			for (Integer row : indexes) {
 				publish(new Pair<String, Integer>("starting", row));
-				long time = (long) (RandomUtils.nextFloat()*1000l);
+				long time = (long) (RandomUtils.nextFloat() * 1000l);
 				System.out.println(time);
 				Thread.sleep(time);
 				publish(new Pair<String, Integer>("ending", row));
@@ -122,15 +122,19 @@ public class FirmaController implements AppController {
 		@Override
 		protected void process(List<Pair<String, Integer>> values) {
 			super.process(values);
+			long time = System.currentTimeMillis();
 			for (Pair<String, Integer> pair : values) {
 				if (pair.getFirst().equals("starting")) {
 					view.getFileTable().setWaiting(pair.getSecond());
 				} else {
-					view.getFileTable().setDone(pair.getSecond());
+					if (time % 2 == 0 || time % 3 == 0) {
+						view.getFileTable().setDone(pair.getSecond());
+					} else {
+						view.getFileTable().setError(pair.getSecond());
+					}
 				}
 			}
 		}
-		
 
 	}
 

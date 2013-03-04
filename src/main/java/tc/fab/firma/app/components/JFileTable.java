@@ -16,16 +16,20 @@ public class JFileTable extends JTable {
 
 	private static final long serialVersionUID = 1L;
 	private ImageIcon loadingIcon;
+	private ImageIcon errorIcon;
 	private ImageIcon doneIcon;
 
 	public JFileTable() {
 
 		super();
 
-		loadingIcon = new ImageIcon(FirmaView.class.getResource("/icons/loading.gif"));
+		loadingIcon = new ImageIcon(FirmaView.class.getResource("/icons/loader.gif"));
 		loadingIcon.setImageObserver(this);
 
-		doneIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_error.png"));
+		errorIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_error.png"));
+		errorIcon.setImageObserver(this);
+
+		doneIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_green.png"));
 		doneIcon.setImageObserver(this);
 
 		setAutoCreateRowSorter(true);
@@ -80,6 +84,10 @@ public class JFileTable extends JTable {
 
 	public void setWaiting(int rowIndex) {
 		getModel().setValueAt(loadingIcon, rowIndex, 0);
+	}
+
+	public void setError(int rowIndex) {
+		getModel().setValueAt(errorIcon, rowIndex, 0);
 	}
 
 	public void setDone(int rowIndex) {
