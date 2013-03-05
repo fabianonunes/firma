@@ -11,6 +11,7 @@ import javax.swing.ActionMap;
 import org.apache.commons.lang.math.RandomUtils;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Task;
+import org.jdesktop.application.Task.BlockingScope;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
@@ -81,7 +82,7 @@ public class FirmaController implements AppController {
 	public void removeFile() {
 	}
 
-	@Action(name = AppController.ACTION_FILE_PREVIEW)
+	@Action(name = AppController.ACTION_FILE_PREVIEW, block=BlockingScope.ACTION)
 	public PreviewTask previewFile() {
 		return new PreviewTask(view.getFileTable().getModel().getRowCount());
 	}
@@ -94,6 +95,7 @@ public class FirmaController implements AppController {
 			super(context.getAppContext().getApplication());
 			indexes = new ArrayList<>();
 			for (int row = 0; row < rowCount; row++) {
+				view.getFileTable().setStatus(row, Status.IDLE);
 				indexes.add(view.getFileTable().convertRowIndexToModel(row));
 			}
 
@@ -119,6 +121,9 @@ public class FirmaController implements AppController {
 			super.process(values);
 			long time = System.currentTimeMillis();
 			for (Pair<String, Integer> pair : values) {
+				
+				pair.second = view.getFileTable().convertRowIndexToView(pair.second);
+				
 				if (pair.getFirst().equals("starting")) {
 					view.getFileTable().setStatus(pair.getSecond(), Status.LOADING);
 				} else {

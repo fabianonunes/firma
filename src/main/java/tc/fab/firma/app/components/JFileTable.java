@@ -1,6 +1,5 @@
 package tc.fab.firma.app.components;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
 import java.util.Arrays;
@@ -9,6 +8,7 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -23,7 +23,7 @@ public class JFileTable extends JTable {
 
 	private static final long serialVersionUID = 1L;
 
-	enum ColumnId {
+	private enum Columns {
 		STATUS, ICON, FILENAME, SIZE
 	};
 
@@ -33,7 +33,7 @@ public class JFileTable extends JTable {
 	private ImageIcon loadingIcon;
 
 	private Vector<FileModel> model;
-	private List<ColumnId> columns = Arrays.asList(ColumnId.values());
+	private List<Columns> columns = Arrays.asList(Columns.values());
 	private FileTableModel tableModel;
 
 	public JFileTable(Vector<FileModel> model) {
@@ -52,11 +52,10 @@ public class JFileTable extends JTable {
 		setAutoCreateRowSorter(true);
 
 		setShowGrid(false);
-		setShowHorizontalLines(true);
 		setFocusable(false);
-
-		setRowSelectionAllowed(false);
-		setCellSelectionEnabled(false);
+		setRowSelectionAllowed(true);
+		
+		setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
 		getTableHeader().setResizingAllowed(false);
 		getTableHeader().setReorderingAllowed(false);
@@ -67,15 +66,12 @@ public class JFileTable extends JTable {
 
 		TableColumnModel tcModel = getColumnModel();
 
-		tcModel.getColumn(idToColumn(ColumnId.STATUS)).setMaxWidth(28);
-		tcModel.getColumn(idToColumn(ColumnId.ICON)).setMaxWidth(30);
-		tcModel.getColumn(idToColumn(ColumnId.SIZE)).setMaxWidth(110);
+		tcModel.getColumn(idToColumn(Columns.STATUS)).setMaxWidth(28);
+		tcModel.getColumn(idToColumn(Columns.ICON)).setMaxWidth(30);
+		tcModel.getColumn(idToColumn(Columns.SIZE)).setMaxWidth(110);
 
 		getTableHeader().setPreferredSize(new Dimension(getTableHeader().getWidth(), 21));
 		setRowHeight(24);
-
-		tcModel.getColumn(1).setCellRenderer(getDefaultRenderer(ImageIcon.class));
-		// column.setCellRenderer(new FileSizeRenderer());
 
 	}
 
@@ -93,16 +89,16 @@ public class JFileTable extends JTable {
 
 	}
 
-	protected ColumnId columnToId(int id) {
+	protected Columns columnToId(int id) {
 		return columns.get(id);
 	}
 
-	protected int idToColumn(ColumnId id) {
+	protected int idToColumn(Columns id) {
 		return columns.indexOf(id);
 	}
 
 	public void setStatus(int rowIndex, Status status) {
-		setValueAt(status, rowIndex, idToColumn(ColumnId.STATUS));
+		setValueAt(status, rowIndex, idToColumn(Columns.STATUS));
 		tableModel.fireTableRowsUpdated(rowIndex, rowIndex);
 	}
 
@@ -124,10 +120,10 @@ public class JFileTable extends JTable {
 
 		@Override
 		public String getColumnName(int column) {
-			return getColumnNameById(ColumnId.values()[column]);
+			return getColumnNameById(Columns.values()[column]);
 		}
 
-		public String getColumnNameById(ColumnId colId) {
+		public String getColumnNameById(Columns colId) {
 			switch (colId) {
 				case STATUS:
 					return "";
@@ -149,7 +145,7 @@ public class JFileTable extends JTable {
 
 		@Override
 		public int getColumnCount() {
-			return ColumnId.values().length;
+			return Columns.values().length;
 		}
 
 		@Override
@@ -250,10 +246,6 @@ public class JFileTable extends JTable {
 		public void setValue(Object value) {
 			value = FormatUtils.format((Number) value);
 			super.setValue(value);
-		}
-
-		@Override
-		public void setForeground(Color c) {
 		}
 
 	}
