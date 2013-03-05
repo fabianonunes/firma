@@ -19,7 +19,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.table.AbstractTableModel;
 
 import org.jdesktop.application.FrameView;
 
@@ -181,15 +180,10 @@ public class FirmaView extends FrameView implements AppView {
 						file.length());
 					model.add(row);
 				}
-				fileTable.getModel().fireTableDataChanged();
+				fileTable.updateView();
 			}
 		});
 
-	}
-
-	@Override
-	public AbstractTableModel getFileModel() {
-		return fileTable.getModel();
 	}
 
 	@Override

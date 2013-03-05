@@ -7,7 +7,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.swing.ActionMap;
-import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.lang.math.RandomUtils;
 import org.jdesktop.application.Action;
@@ -17,6 +16,7 @@ import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
 import tc.fab.app.AppView;
+import tc.fab.firma.app.components.JFileTable.FileModel.Status;
 import tc.fab.firma.app.dialogs.FileSelectorDialog;
 import tc.fab.firma.app.dialogs.SignDocumentDialog;
 
@@ -83,21 +83,17 @@ public class FirmaController implements AppController {
 
 	@Action(name = AppController.ACTION_FILE_PREVIEW)
 	public PreviewTask previewFile() {
-
-		return new PreviewTask(view.getFileModel());
-
+		return new PreviewTask(view.getFileTable().getModel().getRowCount());
 	}
 
 	class PreviewTask extends Task<Void, Pair<String, Integer>> {
 
-		AbstractTableModel model;
 		List<Integer> indexes;
 
-		public PreviewTask(AbstractTableModel defaultTableModel) {
+		public PreviewTask(int rowCount) {
 			super(context.getAppContext().getApplication());
-			model = defaultTableModel;
 			indexes = new ArrayList<>();
-			for (int row = 0; row < model.getRowCount(); row++) {
+			for (int row = 0; row < rowCount; row++) {
 				indexes.add(view.getFileTable().convertRowIndexToModel(row));
 			}
 
@@ -124,12 +120,12 @@ public class FirmaController implements AppController {
 			long time = System.currentTimeMillis();
 			for (Pair<String, Integer> pair : values) {
 				if (pair.getFirst().equals("starting")) {
-					view.getFileTable().setLoading(pair.getSecond());
+					view.getFileTable().setStatus(pair.getSecond(), Status.LOADING);
 				} else {
 					if (time % 2 == 0 || time % 3 == 0) {
-						view.getFileTable().setDone(pair.getSecond());
+						view.getFileTable().setStatus(pair.getSecond(), Status.DONE);
 					} else {
-						view.getFileTable().setFailed(pair.getSecond());
+						view.getFileTable().setStatus(pair.getSecond(), Status.FAILED);
 					}
 				}
 			}

@@ -9,14 +9,10 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
-import org.pushingpixels.lafwidget.LafWidgetUtilities;
-import org.pushingpixels.lafwidget.animation.AnimationConfigurationManager;
-import org.pushingpixels.lafwidget.animation.AnimationFacet;
 import org.pushingpixels.substance.api.renderers.SubstanceDefaultTableCellRenderer;
 
 import tc.fab.firma.FirmaView;
@@ -38,11 +34,12 @@ public class JFileTable extends JTable {
 
 	private Vector<FileModel> model;
 	private List<ColumnId> columns = Arrays.asList(ColumnId.values());
+	private FileTableModel tableModel;
 
 	public JFileTable(Vector<FileModel> model) {
 
 		super();
-		
+
 		this.model = model;
 
 		loadingIcon = new ImageIcon(FirmaView.class.getResource("/icons/spinner-mini-2.gif"));
@@ -57,14 +54,14 @@ public class JFileTable extends JTable {
 		setShowGrid(false);
 		setShowHorizontalLines(true);
 		setFocusable(false);
-		
+
 		setRowSelectionAllowed(false);
 		setCellSelectionEnabled(false);
-		
+
 		getTableHeader().setResizingAllowed(false);
 		getTableHeader().setReorderingAllowed(false);
 
-		FileTableModel tableModel = new FileTableModel();
+		tableModel = new FileTableModel();
 		setModel(tableModel);
 		tableModel.addTableModelListener(this);
 
@@ -104,24 +101,9 @@ public class JFileTable extends JTable {
 		return columns.indexOf(id);
 	}
 
-	@Override
-	public AbstractTableModel getModel() {
-		return (AbstractTableModel) super.getModel();
-	}
-
-	public void setLoading(int rowIndex) {
-		getModel().setValueAt(Status.LOADING, rowIndex, idToColumn(ColumnId.STATUS));
-		getModel().fireTableRowsUpdated(rowIndex, rowIndex);
-	}
-
-	public void setFailed(int rowIndex) {
-		getModel().setValueAt(Status.FAILED, rowIndex, idToColumn(ColumnId.STATUS));
-		getModel().fireTableRowsUpdated(rowIndex, rowIndex);
-	}
-
-	public void setDone(int rowIndex) {
-		getModel().setValueAt(Status.DONE, rowIndex, idToColumn(ColumnId.STATUS));
-		getModel().fireTableRowsUpdated(rowIndex, rowIndex);
+	public void setStatus(int rowIndex, Status status) {
+		setValueAt(status, rowIndex, idToColumn(ColumnId.STATUS));
+		tableModel.fireTableRowsUpdated(rowIndex, rowIndex);
 	}
 
 	private class FileTableModel extends AbstractTableModel {
@@ -269,11 +251,15 @@ public class JFileTable extends JTable {
 			value = FormatUtils.format((Number) value);
 			super.setValue(value);
 		}
-		
+
 		@Override
 		public void setForeground(Color c) {
 		}
 
+	}
+
+	public void updateView() {
+		tableModel.fireTableDataChanged();
 	}
 
 }
