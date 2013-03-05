@@ -1,5 +1,7 @@
 package tc.fab.firma.app.components;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -7,132 +9,122 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
+import org.pushingpixels.lafwidget.LafWidgetUtilities;
+import org.pushingpixels.lafwidget.animation.AnimationConfigurationManager;
+import org.pushingpixels.lafwidget.animation.AnimationFacet;
 import org.pushingpixels.substance.api.renderers.SubstanceDefaultTableCellRenderer;
 
 import tc.fab.firma.FirmaView;
+import tc.fab.firma.app.components.JFileTable.FileModel.Status;
 import tc.fab.firma.utils.FormatUtils;
 
 public class JFileTable extends JTable {
-	
-	enum ColumnId { STATUS, ICON, FILENAME, SIZE };
 
 	private static final long serialVersionUID = 1L;
-	private ImageIcon loadingIcon;
-	private ImageIcon errorIcon;
+
+	enum ColumnId {
+		STATUS, ICON, FILENAME, SIZE
+	};
+
+	private ImageIcon pdfIcon;
 	private ImageIcon doneIcon;
+	private ImageIcon failedIcon;
+	private ImageIcon loadingIcon;
+
+	private Vector<FileModel> model;
+	private List<ColumnId> columns = Arrays.asList(ColumnId.values());
 
 	public JFileTable(Vector<FileModel> model) {
 
 		super();
 		
-		
-		
-		loadingIcon = new ImageIcon(FirmaView.class.getResource("/icons/loader.gif"));
-		loadingIcon.setImageObserver(this);
+		this.model = model;
 
-		errorIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_error.png"));
-		errorIcon.setImageObserver(this);
+		loadingIcon = new ImageIcon(FirmaView.class.getResource("/icons/spinner-mini-2.gif"));
+		loadingIcon.setImageObserver(this); // animated gif
 
 		doneIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_green.png"));
-		doneIcon.setImageObserver(this);
+		failedIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_error.png"));
+		pdfIcon = new ImageIcon(FirmaView.class.getResource("/icons/page_white_acrobat.png"));
 
 		setAutoCreateRowSorter(true);
 
 		setShowGrid(false);
 		setShowHorizontalLines(true);
-		setRowSelectionAllowed(true);
 		setFocusable(false);
-		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		
+		setRowSelectionAllowed(false);
+		setCellSelectionEnabled(false);
+		
+		getTableHeader().setResizingAllowed(false);
+		getTableHeader().setReorderingAllowed(false);
 
 		FileTableModel tableModel = new FileTableModel();
 		setModel(tableModel);
 		tableModel.addTableModelListener(this);
-		
-		List<ColumnId> columns = Arrays.asList(ColumnId.values());
+
 		TableColumnModel tcModel = getColumnModel();
-		
-		tcModel.getColumn(columns.indexOf(ColumnId.STATUS)).setPreferredWidth(28);
-		tcModel.getColumn(columns.indexOf(ColumnId.ICON)).setPreferredWidth(28);
-		tcModel.getColumn(columns.indexOf(ColumnId.SIZE)).setPreferredWidth(110);
-		
-//	
-//		column.setCellRenderer(getDefaultRenderer(ImageIcon.class));
-//		column.setCellRenderer(new FileSizeRenderer());
 
-		setAutoCreateColumnsFromModel(false);
+		tcModel.getColumn(idToColumn(ColumnId.STATUS)).setMaxWidth(28);
+		tcModel.getColumn(idToColumn(ColumnId.ICON)).setMaxWidth(30);
+		tcModel.getColumn(idToColumn(ColumnId.SIZE)).setMaxWidth(110);
 
-	}
-	
-	static class FileSizeRenderer extends SubstanceDefaultTableCellRenderer {
-		private static final long serialVersionUID = -8245332154395631871L;
+		getTableHeader().setPreferredSize(new Dimension(getTableHeader().getWidth(), 21));
+		setRowHeight(24);
 
-		public FileSizeRenderer() {
-			super();
-			setHorizontalAlignment(RIGHT);
-		}
-
-		@Override
-		public void setValue(Object value) {
-			value = FormatUtils.format((Number) value);
-			super.setValue(value);
-		}
+		tcModel.getColumn(1).setCellRenderer(getDefaultRenderer(ImageIcon.class));
+		// column.setCellRenderer(new FileSizeRenderer());
 
 	}
 
 	@Override
-	public DefaultTableModel getModel() {
-		return (DefaultTableModel) super.getModel();
+	public TableCellRenderer getCellRenderer(int row, int column) {
+
+		switch (columnToId(column)) {
+			case ICON:
+				return getDefaultRenderer(ImageIcon.class);
+			case SIZE:
+				return new FileSizeRenderer();
+			default:
+				return super.getCellRenderer(row, column);
+		}
+
 	}
 
-	public void setWaiting(int rowIndex) {
-		getModel().setValueAt(loadingIcon, rowIndex, 0);
+	protected ColumnId columnToId(int id) {
+		return columns.get(id);
 	}
 
-	public void setError(int rowIndex) {
-		getModel().setValueAt(errorIcon, rowIndex, 0);
+	protected int idToColumn(ColumnId id) {
+		return columns.indexOf(id);
+	}
+
+	@Override
+	public AbstractTableModel getModel() {
+		return (AbstractTableModel) super.getModel();
+	}
+
+	public void setLoading(int rowIndex) {
+		getModel().setValueAt(Status.LOADING, rowIndex, idToColumn(ColumnId.STATUS));
+		getModel().fireTableRowsUpdated(rowIndex, rowIndex);
+	}
+
+	public void setFailed(int rowIndex) {
+		getModel().setValueAt(Status.FAILED, rowIndex, idToColumn(ColumnId.STATUS));
+		getModel().fireTableRowsUpdated(rowIndex, rowIndex);
 	}
 
 	public void setDone(int rowIndex) {
-		getModel().setValueAt(doneIcon, rowIndex, 0);
+		getModel().setValueAt(Status.DONE, rowIndex, idToColumn(ColumnId.STATUS));
+		getModel().fireTableRowsUpdated(rowIndex, rowIndex);
 	}
 
-	public void removeSelecteds() {
-
-		DefaultTableModel model = (DefaultTableModel) getModel();
-
-		while (getSelectedRowCount() > 0) {
-			model.removeRow(convertRowIndexToModel(getSelectedRow()));
-		}
-
-	}
-
-	public Vector<Object> getDataFromColumn(int column) {
-
-		Vector<Object> columnData = new Vector<Object>();
-
-		DefaultTableModel model = (DefaultTableModel) getModel();
-
-		int rows = model.getRowCount();
-
-		for (int i = 0; i < rows; i++) {
-			columnData.add(model.getValueAt(i, column));
-		}
-
-		return columnData;
-
-	}
-
-	private static class FileTableModel extends AbstractTableModel {
-		
-//		public FileTableModel() {
-////			addColumn("");
-////			addColumn("Arquivo");
-////			addColumn("Tamanho");
-//		}
+	private class FileTableModel extends AbstractTableModel {
 
 		private static final long serialVersionUID = 1L;
 
@@ -170,7 +162,7 @@ public class JFileTable extends JTable {
 
 		@Override
 		public int getRowCount() {
-			return model;
+			return model.size();
 		}
 
 		@Override
@@ -180,15 +172,53 @@ public class JFileTable extends JTable {
 
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
-			// TODO Auto-generated method stub
+			FileModel row = model.get(rowIndex);
+			switch (columnToId(columnIndex)) {
+				case FILENAME:
+					return row.getFileName();
+				case SIZE:
+					return row.getSize();
+				case ICON:
+					return pdfIcon;
+				case STATUS:
+					switch (row.getStatus()) {
+						case DONE:
+							return doneIcon;
+						case FAILED:
+							return failedIcon;
+						case LOADING:
+							return loadingIcon;
+						case IDLE:
+							return null;
+					}
+					return null;
+			}
 			return null;
 		}
-		
+
+		@Override
+		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+			FileModel row = model.get(rowIndex);
+			switch (columnToId(columnIndex)) {
+				case FILENAME:
+					row.setFileName((String) aValue);
+				case SIZE:
+					row.setSize((long) aValue);
+				case STATUS:
+					row.setStatus((Status) aValue);
+				default:
+					break;
+			}
+		}
+
 	}
-	
+
 	public static class FileModel {
-		
-		enum Status {IDLE, STARTING, DONE, FAILED };
+
+		public enum Status {
+			IDLE, LOADING, DONE, FAILED
+		};
+
 		private Status status;
 		private String fileName;
 		private long size;
@@ -199,26 +229,51 @@ public class JFileTable extends JTable {
 			this.fileName = fileName;
 			this.size = size;
 		}
-		
+
 		public Status getStatus() {
 			return status;
 		}
+
 		public void setStatus(Status status) {
 			this.status = status;
 		}
+
 		public String getFileName() {
 			return fileName;
 		}
+
 		public void setFileName(String fileName) {
 			this.fileName = fileName;
 		}
+
 		public long getSize() {
 			return size;
 		}
+
 		public void setSize(long size) {
 			this.size = size;
 		}
+
+	}
+
+	static class FileSizeRenderer extends SubstanceDefaultTableCellRenderer {
+		private static final long serialVersionUID = -8245332154395631871L;
+
+		public FileSizeRenderer() {
+			super();
+			setHorizontalAlignment(RIGHT);
+		}
+
+		@Override
+		public void setValue(Object value) {
+			value = FormatUtils.format((Number) value);
+			super.setValue(value);
+		}
 		
+		@Override
+		public void setForeground(Color c) {
+		}
+
 	}
 
 }

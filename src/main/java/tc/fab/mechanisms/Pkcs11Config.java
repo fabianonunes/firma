@@ -115,6 +115,7 @@ public class Pkcs11Config {
 
 		ArrayList<String> aliases = new ArrayList<>();
 		Module module = loadModule(pkcs11Module);
+
 		Slot[] slotsWithToken = module.getSlotList(Module.SlotRequirement.TOKEN_PRESENT);
 
 		for (Slot slot : slotsWithToken) {
@@ -158,7 +159,6 @@ public class Pkcs11Config {
 
 	public Long getSlotId(String pkcs11Module, String alias) {
 		return slotIDs.get(pkcs11Module + alias);
-
 	}
 
 	private Module loadModule(String pkcs11Module) throws IOException, TokenException {
@@ -170,6 +170,14 @@ public class Pkcs11Config {
 		return modules.get(pkcs11Module);
 	}
 
+	/**
+	 * finaliza os módulos e desloga os providers.
+	 * 
+	 * a ordem correta de chamada é provider.logout(); token.closeAllSessions();
+	 * 
+	 * @throws TokenException
+	 * @throws LoginException
+	 */
 	public void finalizeModules() throws TokenException, LoginException {
 
 		for (Pkcs11Adapter adapter : adapters.values()) {

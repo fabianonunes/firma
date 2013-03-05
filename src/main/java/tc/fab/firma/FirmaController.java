@@ -7,7 +7,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.swing.ActionMap;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.lang.math.RandomUtils;
 import org.jdesktop.application.Action;
@@ -90,10 +90,10 @@ public class FirmaController implements AppController {
 
 	class PreviewTask extends Task<Void, Pair<String, Integer>> {
 
-		DefaultTableModel model;
+		AbstractTableModel model;
 		List<Integer> indexes;
 
-		public PreviewTask(DefaultTableModel defaultTableModel) {
+		public PreviewTask(AbstractTableModel defaultTableModel) {
 			super(context.getAppContext().getApplication());
 			model = defaultTableModel;
 			indexes = new ArrayList<>();
@@ -108,8 +108,7 @@ public class FirmaController implements AppController {
 
 			for (Integer row : indexes) {
 				publish(new Pair<String, Integer>("starting", row));
-				long time = (long) (RandomUtils.nextFloat() * 1000l);
-				System.out.println(time);
+				long time = (long) (RandomUtils.nextFloat() * 6000l);
 				Thread.sleep(time);
 				publish(new Pair<String, Integer>("ending", row));
 
@@ -125,12 +124,12 @@ public class FirmaController implements AppController {
 			long time = System.currentTimeMillis();
 			for (Pair<String, Integer> pair : values) {
 				if (pair.getFirst().equals("starting")) {
-					view.getFileTable().setWaiting(pair.getSecond());
+					view.getFileTable().setLoading(pair.getSecond());
 				} else {
 					if (time % 2 == 0 || time % 3 == 0) {
 						view.getFileTable().setDone(pair.getSecond());
 					} else {
-						view.getFileTable().setError(pair.getSecond());
+						view.getFileTable().setFailed(pair.getSecond());
 					}
 				}
 			}

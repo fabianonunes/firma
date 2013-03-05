@@ -3,7 +3,6 @@
  */
 package tc.fab.firma;
 
-import java.awt.Dimension;
 import java.awt.Image;
 import java.io.File;
 import java.util.Arrays;
@@ -20,7 +19,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.AbstractTableModel;
 
 import org.jdesktop.application.FrameView;
 
@@ -28,6 +27,7 @@ import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppView;
 import tc.fab.firma.app.components.JFileTable;
+import tc.fab.firma.app.components.JFileTable.FileModel;
 import tc.fab.firma.utils.FileDrop;
 import tc.fab.firma.utils.FileDrop.Listener;
 
@@ -36,8 +36,8 @@ public class FirmaView extends FrameView implements AppView {
 
 	@SuppressWarnings("unused")
 	private AppContext context;
-
 	private AppController controller;
+	private Vector<FileModel> model;
 
 	@Inject
 	public FirmaView(AppContext context, AppController controller) {
@@ -46,6 +46,8 @@ public class FirmaView extends FrameView implements AppView {
 
 		this.context = context;
 		this.controller = controller;
+
+		model = new Vector<>();
 
 	}
 
@@ -56,7 +58,6 @@ public class FirmaView extends FrameView implements AppView {
 	public void initView() {
 		initComponents();
 		postInitComponents();
-
 	}
 
 	private void initComponents() {
@@ -65,16 +66,16 @@ public class FirmaView extends FrameView implements AppView {
 
 		ActionMap actionMap = controller.getActionMap();
 
-		mainPanel = new JPanel();
-		signFiles = new JButton();
-		removeFile = new JButton();
-		addFolder = new JButton();
-		addFiles = new JButton();
-		settings = new JButton();
+		JPanel mainPanel = new JPanel();
+		JButton signFiles = new JButton();
+		JButton removeFile = new JButton();
+		JButton addFolder = new JButton();
+		JButton addFiles = new JButton();
+		JButton settings = new JButton();
 		scrollPane = new JScrollPane();
-		fileTable = new JFileTable();
-		showDropArea = new JButton();
-		previewFile = new JButton();
+		fileTable = new JFileTable(model);
+		JButton showDropArea = new JButton();
+		JButton previewFile = new JButton();
 
 		addFiles.setAction(actionMap.get(AppController.ACTION_FILES_ADD));
 		addFolder.setAction(actionMap.get(AppController.ACTION_FOLDER_ADD));
@@ -86,21 +87,21 @@ public class FirmaView extends FrameView implements AppView {
 
 		scrollPane.setViewportView(fileTable);
 
-		GroupLayout mainPanelLayout = new GroupLayout(mainPanel);
-		mainPanelLayout.setHorizontalGroup(mainPanelLayout.createParallelGroup(Alignment.LEADING)
+		GroupLayout gl_mainPanel = new GroupLayout(mainPanel);
+		gl_mainPanel.setHorizontalGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
 			.addGroup(
 				Alignment.TRAILING,
-				mainPanelLayout
+				gl_mainPanel
 					.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(
-						mainPanelLayout
+						gl_mainPanel
 							.createParallelGroup(Alignment.TRAILING)
 							.addComponent(scrollPane, Alignment.LEADING, GroupLayout.DEFAULT_SIZE,
 								426, Short.MAX_VALUE)
 							.addGroup(
 								Alignment.LEADING,
-								mainPanelLayout
+								gl_mainPanel
 									.createSequentialGroup()
 									.addComponent(addFolder)
 									.addPreferredGap(ComponentPlacement.RELATED)
@@ -111,7 +112,7 @@ public class FirmaView extends FrameView implements AppView {
 										Short.MAX_VALUE).addComponent(showDropArea))
 							.addGroup(
 								Alignment.LEADING,
-								mainPanelLayout
+								gl_mainPanel
 									.createSequentialGroup()
 									.addComponent(signFiles)
 									.addPreferredGap(ComponentPlacement.RELATED)
@@ -119,13 +120,13 @@ public class FirmaView extends FrameView implements AppView {
 									.addPreferredGap(ComponentPlacement.RELATED, 318,
 										Short.MAX_VALUE).addComponent(removeFile)))
 					.addContainerGap()));
-		mainPanelLayout.setVerticalGroup(mainPanelLayout.createParallelGroup(Alignment.LEADING)
+		gl_mainPanel.setVerticalGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
 			.addGroup(
-				mainPanelLayout
+				gl_mainPanel
 					.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(
-						mainPanelLayout
+						gl_mainPanel
 							.createParallelGroup(Alignment.BASELINE)
 							.addComponent(addFolder, GroupLayout.PREFERRED_SIZE, 28,
 								GroupLayout.PREFERRED_SIZE)
@@ -139,7 +140,7 @@ public class FirmaView extends FrameView implements AppView {
 					.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 401, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(
-						mainPanelLayout
+						gl_mainPanel
 							.createParallelGroup(Alignment.TRAILING)
 							.addComponent(previewFile, GroupLayout.PREFERRED_SIZE, 28,
 								GroupLayout.PREFERRED_SIZE)
@@ -147,21 +148,12 @@ public class FirmaView extends FrameView implements AppView {
 								GroupLayout.PREFERRED_SIZE)
 							.addComponent(signFiles, GroupLayout.PREFERRED_SIZE, 28,
 								GroupLayout.PREFERRED_SIZE)).addContainerGap()));
-		mainPanel.setLayout(mainPanelLayout);
+		mainPanel.setLayout(gl_mainPanel);
 
 		setComponent(mainPanel);
 	}
-
-	private JButton addFolder;
-	private JButton signFiles;
-	private JButton removeFile;
-	private JButton addFiles;
-	private JButton settings;
-	private JButton showDropArea;
-	private JButton previewFile;
 	private JScrollPane scrollPane;
 	private JFileTable fileTable;
-	private JPanel mainPanel;
 
 	private void setupWindowIcons() {
 
@@ -181,30 +173,22 @@ public class FirmaView extends FrameView implements AppView {
 
 		setupWindowIcons();
 
-		fileTable.getTableHeader().setPreferredSize(
-			new Dimension(fileTable.getTableHeader().getWidth(), 21));
-		fileTable.setRowHeight(24);
-
 		new FileDrop(scrollPane, new Listener() {
 			@Override
 			public void filesDropped(File[] files) {
 				for (File file : files) {
-					Vector<Object> row = new Vector<>();
-					ImageIcon icon = new ImageIcon(
-						FirmaView.class.getResource("/icons/page_white_acrobat.png"));
-					icon.setImageObserver(fileTable);
-					row.add(icon);
-					row.add(file.getName());
-					row.add(file.length());
-					fileTable.getModel().addRow(row);
+					FileModel row = new FileModel(FileModel.Status.IDLE, file.getName(),
+						file.length());
+					model.add(row);
 				}
+				fileTable.getModel().fireTableDataChanged();
 			}
 		});
 
 	}
 
 	@Override
-	public DefaultTableModel getFileModel() {
+	public AbstractTableModel getFileModel() {
 		return fileTable.getModel();
 	}
 
