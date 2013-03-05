@@ -119,11 +119,10 @@ public class FirmaController implements AppController {
 		@Override
 		protected void process(List<Pair<String, Integer>> values) {
 			super.process(values);
+			
 			long time = System.currentTimeMillis();
 			for (Pair<String, Integer> pair : values) {
-				
 				pair.second = view.getFileTable().convertRowIndexToView(pair.second);
-				
 				if (pair.getFirst().equals("starting")) {
 					view.getFileTable().setStatus(pair.getSecond(), Status.LOADING);
 				} else {
