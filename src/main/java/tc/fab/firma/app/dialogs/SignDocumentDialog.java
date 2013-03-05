@@ -9,7 +9,6 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.security.Signature;
 import java.security.cert.Certificate;
 import java.util.List;
 
@@ -27,7 +26,6 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-import org.apache.commons.codec.binary.Hex;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Task;
@@ -43,9 +41,7 @@ import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
 import tc.fab.firma.FirmaOptions;
-import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.MechanismManager;
-import tc.fab.mechanisms.callback.PINCallback.UserCancelledException;
 import tc.fab.pdf.signer.SignaturePreview;
 import tc.fab.pdf.signer.application.ComponentsInputBlocker;
 
@@ -59,7 +55,6 @@ public class SignDocumentDialog extends JDialog {
 	private static final String ACTION_SIGN = "firma.dlg.sign_document.sign";
 
 	private AppContext context;
-	@SuppressWarnings("unused")
 	private AppController controller;
 	private FirmaOptions options;
 
@@ -75,7 +70,7 @@ public class SignDocumentDialog extends JDialog {
 
 	private JXImageView imagePane;
 	private JTextField positionReference;
-
+	
 	@Inject
 	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document,
 		MechanismManager providersManager) throws IOException {
@@ -112,35 +107,39 @@ public class SignDocumentDialog extends JDialog {
 
 		String alias = getAlias();
 		String provider = getProvider();
+		
+		setVisible(false);
+		
+		controller.signFiles(provider, alias);
 
-		try (Mechanism m = providerManager.getMechanism(provider, alias)) {
-			try {
-				m.login();
-			} catch (UserCancelledException e) {
-				return;
-			}
-
-			options.setAlias(alias);
-			options.setProvider(provider);
-
-			byte[] dataToSign = "fabiano nunes parente".getBytes();
-
-			Signature signature = Signature.getInstance("SHA1withRSA");
-			signature.initSign(m.getPrivateKey());
-			signature.update(dataToSign);
-
-			byte[] data_signed = signature.sign();
-			System.out.println(Hex.encodeHex(data_signed));
-
-			signature = Signature.getInstance("SHA1withRSA");
-			signature.initVerify(m.getCertificate());
-			signature.update(dataToSign);
-
-			System.out.println(signature.verify(data_signed));
-
-			setVisible(false);
-
-		}
+//		try (Mechanism m = providerManager.getMechanism(provider, alias)) {
+//			try {
+//				m.login();
+//			} catch (UserCancelledException e) {
+//				return;
+//			}
+//
+//			options.setAlias(alias);
+//			options.setProvider(provider);
+//
+//			byte[] dataToSign = "fabiano nunes parente".getBytes();
+//
+//			Signature signature = Signature.getInstance("SHA1withRSA");
+//			signature.initSign(m.getPrivateKey());
+//			signature.update(dataToSign);
+//
+//			byte[] data_signed = signature.sign();
+//			System.out.println(Hex.encodeHex(data_signed));
+//
+//			signature = Signature.getInstance("SHA1withRSA");
+//			signature.initVerify(m.getCertificate());
+//			signature.update(dataToSign);
+//
+//			System.out.println(signature.verify(data_signed));
+//
+//			setVisible(false);
+//
+//		}
 
 	}
 

@@ -151,7 +151,7 @@ public class FirmaView extends FrameView implements AppView {
 			@Override
 			public void filesDropped(File[] files) {
 				for (File file : files) {
-					FileModel row = new FileModel(FileModel.Status.IDLE, file.getName(),
+					FileModel row = new FileModel(FileModel.Status.IDLE, file,
 						file.length());
 					model.add(row);
 				}

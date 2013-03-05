@@ -1,25 +1,30 @@
 package tc.fab.firma;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.swing.ActionMap;
 
-import org.apache.commons.lang.math.RandomUtils;
+import net.sf.jmimemagic.Magic;
+
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Task;
-import org.jdesktop.application.Task.BlockingScope;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
 import tc.fab.app.AppView;
+import tc.fab.firma.app.components.JFileTable.FileModel;
 import tc.fab.firma.app.components.JFileTable.FileModel.Status;
 import tc.fab.firma.app.dialogs.FileSelectorDialog;
 import tc.fab.firma.app.dialogs.SignDocumentDialog;
+import tc.fab.mechanisms.Mechanism;
+import tc.fab.mechanisms.MechanismManager;
+import tc.fab.pdf.signer.DocumentSigner;
 
 import com.google.inject.Provider;
 
@@ -28,22 +33,24 @@ public class FirmaController implements AppController {
 
 	private AppContext context;
 	private AppView view;
-	@SuppressWarnings("unused")
 	private AppDocument document;
 
 	private ActionMap actionMap;
-
+	
 	// dialogs
 	@Inject
 	private Provider<FileSelectorDialog> fileDialog;
 	@Inject
 	private Provider<SignDocumentDialog> optionsDialog;
+	
+	private MechanismManager providersManager;
 
 	@Inject
-	public FirmaController(AppContext context, AppDocument document, AppView view) {
+	public FirmaController(AppContext context, AppDocument document, AppView view, MechanismManager providersManager) {
 		this.context = context;
 		this.view = view;
 		this.document = document;
+		this.providersManager = providersManager;
 	}
 
 	@Override
@@ -82,21 +89,34 @@ public class FirmaController implements AppController {
 	public void removeFile() {
 	}
 
-	@Action(name = AppController.ACTION_FILE_PREVIEW, block=BlockingScope.ACTION)
-	public PreviewTask previewFile() {
-		return new PreviewTask(view.getFileTable().getModel().getRowCount());
+	@Override
+	public void signFiles(String provider, String alias) throws Exception {
+		Mechanism m = providersManager.getMechanism(provider, alias);
+		PreviewTask p = new PreviewTask(m);
+		p.execute();
 	}
 
-	class PreviewTask extends Task<Void, Pair<String, Integer>> {
+	class PreviewTask extends Task<Void, Pair<Status, Integer>> {
 
-		List<Integer> indexes;
+		Map<Integer, FileModel> indexes;
+		private Mechanism m;
 
-		public PreviewTask(int rowCount) {
+		public PreviewTask(Mechanism m) throws Exception {
+			
 			super(context.getAppContext().getApplication());
-			indexes = new ArrayList<>();
+			
+			this.m = m;
+			
+			m.login();
+			
+			int rowCount = view.getFileTable().getModel().getRowCount();
+			
+			indexes = new HashMap<>();
+			
 			for (int row = 0; row < rowCount; row++) {
 				view.getFileTable().setStatus(row, Status.IDLE);
-				indexes.add(view.getFileTable().convertRowIndexToModel(row));
+				int viewRow = view.getFileTable().convertRowIndexToModel(row);
+				indexes.put(viewRow, view.getFileTable().getData().get(row));
 			}
 
 		}
@@ -104,11 +124,35 @@ public class FirmaController implements AppController {
 		@Override
 		protected Void doInBackground() throws Exception {
 
-			for (Integer row : indexes) {
-				publish(new Pair<String, Integer>("starting", row));
-				long time = (long) (RandomUtils.nextFloat() * 6000l);
-				Thread.sleep(time);
-				publish(new Pair<String, Integer>("ending", row));
+			for (Integer row : indexes.keySet()) {
+
+				FileModel fileModel = indexes.get(row);
+				
+				publish(new Pair<Status, Integer>(Status.LOADING, row));
+
+				try (
+					DocumentSigner signer = new DocumentSigner(
+						document.getOptions().getAppearance(),
+						fileModel.getFile()
+					)
+				){
+					
+
+					String mimeType = Magic.getMagicMatch(fileModel.getFile(), true).getMimeType();
+
+					if (mimeType.equals("application/pdf")) {
+						
+						signer.sign(m, new File(fileModel.getFile().getParentFile(), " assinado.pdf"));
+						
+						publish(new Pair<Status, Integer>(Status.DONE, row));
+					} else {
+						throw new Exception("O aqruivo não é um PDF");
+					}
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+					publish(new Pair<Status, Integer>(Status.FAILED, row));
+				}
 
 			}
 
@@ -117,21 +161,19 @@ public class FirmaController implements AppController {
 		}
 
 		@Override
-		protected void process(List<Pair<String, Integer>> values) {
+		protected void process(List<Pair<Status, Integer>> values) {
 			super.process(values);
-			
-			long time = System.currentTimeMillis();
-			for (Pair<String, Integer> pair : values) {
-				pair.second = view.getFileTable().convertRowIndexToView(pair.second);
-				if (pair.getFirst().equals("starting")) {
-					view.getFileTable().setStatus(pair.getSecond(), Status.LOADING);
-				} else {
-					if (time % 2 == 0 || time % 3 == 0) {
-						view.getFileTable().setStatus(pair.getSecond(), Status.DONE);
-					} else {
-						view.getFileTable().setStatus(pair.getSecond(), Status.FAILED);
-					}
-				}
+			for (Pair<Status, Integer> pair : values) {
+				view.getFileTable().setStatus(pair.getSecond(), pair.getFirst());
+			}
+		}
+		
+		@Override
+		protected void finished() {
+			try {
+				m.close();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
 			}
 		}
 

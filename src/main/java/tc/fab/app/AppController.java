@@ -17,5 +17,7 @@ public interface AppController {
 	boolean saveBeforeExit();
 
 	void startActionManually(String actionName);
+
+	void signFiles(String provider, String alias) throws Exception;
 	
 }
