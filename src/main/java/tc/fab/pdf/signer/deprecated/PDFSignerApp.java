@@ -27,7 +27,6 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 
 import tc.fab.firma.FirmaView;
-import tc.fab.firma.utils.FileDrop;
 import tc.fab.pdf.signer.options.AppearanceOptions;
 
 @Deprecated
@@ -86,7 +85,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 	public void attachFileDrop(Component c) {
 
-		new FileDrop(c, FileDropListener.getInstance());
+//		new FileDrop(c, FileDropListener.getInstance());
 
 	}
 
