@@ -111,10 +111,10 @@ public class FirmaController implements AppController {
 
 			indexes = new HashMap<>();
 
-			for (int row = 0; row < rowCount; row++) {
-				view.getFileTable().setStatus(row, Status.IDLE);
-				int viewRow = view.getFileTable().convertRowIndexToModel(row);
-				indexes.put(viewRow, view.getFileTable().getData().get(row));
+			for (int viewRow = 0; viewRow < rowCount; viewRow++) {
+				view.getFileTable().setStatus(viewRow, Status.IDLE);
+				int modelRow = view.getFileTable().convertRowIndexToModel(viewRow);
+				indexes.put(modelRow, view.getFileTable().getData().get(modelRow));
 			}
 
 		}
@@ -122,22 +122,22 @@ public class FirmaController implements AppController {
 		@Override
 		protected Void doInBackground() throws Exception {
 
-			for (Integer row : indexes.keySet()) {
+			for (Integer modelRow : indexes.keySet()) {
 
-				FileModel fileModel = indexes.get(row);
+				FileModel fileModel = indexes.get(modelRow);
 
-				publish(new Pair<Status, Integer>(Status.LOADING, row));
+				publish(new Pair<Status, Integer>(Status.LOADING, modelRow));
 
 				try (DocumentSigner signer = new DocumentSigner(document.getOptions()
 					.getAppearance(), fileModel.getFile())) {
 
 					signer.sign(m, " assinado");
 
-					publish(new Pair<Status, Integer>(Status.DONE, row));
+					publish(new Pair<Status, Integer>(Status.DONE, modelRow));
 
 				} catch (Exception e) {
 					e.printStackTrace();
-					publish(new Pair<Status, Integer>(Status.FAILED, row));
+					publish(new Pair<Status, Integer>(Status.FAILED, modelRow));
 				}
 
 			}
@@ -149,8 +149,10 @@ public class FirmaController implements AppController {
 		@Override
 		protected void process(List<Pair<Status, Integer>> values) {
 			super.process(values);
+			System.out.println(values.size());
 			for (Pair<Status, Integer> pair : values) {
-				view.getFileTable().setStatus(pair.getSecond(), pair.getFirst());
+				int viewRow = view.getFileTable().convertRowIndexToView(pair.getSecond());
+				view.getFileTable().setStatus(viewRow, pair.getFirst());
 			}
 		}
 
