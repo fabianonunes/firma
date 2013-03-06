@@ -94,7 +94,7 @@ public class SignerTest extends TestCase {
 		AppearanceOptions options = new AppearanceOptions();
 		options.setReferenceText("Page 1");
 		try (DocumentSigner signer = new DocumentSigner(options, file_to_sign)) {
-			signer.sign(m, output_file);
+			signer.sign(m, "signed");
 		}
 
 	}
