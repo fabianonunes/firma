@@ -9,8 +9,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.swing.ActionMap;
 
-import net.sf.jmimemagic.Magic;
-
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Task;
 
@@ -36,17 +34,18 @@ public class FirmaController implements AppController {
 	private AppDocument document;
 
 	private ActionMap actionMap;
-	
+
 	// dialogs
 	@Inject
 	private Provider<FileSelectorDialog> fileDialog;
 	@Inject
 	private Provider<SignDocumentDialog> optionsDialog;
-	
+
 	private MechanismManager providersManager;
 
 	@Inject
-	public FirmaController(AppContext context, AppDocument document, AppView view, MechanismManager providersManager) {
+	public FirmaController(AppContext context, AppDocument document, AppView view,
+		MechanismManager providersManager) {
 		this.context = context;
 		this.view = view;
 		this.document = document;
@@ -102,17 +101,17 @@ public class FirmaController implements AppController {
 		private Mechanism m;
 
 		public PreviewTask(Mechanism m) throws Exception {
-			
+
 			super(context.getAppContext().getApplication());
-			
+
 			this.m = m;
-			
+
 			m.login();
-			
+
 			int rowCount = view.getFileTable().getModel().getRowCount();
-			
+
 			indexes = new HashMap<>();
-			
+
 			for (int row = 0; row < rowCount; row++) {
 				view.getFileTable().setStatus(row, Status.IDLE);
 				int viewRow = view.getFileTable().convertRowIndexToModel(row);
@@ -127,28 +126,16 @@ public class FirmaController implements AppController {
 			for (Integer row : indexes.keySet()) {
 
 				FileModel fileModel = indexes.get(row);
-				
+
 				publish(new Pair<Status, Integer>(Status.LOADING, row));
 
-				try (
-					DocumentSigner signer = new DocumentSigner(
-						document.getOptions().getAppearance(),
-						fileModel.getFile()
-					)
-				){
-					
+				try (DocumentSigner signer = new DocumentSigner(document.getOptions()
+					.getAppearance(), fileModel.getFile())) {
 
-					String mimeType = Magic.getMagicMatch(fileModel.getFile(), true).getMimeType();
+					signer.sign(m, new File(fileModel.getFile().getParentFile(), " assinado.pdf"));
 
-					if (mimeType.equals("application/pdf")) {
-						
-						signer.sign(m, new File(fileModel.getFile().getParentFile(), " assinado.pdf"));
-						
-						publish(new Pair<Status, Integer>(Status.DONE, row));
-					} else {
-						throw new Exception("O aqruivo não é um PDF");
-					}
-					
+					publish(new Pair<Status, Integer>(Status.DONE, row));
+
 				} catch (Exception e) {
 					e.printStackTrace();
 					publish(new Pair<Status, Integer>(Status.FAILED, row));
@@ -167,7 +154,7 @@ public class FirmaController implements AppController {
 				view.getFileTable().setStatus(pair.getSecond(), pair.getFirst());
 			}
 		}
-		
+
 		@Override
 		protected void finished() {
 			try {
