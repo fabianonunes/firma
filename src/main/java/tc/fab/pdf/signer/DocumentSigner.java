@@ -5,10 +5,11 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.pdf.signer.options.AppearanceOptions;
-import tc.fab.pdf.signer.options.PDFTextPosition;
+import tc.fab.pdf.signer.options.PdfTextPosition;
 
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
@@ -31,7 +32,7 @@ public class DocumentSigner implements AutoCloseable {
 
 	private PdfReader reader;
 	private PdfStamper stamper;
-	private PDFTextPosition textPosition;
+	private PdfTextPosition textPosition;
 	private PdfSignatureAppearance appearance;
 
 	private File inputFile;
@@ -53,7 +54,7 @@ public class DocumentSigner implements AutoCloseable {
 	 * @throws IOException
 	 * @throws DocumentException
 	 */
-	public void sign(Mechanism mechanism, File outputFile) throws GeneralSecurityException,
+	public void sign(Mechanism mechanism, String suffix) throws GeneralSecurityException,
 		IOException, DocumentException {
 
 		close();
@@ -62,7 +63,7 @@ public class DocumentSigner implements AutoCloseable {
 
 		reader = new PdfReader(makeRaf(), null);
 		stamper = PdfStamper.createSignature(reader, null, '\0', tmpFile, true);
-		textPosition = new PDFTextPosition(reader, getPageToSign());
+		textPosition = new PdfTextPosition(reader, getPageToSign());
 		appearance = stamper.getSignatureAppearance();
 
 		applyOptions(options);
@@ -75,9 +76,27 @@ public class DocumentSigner implements AutoCloseable {
 		MakeSignature.signDetached(appearance, externalDigest, external,
 			mechanism.getCertificateChain(), null, null, null, 0, CryptoStandard.CMS);
 
-		outputFile.delete();
+		FileUtils.moveFile(tmpFile, getOutputFile(inputFile, suffix));
 
-		FileUtils.moveFile(tmpFile, outputFile);
+	}
+
+	private File getOutputFile(File inputFile, String suffix) {
+
+		String baseName = FilenameUtils.getBaseName(inputFile.getName());
+		String extension = FilenameUtils.getExtension(inputFile.getName());
+
+		File outputFile = new File(inputFile.getParent(), baseName + suffix + "." + extension);
+
+		baseName = FilenameUtils.getBaseName(outputFile.getAbsolutePath());
+		extension = FilenameUtils.getExtension(outputFile.getAbsolutePath());
+
+		int i = 1;
+		while (outputFile.exists()) {
+			outputFile = new File(outputFile.getParentFile(), baseName + "(" + i++ + ")."
+				+ extension);
+		}
+
+		return outputFile;
 
 	}
 

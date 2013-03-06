@@ -72,7 +72,6 @@ public class FirmaController implements AppController {
 
 	@Action(name = AppController.ACTION_FILES_ADD)
 	public void addFile() {
-		// File[] selectedFile = fileDialog.get().selectFile();
 	}
 
 	@Action(name = AppController.ACTION_FOLDER_ADD)
@@ -132,7 +131,7 @@ public class FirmaController implements AppController {
 				try (DocumentSigner signer = new DocumentSigner(document.getOptions()
 					.getAppearance(), fileModel.getFile())) {
 
-					signer.sign(m, new File(fileModel.getFile().getParentFile(), " assinado.pdf"));
+					signer.sign(m, " assinado");
 
 					publish(new Pair<Status, Integer>(Status.DONE, row));
 

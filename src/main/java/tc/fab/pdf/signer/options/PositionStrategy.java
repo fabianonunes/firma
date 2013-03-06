@@ -44,25 +44,21 @@ public class PositionStrategy implements RenderListener {
 
 	@Override
 	public void renderImage(ImageRenderInfo renderInfo) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void endTextBlock() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void beginTextBlock() {
-		// TODO Auto-generated method stub
-
 	}
 
 	public Float getLastLinePosition(Float marginFooter) {
 
 		Set<Float> ys = new TreeSet<Float>();
+
+		ys.add(0f);
 
 		for (TextChunk chunk : locationalResult) {
 			Rectangle2D.Float r = chunk.boundingRectange;
@@ -73,7 +69,7 @@ public class PositionStrategy implements RenderListener {
 			}
 		}
 
-		return ys.isEmpty() ? marginFooter : Collections.min(ys);
+		return Collections.min(ys);
 
 	}
 
@@ -87,6 +83,7 @@ public class PositionStrategy implements RenderListener {
 
 		TreeSet<Float> encounters = new TreeSet<Float>();
 		Set<Float> ys = new TreeSet<Float>();
+		ys.add(0f);
 
 		for (TextChunk chunk : locationalResult) {
 
@@ -124,7 +121,7 @@ public class PositionStrategy implements RenderListener {
 			}
 		}
 
-		return ys.isEmpty() ? marginFooter : Collections.min(ys);
+		return Collections.min(ys);
 
 	}
 
