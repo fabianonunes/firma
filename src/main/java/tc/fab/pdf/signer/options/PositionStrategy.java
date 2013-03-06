@@ -63,7 +63,6 @@ public class PositionStrategy implements RenderListener {
 	public Float getLastLinePosition(Float marginFooter) {
 
 		Set<Float> ys = new TreeSet<Float>();
-		ys.add(0f);
 
 		for (TextChunk chunk : locationalResult) {
 			Rectangle2D.Float r = chunk.boundingRectange;
@@ -74,7 +73,7 @@ public class PositionStrategy implements RenderListener {
 			}
 		}
 
-		return Collections.max(ys);
+		return ys.isEmpty() ? marginFooter : Collections.min(ys);
 
 	}
 
@@ -88,7 +87,6 @@ public class PositionStrategy implements RenderListener {
 
 		TreeSet<Float> encounters = new TreeSet<Float>();
 		Set<Float> ys = new TreeSet<Float>();
-		ys.add(0f);
 
 		for (TextChunk chunk : locationalResult) {
 
@@ -120,13 +118,13 @@ public class PositionStrategy implements RenderListener {
 
 		if (encounters.size() > 0) {
 			if (lastOccurrence) {
-				return Collections.max(encounters);
-			} else {
 				return Collections.min(encounters);
+			} else {
+				return Collections.max(encounters);
 			}
 		}
 
-		return Collections.max(ys);
+		return ys.isEmpty() ? marginFooter : Collections.min(ys);
 
 	}
 
