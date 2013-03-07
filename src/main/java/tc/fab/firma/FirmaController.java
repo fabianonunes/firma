@@ -1,7 +1,7 @@
 package tc.fab.firma;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +23,7 @@ import tc.fab.firma.app.dialogs.SignDocumentDialog;
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.MechanismManager;
 import tc.fab.pdf.signer.DocumentSigner;
+import tc.fab.pdf.signer.options.AppearanceOptions;
 
 import com.google.inject.Provider;
 
@@ -100,16 +101,14 @@ public class FirmaController implements AppController {
 		private Mechanism m;
 
 		public PreviewTask(Mechanism m) throws Exception {
-
 			super(context.getAppContext().getApplication());
 
 			this.m = m;
-
 			m.login();
 
 			int rowCount = view.getFileTable().getModel().getRowCount();
 
-			indexes = new HashMap<>();
+			indexes = new LinkedHashMap<>();
 
 			for (int viewRow = 0; viewRow < rowCount; viewRow++) {
 				view.getFileTable().setStatus(viewRow, Status.IDLE);
@@ -125,16 +124,14 @@ public class FirmaController implements AppController {
 			for (Integer modelRow : indexes.keySet()) {
 
 				FileModel fileModel = indexes.get(modelRow);
+				AppearanceOptions appearance = document.getOptions().getAppearance();
+				File file = fileModel.getFile();
 
 				publish(new Pair<Status, Integer>(Status.LOADING, modelRow));
 
-				try (DocumentSigner signer = new DocumentSigner(document.getOptions()
-					.getAppearance(), fileModel.getFile())) {
-
+				try (DocumentSigner signer = new DocumentSigner(appearance, file)) {
 					signer.sign(m, " assinado");
-
 					publish(new Pair<Status, Integer>(Status.DONE, modelRow));
-
 				} catch (Exception e) {
 					e.printStackTrace();
 					publish(new Pair<Status, Integer>(Status.FAILED, modelRow));
@@ -149,7 +146,6 @@ public class FirmaController implements AppController {
 		@Override
 		protected void process(List<Pair<Status, Integer>> values) {
 			super.process(values);
-			System.out.println(values.size());
 			for (Pair<Status, Integer> pair : values) {
 				int viewRow = view.getFileTable().convertRowIndexToView(pair.getSecond());
 				view.getFileTable().setStatus(viewRow, pair.getFirst());
