@@ -85,7 +85,7 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 	public void attachFileDrop(Component c) {
 
-//		new FileDrop(c, FileDropListener.getInstance());
+		// new FileDrop(c, FileDropListener.getInstance());
 
 	}
 
@@ -234,8 +234,8 @@ public class PDFSignerApp extends SingleFrameApplication {
 
 						if (evt.getPropertyName().equals("state")) {
 
-							if (SwingWorker.StateValue.DONE.toString() == evt.getNewValue()
-								.toString()) {
+							if (SwingWorker.StateValue.DONE.toString().equals(
+								evt.getNewValue().toString())) {
 
 								if (ex != null) {
 

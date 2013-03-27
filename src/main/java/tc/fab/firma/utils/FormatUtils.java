@@ -33,7 +33,7 @@ public class FormatUtils {
 
 		for (String key : keys) {
 			range = mapRange.get(key);
-			if (range.containsNumber(log) && log != range.getMaximumNumber()) {
+			if (range.containsNumber(log) && !log.equals(range.getMaximumNumber())) {
 				unit = key;
 				break;
 			}

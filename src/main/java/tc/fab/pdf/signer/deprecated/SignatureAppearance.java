@@ -239,12 +239,16 @@ public class SignatureAppearance {
 		offsetSignature();
 
 		PdfTemplate n2 = appearance.getLayer(layer);
+		
+		if (n2 != null) {
 
-		n2.beginText();
-		n2.setFontAndSize(bf, fontSize);
-		n2.showTextAligned(PdfTemplate.ALIGN_CENTER, text, signatureWidth / 2, signatureHeight
-			- fontSize, 0);
-		n2.endText();
+			n2.beginText();
+			n2.setFontAndSize(bf, fontSize);
+			n2.showTextAligned(PdfTemplate.ALIGN_CENTER, text, signatureWidth / 2, signatureHeight
+				- fontSize, 0);
+			n2.endText();
+
+		}
 
 	}
 
