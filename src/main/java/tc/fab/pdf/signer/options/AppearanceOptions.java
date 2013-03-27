@@ -12,6 +12,7 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 	private static final long serialVersionUID = 5407956656681711303L;
 
 	private RenderingMode renderMode = RenderingMode.NAME_AND_DESCRIPTION;
+	private ReferencePosition referencePosition = ReferencePosition.BELOW;
 
 	private File image = null;
 
@@ -144,6 +145,14 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 
 	public void setSignatureWidth(float signatureWidth) {
 		this.signatureWidth = signatureWidth;
+	}
+
+	public ReferencePosition getReferencePosition() {
+		return referencePosition;
+	}
+
+	public void setReferencePosition(ReferencePosition referenePosition) {
+		this.referencePosition = referenePosition;
 	}
 
 }

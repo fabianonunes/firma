@@ -10,6 +10,7 @@ import org.apache.commons.io.FilenameUtils;
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.pdf.signer.options.AppearanceOptions;
 import tc.fab.pdf.signer.options.PdfTextPosition;
+import tc.fab.pdf.signer.options.ReferencePosition;
 
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
@@ -122,8 +123,14 @@ public class DocumentSigner implements AutoCloseable {
 
 		float pLeft = pageWidth / 2 - signatureWidth / 2;
 		float pRight = pLeft + signatureWidth;
+		float pTop;
 
-		float pTop = yOffset + cmToPoint(options.getReferenceDistance()) + signatureHeight;
+		if (options.getReferencePosition().equals(ReferencePosition.ABOVE)) {
+			pTop = yOffset + cmToPoint(options.getReferenceDistance()) + signatureHeight;
+		} else {
+			pTop = yOffset - cmToPoint(options.getReferenceDistance());
+		}
+		
 		float pBottom = pTop - signatureHeight;
 
 		Rectangle pCoords = new Rectangle(pLeft, pBottom, pRight, pTop);
