@@ -181,8 +181,12 @@ public class Pkcs11Config {
 	public void finalizeModules() throws TokenException, LoginException {
 
 		for (Pkcs11Adapter adapter : adapters.values()) {
-			adapter.provider.logout();
-			Security.removeProvider(adapter.provider.getName());
+			try {
+				adapter.provider.logout();
+				Security.removeProvider(adapter.provider.getName());
+			} catch (Exception e) {
+				// silent
+			}
 		}
 		for (Module module : modules.values()) {
 			for (Slot slot : module.getSlotList(Module.SlotRequirement.TOKEN_PRESENT)) {
