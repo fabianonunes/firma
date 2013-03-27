@@ -9,4 +9,4 @@ TODO
 
 EXCEÇÕES
 -- certificados sem chave privada
--- fechar o aplicativo após remover o token, dá erro
+-- fechar o aplicativo após remover o token dá erro
