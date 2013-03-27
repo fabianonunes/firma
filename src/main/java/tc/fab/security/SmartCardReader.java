@@ -18,8 +18,7 @@ public class SmartCardReader {
 
 		if (System.getProperty("os.name").equals("Linux")) {
 
-			is = SmartCard.class
-					.getResourceAsStream("resources/linux-pkcs11.cfg");
+			is = SmartCard.class.getResourceAsStream("resources/linux-pkcs11.cfg");
 
 		} else {
 
@@ -27,14 +26,12 @@ public class SmartCardReader {
 		}
 
 		provider = new SunPKCS11(is);
-		
+
 		Provider existingProvider = Security.getProvider("SunPKCS11-Firma");
-		
+
 		if (existingProvider != null) {
 			Security.removeProvider(provider.getName());
 		}
-		
-		
 
 		Security.addProvider(provider);
 

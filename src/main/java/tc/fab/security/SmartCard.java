@@ -5,43 +5,40 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Collections;
 
 import javax.security.auth.callback.CallbackHandler;
 
-public class SmartCard extends AbstractKeyStoreAdapter {
+import tc.fab.mechanisms.callback.SimplePasswordCallback;
+
+public class SmartCard {
+
+	private SmartCardReader reader;
 
 	public SmartCard() {
 		reader = new SmartCardReader();
 	}
 
+	public void login(CallbackHandler handler) throws KeyStoreException, NoSuchAlgorithmException,
+		CertificateException, IOException {
 
-	public void login(CallbackHandler handler) throws KeyStoreException,
-			NoSuchAlgorithmException, CertificateException, IOException {
+		KeyStore.Builder builder = KeyStore.Builder.newInstance("PKCS11", reader.getProvider(),
+			new KeyStore.CallbackHandlerProtection(handler));
 
-		KeyStore.Builder builder = KeyStore.Builder.newInstance("PKCS11",
-				reader.getProvider(), new KeyStore.CallbackHandlerProtection(
-						handler));
-		
 		KeyStore store = builder.getKeyStore();
 
-		setKeystore(store);
+		store.load(null, null);
 
-		getKeystore().load(null, null);
-
-		setAliases(getKeystore().aliases());
+		for (String alias : Collections.list(store.aliases())) {
+			System.out.println(alias);
+		}
 
 	}
 
-	private void setKeystore(KeyStore keystore) {
-		this.keystore = keystore;
+	public static void main(String[] args) throws KeyStoreException, NoSuchAlgorithmException,
+		CertificateException, IOException {
+		SmartCard sc = new SmartCard();
+		sc.login(new SimplePasswordCallback("zxcsde7".toCharArray()));
 	}
 
-
-	@Override
-	public String getProvider() {
-		return reader.getProvider().getName();
-	}
-
-
-	
 }

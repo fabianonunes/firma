@@ -1,0 +1,12 @@
+TODO
+-- usar pkcs11Module.waitForSlotEvent para detectar a presença de token e atualizar a lista de provider/aliases
+-- detectar tamanho do arquivo na hora de assinar: se não for muito grande, não usa aqruivo temporário.
+-- criar um modelo de assinatura que coloca a assinatura no rodapé. bloqueia automaticamente o campo "referencia"
+-- criar alguma forma de escolher posições absolutas: topleft, topright, center, etc...
+-- não exibir diálogo de assinatura se não houver arquivos para assinar
+-- esc key
+-- opção de assinatura acima do texto / abaixo do texto
+
+EXCEÇÕES
+-- certificados sem chave privada
+-- fechar o aplicativo após remover o token, dá erro
