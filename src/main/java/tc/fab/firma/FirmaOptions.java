@@ -1,6 +1,7 @@
 package tc.fab.firma;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import tc.fab.firma.utils.PropertyObservable;
@@ -14,6 +15,7 @@ public class FirmaOptions extends PropertyObservable implements Serializable {
 	private String alias;
 	private String provider;
 	private List<String> libs;
+	private List<AppearanceOptions> appearances;
 	private AppearanceOptions appearance;
 
 	public String getCertificateProvider() {
@@ -33,8 +35,17 @@ public class FirmaOptions extends PropertyObservable implements Serializable {
 	}
 
 	public static FirmaOptions createDefaultInstance() {
+
 		FirmaOptions options = new FirmaOptions();
-		options.setAppearance(new AppearanceOptions());
+
+		List<AppearanceOptions> appearances = new ArrayList<>();
+		AppearanceOptions appearanceOptions = new AppearanceOptions();
+
+		appearances.add(appearanceOptions);
+		options.setAppearances(appearances);
+
+		options.setAppearance(appearanceOptions);
+
 		return options;
 	}
 
@@ -54,10 +65,15 @@ public class FirmaOptions extends PropertyObservable implements Serializable {
 		this.provider = provider;
 	}
 
+	public List<AppearanceOptions> getAppearances() {
+		return appearances;
+	}
+
+	public void setAppearances(List<AppearanceOptions> appearances) {
+		this.appearances = appearances;
+	}
+
 	public AppearanceOptions getAppearance() {
-		if (appearance == null) {
-			appearance = new AppearanceOptions();
-		}
 		return appearance;
 	}
 

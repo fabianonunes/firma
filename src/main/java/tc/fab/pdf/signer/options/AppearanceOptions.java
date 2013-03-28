@@ -1,10 +1,16 @@
 package tc.fab.pdf.signer.options;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 
 import tc.fab.firma.utils.PropertyObservable;
 
+import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.PdfSignatureAppearance.RenderingMode;
 
 public class AppearanceOptions extends PropertyObservable implements Serializable {
@@ -14,7 +20,9 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 	private RenderingMode renderMode = RenderingMode.NAME_AND_DESCRIPTION;
 	private ReferencePosition referencePosition = ReferencePosition.BELOW;
 
-	private File image = null;
+	private String name = "Default";
+	private File image = null; // background image
+	private File graphic = null; // graphic image
 
 	// Position
 	private float signatureWidth = 10f;
@@ -23,14 +31,49 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 	private float referenceDistance = 0.4f;
 	private String referenceText = null;
 
-	// Description
+	// Description (templated)
 	private boolean showName = true;
 	private boolean showDate = true;
 	private boolean sbowLocal = false;
 	private boolean showReason = false;
 	private boolean showLabels = false;
+
+	// Signature properties
 	private String local = null;
 	private String reason = null;
+	private String contact = null;
+
+	public void apply(PdfSignatureAppearance appearance, Rectangle pCoords)
+		throws BadElementException, MalformedURLException, IOException {
+
+		Integer pageToSign = getPageToSign();
+
+		appearance.setRenderingMode(getRenderMode());
+		appearance.setLocation(getLocation());
+		appearance.setReason(getReason());
+		appearance.setContact(getContact());
+
+		if (getGraphic() != null) {
+			switch (getRenderMode()) {
+				case GRAPHIC:
+				case GRAPHIC_AND_DESCRIPTION:
+					Image img = Image.getInstance(getGraphic().getAbsolutePath());
+					appearance.setSignatureGraphic(img);
+					break;
+				default:
+					break;
+			}
+		}
+
+		// background image - disabled for simplicity purpose
+		// if (getImage() != null) {
+		// appearance.setImage(Image.getInstance(getImage().getAbsolutePath()));
+		// appearance.setImageScale(-1f);
+		// }
+
+		appearance.setVisibleSignature(pCoords, pageToSign, null);
+
+	}
 
 	public AppearanceOptions() {
 	}
@@ -153,6 +196,35 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 
 	public void setReferencePosition(ReferencePosition referenePosition) {
 		this.referencePosition = referenePosition;
+	}
+
+	public String getContact() {
+		return contact;
+	}
+
+	public void setContact(String contact) {
+		this.contact = contact;
+	}
+
+	public File getGraphic() {
+		return graphic;
+	}
+
+	public void setGraphic(File graphic) {
+		this.graphic = graphic;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String toString() {
+		return this.getName();
 	}
 
 }

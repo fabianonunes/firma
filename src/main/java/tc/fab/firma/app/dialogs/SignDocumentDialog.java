@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -13,6 +12,7 @@ import java.security.cert.Certificate;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -23,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -34,7 +35,6 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.jdesktop.beansbinding.Converter;
 import org.jdesktop.beansbinding.ELProperty;
 import org.jdesktop.swingx.JXImageView;
 
@@ -45,15 +45,17 @@ import tc.fab.firma.FirmaOptions;
 import tc.fab.mechanisms.MechanismManager;
 import tc.fab.pdf.signer.SignaturePreview;
 import tc.fab.pdf.signer.application.ComponentsInputBlocker;
+import tc.fab.pdf.signer.options.AppearanceOptions;
 import tc.fab.pdf.signer.options.ReferencePosition;
 
+@Singleton
 public class SignDocumentDialog extends JDialog {
 
 	private static final long serialVersionUID = 7850839445605448945L;
 
 	private static final String ACTION_FILL_ALIASES = "firma.dlg.sign_document.fill_aliases";
 	private static final String ACTION_ADD_PROVIDER = "firma.dlg.sign_document.add_provider";
-	private static final String ACTION_PREVIEW = "firma.dlg.sign_document.preview";
+	private static final String ACTION_PREVIEW_APPEARANCE = "firma.dlg.sign_document.preview";
 	private static final String ACTION_SIGN = "firma.dlg.sign_document.sign";
 
 	private AppContext context;
@@ -64,7 +66,7 @@ public class SignDocumentDialog extends JDialog {
 
 	private JComboBox<String> cbAlias;
 	private JComboBox<String> cbProvider;
-	private JComboBox<String> cbRenderMode;
+	private JComboBox<AppearanceOptions> cbAppearance;
 	private MechanismManager providerManager;
 
 	private JButton btOk;
@@ -80,7 +82,7 @@ public class SignDocumentDialog extends JDialog {
 
 		super(context.getMainFrame(), true);
 
-		// setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
 		this.context = context;
 		this.controller = controller;
@@ -88,12 +90,10 @@ public class SignDocumentDialog extends JDialog {
 		this.options = document.getOptions();
 
 		initComponents();
-
 		fillProviders();
 		// the action setup must be after initial fulfillment to avoid double
 		// fire
-		cbProvider.setAction(context.getAction(this, ACTION_FILL_ALIASES));
-		cbAlias.setAction(context.getAction(this, ACTION_PREVIEW));
+		cbAlias.setAction(context.getAction(this, ACTION_PREVIEW_APPEARANCE));
 
 	}
 
@@ -105,6 +105,10 @@ public class SignDocumentDialog extends JDialog {
 		return cbAlias.getItemAt(cbAlias.getSelectedIndex());
 	}
 
+	public AppearanceOptions getAppearanceOptions() {
+		return cbAppearance.getItemAt(cbAppearance.getSelectedIndex());
+	}
+
 	@Action(name = ACTION_SIGN)
 	public void sign() throws InvalidKeyException, Exception {
 
@@ -113,7 +117,10 @@ public class SignDocumentDialog extends JDialog {
 
 		setVisible(false);
 
-		controller.signFiles(provider, alias);
+		options.setAlias(alias);
+		options.setProvider(provider);
+
+		controller.signFiles(provider, alias, options.getAppearance());
 
 		// try (Mechanism m = providerManager.getMechanism(provider, alias)) {
 		// try {
@@ -121,9 +128,6 @@ public class SignDocumentDialog extends JDialog {
 		// } catch (UserCancelledException e) {
 		// return;
 		// }
-		//
-		// options.setAlias(alias);
-		// options.setProvider(provider);
 		//
 		// byte[] dataToSign = "fabiano nunes parente".getBytes();
 		//
@@ -146,15 +150,20 @@ public class SignDocumentDialog extends JDialog {
 
 	}
 
-	@Action(name = ACTION_PREVIEW)
+	@Action(name = ACTION_PREVIEW_APPEARANCE)
 	public Task<BufferedImage, Void> preview() {
+
+		System.out.println("preview");
+
 		String selected = getAlias();
-		if (selected != null
-			&& !selected.equals(context.getResReader().getString("firma.dlg.waiting"))) {
+		String waiting = context.getResReader().getString("firma.dlg.waiting");
+
+		if (selected != null && !selected.equals(waiting)) {
 			PreviewTask task = new PreviewTask(selected);
 			task.setInputBlocker(ComponentsInputBlocker.builder(task, btOk, cbProvider, cbAlias));
 			return task;
 		}
+
 		imagePane.setImage((BufferedImage) null);
 		return null;
 
@@ -172,7 +181,7 @@ public class SignDocumentDialog extends JDialog {
 		@Override
 		protected BufferedImage doInBackground() throws Exception {
 			Certificate cert = providerManager.getCertificate(getProvider(), alias);
-			return SignaturePreview.generate(cert, imagePane.getSize());
+			return SignaturePreview.generate(cert, imagePane.getSize(), getAppearanceOptions());
 		}
 
 		@Override
@@ -206,7 +215,6 @@ public class SignDocumentDialog extends JDialog {
 		public FillAliasesTask(String provider) {
 			super(context.getAppContext().getApplication());
 			this.provider = provider;
-			// cbAlias.setEnabled(false);
 			cbAlias.removeAllItems();
 			cbAlias.addItem(context.getResReader().getString("firma.dlg.waiting"));
 		}
@@ -241,7 +249,6 @@ public class SignDocumentDialog extends JDialog {
 			if (options.getAlias() != null) {
 				cbAlias.setSelectedItem(options.getAlias());
 			}
-			// cbAlias.setEnabled(true);
 		}
 
 		@Override
@@ -254,16 +261,16 @@ public class SignDocumentDialog extends JDialog {
 	}
 
 	private void fillProviders() {
+
 		List<String> libs = providerManager.getAvaliableMechanisms();
-		for (String lib : libs) {
-			cbProvider.addItem(lib);
-		}
+
+		cbProvider.setModel(new DefaultComboBoxModel<>(libs.toArray(new String[] {})));
+		cbProvider.setAction(context.getAction(this, ACTION_FILL_ALIASES));
+
 		if (options.getProvider() != null) {
 			cbProvider.setSelectedItem(options.getProvider());
 		}
-		if (libs.size() > 0) {
-			context.fireAction(this, ACTION_FILL_ALIASES);
-		}
+
 	}
 
 	@Action(name = ACTION_ADD_PROVIDER)
@@ -305,8 +312,12 @@ public class SignDocumentDialog extends JDialog {
 		btRefresh.setPreferredSize(new Dimension(0, 24));
 		btRefresh.setMinimumSize(new Dimension(108, 22));
 
-		cbRenderMode = new JComboBox<>();
-		cbRenderMode.setPreferredSize(new Dimension(0, 24));
+		cbAppearance = new JComboBox<>();
+
+		cbAppearance.setModel(new DefaultComboBoxModel<AppearanceOptions>(options.getAppearances()
+			.toArray(new AppearanceOptions[] {})));
+
+		cbAppearance.setPreferredSize(new Dimension(0, 24));
 
 		imagePane = new JXImageView();
 		imagePane.setEditable(false);
@@ -331,15 +342,16 @@ public class SignDocumentDialog extends JDialog {
 		gl_contentPanel
 			.setHorizontalGroup(gl_contentPanel
 				.createParallelGroup(Alignment.LEADING)
-				.addComponent(separator_1, GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
+				.addComponent(separator_1, GroupLayout.DEFAULT_SIZE, 498, Short.MAX_VALUE)
 				.addGroup(
+					Alignment.TRAILING,
 					gl_contentPanel
 						.createSequentialGroup()
 						.addContainerGap()
-						.addComponent(btCertificateInfo, GroupLayout.PREFERRED_SIZE, 101,
+						.addComponent(btCertificateInfo, GroupLayout.PREFERRED_SIZE, 94,
 							GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED, 264, Short.MAX_VALUE)
-						.addComponent(cbRenderMode, GroupLayout.PREFERRED_SIZE, 138,
+						.addPreferredGap(ComponentPlacement.RELATED, 242, Short.MAX_VALUE)
+						.addComponent(cbAppearance, GroupLayout.PREFERRED_SIZE, 138,
 							GroupLayout.PREFERRED_SIZE).addContainerGap())
 				.addGroup(
 					gl_contentPanel
@@ -348,7 +360,7 @@ public class SignDocumentDialog extends JDialog {
 						.addGroup(
 							gl_contentPanel
 								.createParallelGroup(Alignment.LEADING)
-								.addComponent(imagePane, GroupLayout.DEFAULT_SIZE, 503,
+								.addComponent(imagePane, GroupLayout.DEFAULT_SIZE, 474,
 									Short.MAX_VALUE)
 								.addGroup(
 									gl_contentPanel
@@ -361,10 +373,10 @@ public class SignDocumentDialog extends JDialog {
 										.addGroup(
 											gl_contentPanel
 												.createParallelGroup(Alignment.TRAILING)
-												.addComponent(cbAlias, Alignment.LEADING, 0, 444,
+												.addComponent(cbAlias, Alignment.LEADING, 0, 415,
 													Short.MAX_VALUE)
 												.addComponent(cbProvider, Alignment.LEADING, 0,
-													444, Short.MAX_VALUE))
+													415, Short.MAX_VALUE))
 										.addPreferredGap(ComponentPlacement.RELATED)
 										.addGroup(
 											gl_contentPanel
@@ -410,14 +422,14 @@ public class SignDocumentDialog extends JDialog {
 							.addComponent(btRefresh, GroupLayout.PREFERRED_SIZE, 25,
 								GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(imagePane, GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
+					.addComponent(imagePane, GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(
 						gl_contentPanel
 							.createParallelGroup(Alignment.TRAILING)
-							.addComponent(btCertificateInfo, GroupLayout.PREFERRED_SIZE,
+							.addComponent(cbAppearance, GroupLayout.PREFERRED_SIZE,
 								GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addComponent(cbRenderMode, GroupLayout.PREFERRED_SIZE,
+							.addComponent(btCertificateInfo, GroupLayout.PREFERRED_SIZE,
 								GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(separator_1, GroupLayout.PREFERRED_SIZE, 2,
@@ -474,25 +486,8 @@ public class SignDocumentDialog extends JDialog {
 
 	}
 
-	class AliasToPreviewConverter extends Converter<String, Image> {
-		@Override
-		public Image convertForward(String alias) {
-			try {
-				Certificate cert = providerManager.getCertificate(getProvider(), alias);
-				return SignaturePreview.generate(cert, imagePane.getSize());
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		@Override
-		public String convertReverse(Image value) {
-			return null;
-		}
-
-	}
-
 	protected void initDataBindings() {
+		//
 		ELProperty<JComboBox<String>, Object> jComboBoxEvalutionProperty = ELProperty
 			.create("${selectedItem!=null}");
 		BeanProperty<JButton, Boolean> jButtonBeanProperty = BeanProperty.create("enabled");
@@ -500,25 +495,26 @@ public class SignDocumentDialog extends JDialog {
 			.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxEvalutionProperty, btOk,
 				jButtonBeanProperty);
 		autoBinding.bind();
-		
+
 		//
-		ELProperty<FirmaOptions, String> firmaOptionsBeanProperty = ELProperty
-			.create("${appearance.referenceText}");
+		BeanProperty<FirmaOptions, String> firmaOptionsBeanProperty = BeanProperty
+			.create("appearance.referenceText");
 		BeanProperty<JTextField, String> jTextFieldBeanProperty = BeanProperty
 			.create("text_ON_FOCUS_LOST");
 		AutoBinding<FirmaOptions, String, JTextField, String> autoBinding_1 = Bindings
 			.createAutoBinding(UpdateStrategy.READ_WRITE, options, firmaOptionsBeanProperty,
 				reference, jTextFieldBeanProperty);
 		autoBinding_1.bind();
-		
+
 		//
 		BeanProperty<FirmaOptions, ReferencePosition> firmaOptionsBeanProperty_1 = BeanProperty
 			.create("appearance.referencePosition");
-		BeanProperty<JComboBox<ReferencePosition>, String> jComboBoxBeanProperty = BeanProperty
+		BeanProperty<JComboBox<ReferencePosition>, Object> jComboBoxBeanProperty = BeanProperty
 			.create("selectedItem");
-		AutoBinding<FirmaOptions, ReferencePosition, JComboBox<ReferencePosition>, String> autoBinding_2 = Bindings
+		AutoBinding<FirmaOptions, ReferencePosition, JComboBox<ReferencePosition>, Object> autoBinding_2 = Bindings
 			.createAutoBinding(UpdateStrategy.READ_WRITE, options, firmaOptionsBeanProperty_1,
 				referencePosition, jComboBoxBeanProperty);
 		autoBinding_2.bind();
+
 	}
 }

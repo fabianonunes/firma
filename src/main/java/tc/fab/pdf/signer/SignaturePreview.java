@@ -16,6 +16,8 @@ import java.util.Map;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 
+import tc.fab.pdf.signer.options.AppearanceOptions;
+
 import com.Ostermiller.util.CircularByteBuffer;
 import com.google.common.base.Joiner;
 import com.itextpdf.text.Document;
@@ -37,11 +39,11 @@ public class SignaturePreview implements AutoCloseable {
 	private PdfStamper stamper;
 	private PDDocument pddoc;
 
-	public static BufferedImage generate(Certificate cert, Dimension dimension)
-		throws DocumentException, IOException, GeneralSecurityException {
+	public static BufferedImage generate(Certificate cert, Dimension dimension,
+		AppearanceOptions options) throws DocumentException, IOException, GeneralSecurityException {
 
 		try (SignaturePreview preview = new SignaturePreview(cert, dimension)) {
-			return preview.getImagePreview();
+			return preview.getImagePreview(options);
 		}
 
 	}
@@ -53,8 +55,8 @@ public class SignaturePreview implements AutoCloseable {
 		width = dimension.width / 2;
 	}
 
-	public BufferedImage getImagePreview() throws DocumentException, IOException,
-		GeneralSecurityException {
+	public BufferedImage getImagePreview(AppearanceOptions options) throws DocumentException,
+		IOException, GeneralSecurityException {
 
 		CircularByteBuffer createBuffer = new CircularByteBuffer(CircularByteBuffer.INFINITE_SIZE);
 
