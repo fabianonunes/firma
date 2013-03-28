@@ -60,8 +60,9 @@ public class SignDocumentDialog extends JDialog {
 	private static final String ACTION_PREVIEW_APPEARANCE = "firma.dlg.sign_document.preview";
 	private static final String ACTION_SIGN = "firma.dlg.sign_document.sign";
 	private static final String ACTION_ADD_APPEARANCE = "firma.dlg.sign_document.add_appearance";
-	
-	@Inject private Provider<AppearanceDialog> appearanceDialog;
+
+	@Inject
+	private Provider<AppearanceDialog> appearanceDialog;
 
 	private AppContext context;
 	private AppController controller;
@@ -269,7 +270,8 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_ADD_APPEARANCE)
 	public void addAppearance() {
-		appearanceDialog.get().open();		
+		AppearanceOptions iOptions = new AppearanceOptions();
+		appearanceDialog.get().open(iOptions);
 	}
 
 	public void open() {
@@ -339,7 +341,7 @@ public class SignDocumentDialog extends JDialog {
 		btAddApearance.setMinimumSize(new Dimension(108, 22));
 		btAddApearance.setPreferredSize(new Dimension(0, 24));
 		btAddApearance.setAction(context.getAction(this, ACTION_ADD_APPEARANCE));
-		
+
 		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
 		gl_contentPanel
 			.setHorizontalGroup(gl_contentPanel
@@ -491,6 +493,7 @@ public class SignDocumentDialog extends JDialog {
 		initDataBindings();
 
 	}
+
 	private JPanel contentPanel;
 	private JComboBox<String> cbAlias;
 	private JComboBox<String> cbProvider;
@@ -500,7 +503,6 @@ public class SignDocumentDialog extends JDialog {
 	private JXImageView imagePane;
 	private JTextField reference;
 	private JComboBox<ReferencePosition> referencePosition;
-
 
 	protected void initDataBindings() {
 		//

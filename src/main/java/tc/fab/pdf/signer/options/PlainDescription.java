@@ -42,7 +42,7 @@ public class PlainDescription {
 	}
 
 	public String getLocation() {
-		return options.getLocation();
+		return options.getLocal();
 	}
 
 	public void setTemplate(String template) {

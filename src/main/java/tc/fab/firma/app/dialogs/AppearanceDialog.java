@@ -9,7 +9,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -27,34 +26,37 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
+import org.jdesktop.beansbinding.AutoBinding;
+import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
+import org.jdesktop.beansbinding.BeanProperty;
+import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.swingx.JXImageView;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
+import tc.fab.pdf.signer.options.AppearanceOptions;
 
-@Singleton
 public class AppearanceDialog extends JDialog {
 
 	private static final long serialVersionUID = -4115566787900700647L;
-	
+
 	private AppContext context;
 
 	@Inject
 	public AppearanceDialog(AppContext context, AppController controller, AppDocument document) {
 		super(context.getMainFrame(), true);
-		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		this.context = context;
+		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		initComponents();
 	}
 
-	private final JPanel contentPanel = new JPanel();
-	private JTextField textField;
-	private final ButtonGroup buttonGroup = new ButtonGroup();
-	private JTextField textField_3;
-	private JTextField textField_4;
+	private AppearanceOptions options;
 
 	public void initComponents() {
+
+		contentPanel = new JPanel();
+		buttonGroup = new ButtonGroup();
 
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -67,7 +69,8 @@ public class AppearanceDialog extends JDialog {
 		textField.setColumns(10);
 
 		JPanel panel = new JPanel();
-		panel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Visualiza\u00E7\u00E3o", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null),
+			"Visualiza\u00E7\u00E3o", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null),
@@ -85,10 +88,6 @@ public class AppearanceDialog extends JDialog {
 					.addGroup(
 						gl_contentPanel
 							.createParallelGroup(Alignment.LEADING)
-							.addComponent(panel_3, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE,
-								416, Short.MAX_VALUE)
-							.addComponent(panel_1, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE,
-								416, Short.MAX_VALUE)
 							.addComponent(panel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 416,
 								Short.MAX_VALUE)
 							.addGroup(
@@ -97,8 +96,11 @@ public class AppearanceDialog extends JDialog {
 									.createSequentialGroup()
 									.addComponent(lblNewLabel)
 									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(textField, GroupLayout.DEFAULT_SIZE, 346,
-										Short.MAX_VALUE))).addContainerGap()));
+									.addComponent(textField, GroupLayout.DEFAULT_SIZE, 370,
+										Short.MAX_VALUE))
+							.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE)
+							.addComponent(panel_1, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE,
+								416, Short.MAX_VALUE)).addContainerGap()));
 		gl_contentPanel.setVerticalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
 			.addGroup(
 				gl_contentPanel
@@ -111,14 +113,13 @@ public class AppearanceDialog extends JDialog {
 							.addComponent(textField, GroupLayout.PREFERRED_SIZE,
 								GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(panel, GroupLayout.PREFERRED_SIZE, 149,
-						GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(panel, GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
 						GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(panel_3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-						GroupLayout.PREFERRED_SIZE).addContainerGap(204, Short.MAX_VALUE)));
+						GroupLayout.PREFERRED_SIZE).addContainerGap()));
 
 		JPanel panel_2 = new JPanel();
 		GridBagLayout gbl_panel_2 = new GridBagLayout();
@@ -128,30 +129,30 @@ public class AppearanceDialog extends JDialog {
 		gbl_panel_2.rowWeights = new double[] { 0.0 };
 		panel_2.setLayout(gbl_panel_2);
 
-		JRadioButton radioButton = new JRadioButton("Nome");
-		buttonGroup.add(radioButton);
-		GridBagConstraints gbc_radioButton = new GridBagConstraints();
-		gbc_radioButton.anchor = GridBagConstraints.WEST;
-		gbc_radioButton.insets = new Insets(0, 0, 0, 5);
-		gbc_radioButton.gridx = 0;
-		gbc_radioButton.gridy = 0;
-		panel_2.add(radioButton, gbc_radioButton);
+		rdioRenderName = new JRadioButton("Nome");
+		buttonGroup.add(rdioRenderName);
+		GridBagConstraints gbc_rdioRenderName = new GridBagConstraints();
+		gbc_rdioRenderName.anchor = GridBagConstraints.WEST;
+		gbc_rdioRenderName.insets = new Insets(0, 0, 0, 5);
+		gbc_rdioRenderName.gridx = 0;
+		gbc_rdioRenderName.gridy = 0;
+		panel_2.add(rdioRenderName, gbc_rdioRenderName);
 
-		JRadioButton radioButton_1 = new JRadioButton("Importar imagem");
-		buttonGroup.add(radioButton_1);
-		GridBagConstraints gbc_radioButton_1 = new GridBagConstraints();
-		gbc_radioButton_1.insets = new Insets(0, 0, 0, 5);
-		gbc_radioButton_1.gridx = 1;
-		gbc_radioButton_1.gridy = 0;
-		panel_2.add(radioButton_1, gbc_radioButton_1);
+		rdioRenderGraphic = new JRadioButton("Importar imagem");
+		buttonGroup.add(rdioRenderGraphic);
+		GridBagConstraints gbc_rdioRenderGraphic = new GridBagConstraints();
+		gbc_rdioRenderGraphic.insets = new Insets(0, 0, 0, 5);
+		gbc_rdioRenderGraphic.gridx = 1;
+		gbc_rdioRenderGraphic.gridy = 0;
+		panel_2.add(rdioRenderGraphic, gbc_rdioRenderGraphic);
 
-		JRadioButton radioButton_2 = new JRadioButton("Sem imagem");
-		buttonGroup.add(radioButton_2);
-		GridBagConstraints gbc_radioButton_2 = new GridBagConstraints();
-		gbc_radioButton_2.anchor = GridBagConstraints.EAST;
-		gbc_radioButton_2.gridx = 2;
-		gbc_radioButton_2.gridy = 0;
-		panel_2.add(radioButton_2, gbc_radioButton_2);
+		JRadioButton rdioRenderNothing = new JRadioButton("Sem imagem");
+		buttonGroup.add(rdioRenderNothing);
+		GridBagConstraints gbc_rdioRenderNothing = new GridBagConstraints();
+		gbc_rdioRenderNothing.anchor = GridBagConstraints.EAST;
+		gbc_rdioRenderNothing.gridx = 2;
+		gbc_rdioRenderNothing.gridy = 0;
+		panel_2.add(rdioRenderNothing, gbc_rdioRenderNothing);
 		GroupLayout gl_panel_1 = new GroupLayout(panel_1);
 		gl_panel_1.setHorizontalGroup(gl_panel_1.createParallelGroup(Alignment.LEADING).addGroup(
 			gl_panel_1.createSequentialGroup().addContainerGap()
@@ -175,83 +176,85 @@ public class AppearanceDialog extends JDialog {
 		gbl_panel_4.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0 };
 		panel_4.setLayout(gbl_panel_4);
 
-		JCheckBox checkBox_6 = new JCheckBox("Nome");
-		GridBagConstraints gbc_checkBox_6 = new GridBagConstraints();
-		gbc_checkBox_6.anchor = GridBagConstraints.WEST;
-		gbc_checkBox_6.insets = new Insets(0, 0, 5, 5);
-		gbc_checkBox_6.gridx = 0;
-		gbc_checkBox_6.gridy = 0;
-		panel_4.add(checkBox_6, gbc_checkBox_6);
+		chkName = new JCheckBox("Nome");
+		GridBagConstraints gbc_chkName = new GridBagConstraints();
+		gbc_chkName.fill = GridBagConstraints.VERTICAL;
+		gbc_chkName.anchor = GridBagConstraints.WEST;
+		gbc_chkName.insets = new Insets(0, 0, 5, 5);
+		gbc_chkName.gridx = 0;
+		gbc_chkName.gridy = 0;
+		panel_4.add(chkName, gbc_chkName);
 
-		JCheckBox checkBox_7 = new JCheckBox("Nome distinto");
-		GridBagConstraints gbc_checkBox_7 = new GridBagConstraints();
-		gbc_checkBox_7.anchor = GridBagConstraints.WEST;
-		gbc_checkBox_7.insets = new Insets(0, 0, 5, 0);
-		gbc_checkBox_7.gridx = 1;
-		gbc_checkBox_7.gridy = 0;
-		panel_4.add(checkBox_7, gbc_checkBox_7);
+		JCheckBox chkDN = new JCheckBox("Nome distinto");
+		GridBagConstraints gbc_chkDN = new GridBagConstraints();
+		gbc_chkDN.fill = GridBagConstraints.VERTICAL;
+		gbc_chkDN.anchor = GridBagConstraints.WEST;
+		gbc_chkDN.insets = new Insets(0, 0, 5, 0);
+		gbc_chkDN.gridx = 1;
+		gbc_chkDN.gridy = 0;
+		panel_4.add(chkDN, gbc_chkDN);
 
-		JCheckBox checkBox_8 = new JCheckBox("Data");
-		GridBagConstraints gbc_checkBox_8 = new GridBagConstraints();
-		gbc_checkBox_8.anchor = GridBagConstraints.WEST;
-		gbc_checkBox_8.insets = new Insets(0, 0, 5, 5);
-		gbc_checkBox_8.gridx = 0;
-		gbc_checkBox_8.gridy = 1;
-		panel_4.add(checkBox_8, gbc_checkBox_8);
+		chkDate = new JCheckBox("Data");
+		GridBagConstraints gbc_chkDate = new GridBagConstraints();
+		gbc_chkDate.fill = GridBagConstraints.VERTICAL;
+		gbc_chkDate.anchor = GridBagConstraints.WEST;
+		gbc_chkDate.insets = new Insets(0, 0, 5, 5);
+		gbc_chkDate.gridx = 0;
+		gbc_chkDate.gridy = 1;
+		panel_4.add(chkDate, gbc_chkDate);
 
-		JCheckBox checkBox_9 = new JCheckBox("Etiquetas");
-		GridBagConstraints gbc_checkBox_9 = new GridBagConstraints();
-		gbc_checkBox_9.anchor = GridBagConstraints.WEST;
-		gbc_checkBox_9.insets = new Insets(0, 0, 5, 0);
-		gbc_checkBox_9.gridx = 1;
-		gbc_checkBox_9.gridy = 1;
-		panel_4.add(checkBox_9, gbc_checkBox_9);
+		chkLabels = new JCheckBox("Etiquetas");
+		GridBagConstraints gbc_chkLabels = new GridBagConstraints();
+		gbc_chkLabels.fill = GridBagConstraints.VERTICAL;
+		gbc_chkLabels.anchor = GridBagConstraints.WEST;
+		gbc_chkLabels.insets = new Insets(0, 0, 5, 0);
+		gbc_chkLabels.gridx = 1;
+		gbc_chkLabels.gridy = 1;
+		panel_4.add(chkLabels, gbc_chkLabels);
 
-		JCheckBox checkBox_10 = new JCheckBox("Motivo");
-		GridBagConstraints gbc_checkBox_10 = new GridBagConstraints();
-		gbc_checkBox_10.anchor = GridBagConstraints.WEST;
-		gbc_checkBox_10.insets = new Insets(0, 0, 5, 5);
-		gbc_checkBox_10.gridx = 0;
-		gbc_checkBox_10.gridy = 2;
-		panel_4.add(checkBox_10, gbc_checkBox_10);
+		chkReason = new JCheckBox("Motivo:");
+		GridBagConstraints gbc_chkReason = new GridBagConstraints();
+		gbc_chkReason.fill = GridBagConstraints.VERTICAL;
+		gbc_chkReason.anchor = GridBagConstraints.WEST;
+		gbc_chkReason.insets = new Insets(0, 0, 5, 5);
+		gbc_chkReason.gridx = 0;
+		gbc_chkReason.gridy = 2;
+		panel_4.add(chkReason, gbc_chkReason);
 
-		textField_3 = new JTextField();
-		textField_3.setMinimumSize(new Dimension(0, 22));
-		textField_3.setPreferredSize(new Dimension(0, 24));
-		textField_3.setColumns(10);
-		GridBagConstraints gbc_textField_3 = new GridBagConstraints();
-		gbc_textField_3.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_3.insets = new Insets(0, 0, 5, 0);
-		gbc_textField_3.gridx = 1;
-		gbc_textField_3.gridy = 2;
-		panel_4.add(textField_3, gbc_textField_3);
+		txtReason = new JTextField();
+		GridBagConstraints gbc_txtReason = new GridBagConstraints();
+		gbc_txtReason.insets = new Insets(0, 0, 5, 0);
+		gbc_txtReason.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtReason.gridx = 1;
+		gbc_txtReason.gridy = 2;
+		panel_4.add(txtReason, gbc_txtReason);
+		txtReason.setColumns(10);
 
-		JCheckBox checkBox_11 = new JCheckBox("Local");
-		GridBagConstraints gbc_checkBox_11 = new GridBagConstraints();
-		gbc_checkBox_11.anchor = GridBagConstraints.WEST;
-		gbc_checkBox_11.insets = new Insets(0, 0, 0, 5);
-		gbc_checkBox_11.gridx = 0;
-		gbc_checkBox_11.gridy = 3;
-		panel_4.add(checkBox_11, gbc_checkBox_11);
-
-		textField_4 = new JTextField();
-		textField_4.setMinimumSize(new Dimension(0, 22));
-		textField_4.setPreferredSize(new Dimension(0, 24));
-		textField_4.setColumns(10);
-		GridBagConstraints gbc_textField_4 = new GridBagConstraints();
-		gbc_textField_4.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_4.gridx = 1;
-		gbc_textField_4.gridy = 3;
-		panel_4.add(textField_4, gbc_textField_4);
+		chkLocation = new JCheckBox("Local:");
+		GridBagConstraints gbc_chkLocation = new GridBagConstraints();
+		gbc_chkLocation.fill = GridBagConstraints.VERTICAL;
+		gbc_chkLocation.anchor = GridBagConstraints.WEST;
+		gbc_chkLocation.insets = new Insets(0, 0, 0, 5);
+		gbc_chkLocation.gridx = 0;
+		gbc_chkLocation.gridy = 3;
+		panel_4.add(chkLocation, gbc_chkLocation);
 		GroupLayout gl_panel_3 = new GroupLayout(panel_3);
 		gl_panel_3.setHorizontalGroup(gl_panel_3.createParallelGroup(Alignment.LEADING).addGroup(
 			gl_panel_3.createSequentialGroup().addContainerGap()
-				.addComponent(panel_4, GroupLayout.PREFERRED_SIZE, 380, GroupLayout.PREFERRED_SIZE)
-				.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+				.addComponent(panel_4, GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+				.addContainerGap()));
 		gl_panel_3.setVerticalGroup(gl_panel_3.createParallelGroup(Alignment.LEADING).addGroup(
 			gl_panel_3.createSequentialGroup().addContainerGap()
 				.addComponent(panel_4, GroupLayout.PREFERRED_SIZE, 107, GroupLayout.PREFERRED_SIZE)
 				.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+
+		txtLocation = new JTextField();
+		GridBagConstraints gbc_txtLocation = new GridBagConstraints();
+		gbc_txtLocation.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtLocation.gridx = 1;
+		gbc_txtLocation.gridy = 3;
+		panel_4.add(txtLocation, gbc_txtLocation);
+		txtLocation.setColumns(10);
 		panel_3.setLayout(gl_panel_3);
 
 		JXImageView imageView = new JXImageView();
@@ -286,22 +289,82 @@ public class AppearanceDialog extends JDialog {
 				buttonPane.add(cancelButton);
 			}
 		}
-		
+
 		setName("firma.dlg.add_appearance");
 		setResizable(false);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setModal(true);
-		setBounds(100, 100, 450, 479);
-		
-		context.getResourceMap().injectComponents(this);
+		setBounds(100, 100, 380, 471);
 
+		context.getResourceMap().injectComponents(this);
 
 	}
 
-	public void open() {
+	private JPanel contentPanel;
+	private JTextField textField;
+	private ButtonGroup buttonGroup;
+	private JTextField txtReason;
+	private JTextField txtLocation;
+	private JCheckBox chkName;
+	private JCheckBox chkDate;
+	private JCheckBox chkLabels;
+	private JCheckBox chkReason;
+	private JCheckBox chkLocation;
+	private JRadioButton rdioRenderName;
+	private JRadioButton rdioRenderGraphic;
+
+	public AppearanceOptions open(AppearanceOptions options) {
+		this.options = options;
+		initDataBindings();
 		setLocationRelativeTo(this.context.getMainFrame());
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setVisible(true);
+		return this.options;
 	}
-
+	protected void initDataBindings() {
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty = BeanProperty.create("showReason");
+		BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty, chkReason, jCheckBoxBeanProperty, "showReason");
+		autoBinding.bind();
+		//
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_1 = BeanProperty.create("showName");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_1, chkName, jCheckBoxBeanProperty, "showName");
+		autoBinding_1.bind();
+		//
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_2 = BeanProperty.create("showDate");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_2, chkDate, jCheckBoxBeanProperty, "showDate");
+		autoBinding_2.bind();
+		//
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_3 = BeanProperty.create("showLabels");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_3, chkLabels, jCheckBoxBeanProperty, "showLabels");
+		autoBinding_3.bind();
+		//
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_4 = BeanProperty.create("sbowLocal");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_4, chkLocation, jCheckBoxBeanProperty, "showLocal");
+		autoBinding_4.bind();
+		//
+		BeanProperty<AppearanceOptions, String> appearanceOptionsBeanProperty_5 = BeanProperty.create("reason");
+		BeanProperty<JTextField, String> jTextFieldBeanProperty = BeanProperty.create("text");
+		AutoBinding<AppearanceOptions, String, JTextField, String> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_5, txtReason, jTextFieldBeanProperty, "reason");
+		autoBinding_5.bind();
+		//
+		BeanProperty<AppearanceOptions, String> appearanceOptionsBeanProperty_6 = BeanProperty.create("local");
+		BeanProperty<JTextField, String> jTextFieldBeanProperty_1 = BeanProperty.create("text");
+		AutoBinding<AppearanceOptions, String, JTextField, String> autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_6, txtLocation, jTextFieldBeanProperty_1, "local");
+		autoBinding_6.bind();
+		//
+		BeanProperty<AppearanceOptions, String> appearanceOptionsBeanProperty_7 = BeanProperty.create("name");
+		BeanProperty<JTextField, String> jTextFieldBeanProperty_2 = BeanProperty.create("text");
+		AutoBinding<AppearanceOptions, String, JTextField, String> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_7, textField, jTextFieldBeanProperty_2, "name");
+		autoBinding_7.bind();
+		//
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_8 = BeanProperty.create("renderName");
+		BeanProperty<JRadioButton, Boolean> jRadioButtonBeanProperty = BeanProperty.create("selected");
+		AutoBinding<AppearanceOptions, Boolean, JRadioButton, Boolean> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_8, rdioRenderName, jRadioButtonBeanProperty, "renderName");
+		autoBinding_8.bind();
+		//
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_9 = BeanProperty.create("renderGraphic");
+		AutoBinding<AppearanceOptions, Boolean, JRadioButton, Boolean> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_9, rdioRenderGraphic, jRadioButtonBeanProperty, "renderGraphic");
+		autoBinding_9.bind();
+	}
 }

@@ -31,6 +31,10 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 	private float referenceDistance = 0.4f;
 	private String referenceText = null;
 
+	// Rendering
+	private boolean renderName = true;
+	private boolean renderGraphic = false;
+
 	// Description (templated)
 	private boolean showName = true;
 	private boolean showDate = true;
@@ -49,7 +53,7 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 		Integer pageToSign = getPageToSign();
 
 		appearance.setRenderingMode(getRenderMode());
-		appearance.setLocation(getLocation());
+		appearance.setLocation(getLocal());
 		appearance.setReason(getReason());
 		appearance.setContact(getContact());
 
@@ -82,7 +86,7 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 		return image;
 	}
 
-	public String getLocation() {
+	public String getLocal() {
 		return local;
 	}
 
@@ -220,6 +224,22 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public boolean isRenderName() {
+		return renderName;
+	}
+
+	public void setRenderName(boolean renderName) {
+		this.renderName = renderName;
+	}
+
+	public boolean isRenderGraphic() {
+		return renderGraphic;
+	}
+
+	public void setRenderGraphic(boolean renderGraphic) {
+		this.renderGraphic = renderGraphic;
 	}
 
 	@Override
