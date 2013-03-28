@@ -461,7 +461,7 @@ public class SignDocumentDialog extends JDialog {
 		setName("firma.dlg.sign_document");
 		setResizable(false);
 		setModal(true);
-		setBounds(100, 100, 510, 355);
+		setBounds(100, 100, 523, 355);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
