@@ -38,6 +38,8 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.ELProperty;
 import org.jdesktop.swingx.JXImageView;
 
+import com.google.inject.Provider;
+
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
@@ -58,24 +60,13 @@ public class SignDocumentDialog extends JDialog {
 	private static final String ACTION_PREVIEW_APPEARANCE = "firma.dlg.sign_document.preview";
 	private static final String ACTION_SIGN = "firma.dlg.sign_document.sign";
 	private static final String ACTION_ADD_APPEARANCE = "firma.dlg.sign_document.add_appearance";
+	
+	@Inject private Provider<AppearanceDialog> appearanceDialog;
 
 	private AppContext context;
 	private AppController controller;
 	private FirmaOptions options;
-
-	private final JPanel contentPanel = new JPanel();
-
-	private JComboBox<String> cbAlias;
-	private JComboBox<String> cbProvider;
-	private JComboBox<AppearanceOptions> cbAppearance;
 	private MechanismManager providerManager;
-
-	private JButton btOk;
-	private JLabel lblAssinarComo;
-
-	private JXImageView imagePane;
-	private JTextField reference;
-	private JComboBox<ReferencePosition> referencePosition;
 
 	@Inject
 	public SignDocumentDialog(AppContext context, AppController controller, AppDocument document,
@@ -278,6 +269,7 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_ADD_APPEARANCE)
 	public void addAppearance() {
+		appearanceDialog.get().open();		
 	}
 
 	public void open() {
@@ -287,6 +279,7 @@ public class SignDocumentDialog extends JDialog {
 
 	public void initComponents() {
 
+		contentPanel = new JPanel();
 		cbAlias = new JComboBox<>();
 		cbProvider = new JComboBox<>();
 
@@ -498,6 +491,16 @@ public class SignDocumentDialog extends JDialog {
 		initDataBindings();
 
 	}
+	private JPanel contentPanel;
+	private JComboBox<String> cbAlias;
+	private JComboBox<String> cbProvider;
+	private JComboBox<AppearanceOptions> cbAppearance;
+	private JButton btOk;
+	private JLabel lblAssinarComo;
+	private JXImageView imagePane;
+	private JTextField reference;
+	private JComboBox<ReferencePosition> referencePosition;
+
 
 	protected void initDataBindings() {
 		//
