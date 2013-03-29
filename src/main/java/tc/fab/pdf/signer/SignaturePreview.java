@@ -2,8 +2,6 @@ package tc.fab.pdf.signer;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
-import java.awt.image.RescaleOp;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,6 +59,50 @@ public class SignaturePreview implements AutoCloseable {
 			new ByteArrayInputStream(this.certData.getBytes()));
 	}
 
+	// public Image getImagePreview_(AppearanceOptions options) throws
+	// DocumentException, IOException,
+	// GeneralSecurityException {
+	//
+	// CircularByteBuffer createBuffer = new
+	// CircularByteBuffer(CircularByteBuffer.INFINITE_SIZE);
+	//
+	// try (InputStream in = createBuffer.getInputStream();
+	// OutputStream out = createBuffer.getOutputStream();) {
+	//
+	// Document doc = new Document(new Rectangle(width, height));
+	// writer = PdfWriter.getInstance(doc, out);
+	// doc.open();
+	// doc.newPage();
+	// writer.setPageEmpty(false);
+	// doc.close();
+	//
+	// PdfReader reader = new PdfReader(in);
+	// createBuffer.clear();
+	//
+	// stamper = PdfStamper.createSignature(reader, out, '\0');
+	//
+	// PdfSignatureAppearance appearance = stamper.getSignatureAppearance();
+	// appearance.setCertificate(cert);
+	//
+	// options.apply(appearance, new Rectangle(4, 4, width - 2, height - 2),
+	// "Signature1");
+	//
+	// SteppedSigner.getSignableStream(appearance, new Certificate[] { cert });
+	//
+	// PdfDecoder decoder = new PdfDecoder();
+	// decoder.openPdfFileFromInputStream(in, true);
+	//
+	// return decoder.getPageAsImage(1);
+	//
+	//
+	//
+	// } catch (Exception e) {
+	// System.out.println(e);
+	// }
+	// return null;
+	//
+	// }
+
 	public BufferedImage getImagePreview(AppearanceOptions options) throws DocumentException,
 		IOException, GeneralSecurityException {
 
@@ -95,17 +137,6 @@ public class SignaturePreview implements AutoCloseable {
 
 		}
 
-	}
-
-	protected BufferedImage transform(BufferedImage img, float alpha) {
-		BufferedImage bi = new BufferedImage(img.getWidth(null), img.getHeight(null),
-			BufferedImage.TYPE_INT_ARGB);
-		bi.getGraphics().drawImage(img, 0, 0, null);
-		BufferedImageOp rop = new RescaleOp(new float[] { 1.0f, 1.0f, 1.0f, alpha }, new float[] {
-			0.0f, 0.0f, 0.0f, 0.0f }, null);
-		BufferedImage result;
-		result = rop.filter(bi, null);
-		return result;
 	}
 
 	public Certificate getCert() {

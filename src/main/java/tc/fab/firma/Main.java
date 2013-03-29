@@ -126,9 +126,10 @@ public class Main extends Firma {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			return null;
-		}
 
+			return null;
+
+		}
 	}
 
 	private void initLookAndFeel(String lafClass) {
