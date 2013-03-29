@@ -13,8 +13,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Map;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -22,16 +20,13 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import tc.fab.pdf.signer.options.AppearanceOptions;
 
 import com.Ostermiller.util.CircularByteBuffer;
-import com.google.common.base.Joiner;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
-import com.itextpdf.text.pdf.PdfSignatureAppearance.RenderingMode;
 import com.itextpdf.text.pdf.PdfStamper;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.text.pdf.security.CertificateInfo;
 
 public class SignaturePreview implements AutoCloseable {
 
@@ -84,23 +79,20 @@ public class SignaturePreview implements AutoCloseable {
 			PdfReader reader = new PdfReader(in);
 			createBuffer.clear();
 
-			Map<String, ArrayList<String>> values = CertificateInfo.getSubjectFields(
-				(X509Certificate) cert).getFields();
-			String layer2Text = Joiner.on(", ").withKeyValueSeparator("=").join(values);
-
 			stamper = PdfStamper.createSignature(reader, out, '\0');
 
 			PdfSignatureAppearance appearance = stamper.getSignatureAppearance();
-			appearance.setVisibleSignature(new Rectangle(0, 0, width, height), 1, "Signature1");
 			appearance.setCertificate(cert);
-			appearance.setRenderingMode(RenderingMode.NAME_AND_DESCRIPTION);
-			appearance.setLayer2Text(layer2Text);
+
+			options.apply(appearance, new Rectangle(0, 0, width, height), "Signature1");
+
 			SteppedSigner.getSignableStream(appearance, new Certificate[] { cert });
 
 			pddoc = PDDocument.load(in);
 			PDPage page = (PDPage) pddoc.getDocumentCatalog().getAllPages().get(0);
 			BufferedImage buffered = page.convertToImage();
 			return buffered;
+
 		}
 
 	}

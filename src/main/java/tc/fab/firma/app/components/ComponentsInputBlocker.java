@@ -1,4 +1,4 @@
-package tc.fab.pdf.signer.application;
+package tc.fab.firma.app.components;
 
 import java.awt.Component;
 

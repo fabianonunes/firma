@@ -136,7 +136,7 @@ public class DocumentSigner implements AutoCloseable {
 		Rectangle pCoords = new Rectangle(pLeft, pBottom, pRight, pTop);
 
 		appearance.setRenderingMode(options.getRenderMode());
-		appearance.setLocation(options.getLocal());
+		appearance.setLocation(options.getLocation());
 		appearance.setReason(options.getReason());
 		appearance.setVisibleSignature(pCoords, pageToSign, null);
 

@@ -43,9 +43,9 @@ import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
 import tc.fab.firma.FirmaOptions;
+import tc.fab.firma.app.components.ComponentsInputBlocker;
 import tc.fab.firma.app.tasks.PreviewTask;
 import tc.fab.mechanisms.MechanismManager;
-import tc.fab.pdf.signer.application.ComponentsInputBlocker;
 import tc.fab.pdf.signer.options.AppearanceOptions;
 import tc.fab.pdf.signer.options.ReferencePosition;
 

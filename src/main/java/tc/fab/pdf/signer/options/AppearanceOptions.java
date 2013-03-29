@@ -4,14 +4,23 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
+import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Map;
 
 import tc.fab.firma.utils.PropertyObservable;
 
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.PdfSignatureAppearance.RenderingMode;
+import com.itextpdf.text.pdf.security.CertificateInfo;
+import com.itextpdf.text.pdf.security.CertificateInfo.X500Name;
 
 public class AppearanceOptions extends PropertyObservable implements Serializable {
 
@@ -37,23 +46,54 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 
 	// Description (templated)
 	private boolean showName = true;
+	private boolean showDN = true;
 	private boolean showDate = true;
-	private boolean sbowLocal = false;
+	private boolean showLocation = false;
 	private boolean showReason = false;
 	private boolean showLabels = false;
 
 	// Signature properties
-	private String local = null;
+	private String location = null;
 	private String reason = null;
 	private String contact = null;
+	
+	public static void main(String[] args) {
+		System.out.println(System.getProperties());
+	}
 
-	public void apply(PdfSignatureAppearance appearance, Rectangle pCoords)
+	public void apply(PdfSignatureAppearance appearance, Rectangle pCoords, String fieldName)
 		throws BadElementException, MalformedURLException, IOException {
+		
+		System.out.println(Locale.getDefault());
 
-		Integer pageToSign = getPageToSign();
+		if (renderName) {
+
+			setRenderMode(RenderingMode.NAME_AND_DESCRIPTION);
+
+		} else if (renderGraphic) {
+
+			if (graphic != null) {
+
+				if (showName || showDate || showLocation || showReason) {
+					setRenderMode(RenderingMode.GRAPHIC_AND_DESCRIPTION);
+				} else {
+					setRenderMode(RenderingMode.GRAPHIC);
+				}
+
+			} else {
+				setRenderMode(RenderingMode.DESCRIPTION);
+			}
+
+		} else {
+
+			setRenderMode(RenderingMode.DESCRIPTION);
+
+		}
+
+		Integer pageToSign = calcPageToSign(appearance.getStamper().getReader());
 
 		appearance.setRenderingMode(getRenderMode());
-		appearance.setLocation(getLocal());
+		appearance.setLocation(getLocation());
 		appearance.setReason(getReason());
 		appearance.setContact(getContact());
 
@@ -69,14 +109,68 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 			}
 		}
 
+		X509Certificate cert = (X509Certificate) appearance.getCertificate();
+		X500Name certInfo = CertificateInfo.getSubjectFields(cert);
+
+		Map<String, ArrayList<String>> values = certInfo.getFields();
+
+		StringBuffer buffer = new StringBuffer();
+
+		if (showName) {
+			if (showLabels)
+				buffer.append("Assinado digitalmente por ");
+			buffer.append(certInfo.getField("CN"));
+			buffer.append('\n');
+		}
+		if (showDN) {
+			if (showLabels)
+				buffer.append("DN: ");
+			buffer.append(cert.getSubjectDN());
+			buffer.append('\n');
+		}
+		if (showReason) {
+			if (showLabels)
+				buffer.append("Motivo: ");
+			buffer.append(getReason());
+			buffer.append('\n');
+		}
+		if (showLocation) {
+			if (showLabels)
+				buffer.append("Local: ");
+			buffer.append(getLocation());
+			buffer.append('\n');
+
+		}
+		if (showDate) {
+			if (showLabels)
+				buffer.append("Data: ");
+			String date = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault()).format(
+				appearance.getSignDate().getTime());
+			buffer.append(date);
+		}
+
+		String layer2Text = buffer.toString();
+
+		appearance.setLayer2Text(layer2Text);
+
 		// background image - disabled for simplicity purpose
 		// if (getImage() != null) {
 		// appearance.setImage(Image.getInstance(getImage().getAbsolutePath()));
 		// appearance.setImageScale(-1f);
 		// }
 
-		appearance.setVisibleSignature(pCoords, pageToSign, null);
+		appearance.setVisibleSignature(pCoords, pageToSign, fieldName);
 
+	}
+
+	private Integer calcPageToSign(PdfReader reader) {
+		Integer pageToSign = getPageToSign();
+		Integer totalPages = reader.getNumberOfPages();
+		if (pageToSign <= 0) {
+			return totalPages;
+		} else {
+			return (pageToSign > totalPages) ? totalPages : pageToSign;
+		}
 	}
 
 	public AppearanceOptions() {
@@ -86,8 +180,8 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 		return image;
 	}
 
-	public String getLocal() {
-		return local;
+	public String getLocation() {
+		return location;
 	}
 
 	public int getPageToSign() {
@@ -111,7 +205,7 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 	}
 
 	public boolean getSbowLocal() {
-		return sbowLocal;
+		return showLocation;
 	}
 
 	public boolean getShowDate() {
@@ -143,7 +237,7 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 	}
 
 	public void setLocal(String local) {
-		this.local = local;
+		this.location = local;
 	}
 
 	public void setPageToSign(int pageToSign) {
@@ -167,7 +261,7 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 	}
 
 	public void setSbowLocal(boolean sbowLocal) {
-		this.sbowLocal = sbowLocal;
+		this.showLocation = sbowLocal;
 	}
 
 	public void setShowDate(boolean showDate) {
@@ -248,13 +342,21 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 				"AppearanceOptions [renderMode=%s, referencePosition=%s, name=%s, image=%s, graphic=%s, signatureWidth=%s, signatureHeight=%s, pageToSign=%s, referenceDistance=%s, referenceText=%s, renderName=%s, renderGraphic=%s, showName=%s, showDate=%s, sbowLocal=%s, showReason=%s, showLabels=%s, local=%s, reason=%s, contact=%s]",
 				renderMode, referencePosition, name, image, graphic, signatureWidth,
 				signatureHeight, pageToSign, referenceDistance, referenceText, renderName,
-				renderGraphic, showName, showDate, sbowLocal, showReason, showLabels, local,
+				renderGraphic, showName, showDate, showLocation, showReason, showLabels, location,
 				reason, contact);
 	}
 
 	@Override
 	public String toString() {
 		return this.getName();
+	}
+
+	public boolean isShowDN() {
+		return showDN;
+	}
+
+	public void setShowDN(boolean showDN) {
+		this.showDN = showDN;
 	}
 
 }
