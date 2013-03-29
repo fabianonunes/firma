@@ -20,7 +20,7 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 	private RenderingMode renderMode = RenderingMode.NAME_AND_DESCRIPTION;
 	private ReferencePosition referencePosition = ReferencePosition.BELOW;
 
-	private String name = "Default";
+	private String name = "";
 	private File image = null; // background image
 	private File graphic = null; // graphic image
 
@@ -198,8 +198,8 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 		return referencePosition;
 	}
 
-	public void setReferencePosition(ReferencePosition referenePosition) {
-		this.referencePosition = referenePosition;
+	public void setReferencePosition(ReferencePosition referencePosition) {
+		this.referencePosition = referencePosition;
 	}
 
 	public String getContact() {
@@ -240,6 +240,16 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 
 	public void setRenderGraphic(boolean renderGraphic) {
 		this.renderGraphic = renderGraphic;
+	}
+
+	public String toText() {
+		return String
+			.format(
+				"AppearanceOptions [renderMode=%s, referencePosition=%s, name=%s, image=%s, graphic=%s, signatureWidth=%s, signatureHeight=%s, pageToSign=%s, referenceDistance=%s, referenceText=%s, renderName=%s, renderGraphic=%s, showName=%s, showDate=%s, sbowLocal=%s, showReason=%s, showLabels=%s, local=%s, reason=%s, contact=%s]",
+				renderMode, referencePosition, name, image, graphic, signatureWidth,
+				signatureHeight, pageToSign, referenceDistance, referenceText, renderName,
+				renderGraphic, showName, showDate, sbowLocal, showReason, showLabels, local,
+				reason, contact);
 	}
 
 	@Override
