@@ -7,6 +7,8 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 import javax.inject.Inject;
 import javax.swing.ButtonGroup;
@@ -20,12 +22,14 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
+import org.jdesktop.application.Action;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -41,7 +45,20 @@ public class AppearanceDialog extends JDialog {
 
 	private static final long serialVersionUID = -4115566787900700647L;
 
+	private static final String ACTION_PREVIEW = "firma.dlg.add_appearance.preview";
+
 	private AppContext context;
+
+	// public static void main(String[] args) {
+	// AppearanceDialog dlg = new AppearanceDialog();
+	// dlg.options =new AppearanceOptions();
+	// dlg.initComponents();
+	// dlg.initDataBindings();
+	// dlg.setVisible(true);
+	// }
+	//
+	// public AppearanceDialog() {
+	// }
 
 	@Inject
 	public AppearanceDialog(AppContext context, AppController controller, AppDocument document) {
@@ -62,23 +79,31 @@ public class AppearanceDialog extends JDialog {
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 
-		JLabel lblNewLabel = new JLabel("Nome");
+		JLabel lblNewLabel = new JLabel("");
+		lblNewLabel.setName("firma.dlg.add_appearance.name");
 
 		textField = new JTextField();
 		textField.setPreferredSize(new Dimension(0, 24));
 		textField.setColumns(10);
 
 		JPanel panel = new JPanel();
-		panel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null),
-			"Visualiza\u00E7\u00E3o", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		TitledBorder previewBorder = new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null,
+			null), null, TitledBorder.LEADING, TitledBorder.TOP, null, null);
+		previewBorder
+			.setTitle(context.getResReader().getString("firma.msg.add_appearance.preview"));
+		panel.setBorder(previewBorder);
 
 		JPanel panel_1 = new JPanel();
-		panel_1.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null),
-			"Imagem", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		TitledBorder imageBorder = new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null,
+			null), null, TitledBorder.LEADING, TitledBorder.TOP, null, null);
+		imageBorder.setTitle(context.getResReader().getString("firma.msg.add_appearance.text"));
+		panel_1.setBorder(imageBorder);
 
 		JPanel panel_3 = new JPanel();
-		panel_3.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null),
-			"Texto", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		TitledBorder textBorder = new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null,
+			null), null, TitledBorder.LEADING, TitledBorder.TOP, null, null);
+		textBorder.setTitle(context.getResReader().getString("firma.msg.add_appearance.image"));
+		panel_3.setBorder(textBorder);
 		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
 		gl_contentPanel.setHorizontalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
 			.addGroup(
@@ -129,7 +154,8 @@ public class AppearanceDialog extends JDialog {
 		gbl_panel_2.rowWeights = new double[] { 0.0 };
 		panel_2.setLayout(gbl_panel_2);
 
-		rdioRenderName = new JRadioButton("Nome");
+		rdioRenderName = new JRadioButton("");
+		rdioRenderName.setName("firma.dlg.add_appearance.name");
 		buttonGroup.add(rdioRenderName);
 		GridBagConstraints gbc_rdioRenderName = new GridBagConstraints();
 		gbc_rdioRenderName.anchor = GridBagConstraints.WEST;
@@ -138,7 +164,8 @@ public class AppearanceDialog extends JDialog {
 		gbc_rdioRenderName.gridy = 0;
 		panel_2.add(rdioRenderName, gbc_rdioRenderName);
 
-		rdioRenderGraphic = new JRadioButton("Importar imagem");
+		rdioRenderGraphic = new JRadioButton("");
+		rdioRenderGraphic.setName("firma.dlg.add_appearance.import_image");
 		buttonGroup.add(rdioRenderGraphic);
 		GridBagConstraints gbc_rdioRenderGraphic = new GridBagConstraints();
 		gbc_rdioRenderGraphic.insets = new Insets(0, 0, 0, 5);
@@ -146,7 +173,8 @@ public class AppearanceDialog extends JDialog {
 		gbc_rdioRenderGraphic.gridy = 0;
 		panel_2.add(rdioRenderGraphic, gbc_rdioRenderGraphic);
 
-		JRadioButton rdioRenderNothing = new JRadioButton("Sem imagem");
+		rdioRenderNothing = new JRadioButton("");
+		rdioRenderNothing.setName("firma.dlg.add_appearance.no_image");
 		buttonGroup.add(rdioRenderNothing);
 		GridBagConstraints gbc_rdioRenderNothing = new GridBagConstraints();
 		gbc_rdioRenderNothing.anchor = GridBagConstraints.EAST;
@@ -176,7 +204,8 @@ public class AppearanceDialog extends JDialog {
 		gbl_panel_4.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0 };
 		panel_4.setLayout(gbl_panel_4);
 
-		chkName = new JCheckBox("Nome");
+		chkName = new JCheckBox("");
+		chkName.setName("firma.dlg.add_appearance.name");
 		GridBagConstraints gbc_chkName = new GridBagConstraints();
 		gbc_chkName.fill = GridBagConstraints.VERTICAL;
 		gbc_chkName.anchor = GridBagConstraints.WEST;
@@ -185,7 +214,8 @@ public class AppearanceDialog extends JDialog {
 		gbc_chkName.gridy = 0;
 		panel_4.add(chkName, gbc_chkName);
 
-		JCheckBox chkDN = new JCheckBox("Nome distinto");
+		JCheckBox chkDN = new JCheckBox("");
+		chkDN.setName("firma.dlg.add_appearance.dn");
 		GridBagConstraints gbc_chkDN = new GridBagConstraints();
 		gbc_chkDN.fill = GridBagConstraints.VERTICAL;
 		gbc_chkDN.anchor = GridBagConstraints.WEST;
@@ -194,7 +224,8 @@ public class AppearanceDialog extends JDialog {
 		gbc_chkDN.gridy = 0;
 		panel_4.add(chkDN, gbc_chkDN);
 
-		chkDate = new JCheckBox("Data");
+		chkDate = new JCheckBox("");
+		chkDate.setName("firma.dlg.add_appearance.date");
 		GridBagConstraints gbc_chkDate = new GridBagConstraints();
 		gbc_chkDate.fill = GridBagConstraints.VERTICAL;
 		gbc_chkDate.anchor = GridBagConstraints.WEST;
@@ -203,7 +234,8 @@ public class AppearanceDialog extends JDialog {
 		gbc_chkDate.gridy = 1;
 		panel_4.add(chkDate, gbc_chkDate);
 
-		chkLabels = new JCheckBox("Etiquetas");
+		chkLabels = new JCheckBox("");
+		chkLabels.setName("firma.dlg.add_appearance.labels");
 		GridBagConstraints gbc_chkLabels = new GridBagConstraints();
 		gbc_chkLabels.fill = GridBagConstraints.VERTICAL;
 		gbc_chkLabels.anchor = GridBagConstraints.WEST;
@@ -212,7 +244,9 @@ public class AppearanceDialog extends JDialog {
 		gbc_chkLabels.gridy = 1;
 		panel_4.add(chkLabels, gbc_chkLabels);
 
-		chkReason = new JCheckBox("Motivo:");
+		chkReason = new JCheckBox("");
+		chkReason.setName("firma.dlg.add_appearance.reason");
+		chkReason.setVerticalAlignment(SwingConstants.BOTTOM);
 		GridBagConstraints gbc_chkReason = new GridBagConstraints();
 		gbc_chkReason.fill = GridBagConstraints.VERTICAL;
 		gbc_chkReason.anchor = GridBagConstraints.WEST;
@@ -230,7 +264,8 @@ public class AppearanceDialog extends JDialog {
 		panel_4.add(txtReason, gbc_txtReason);
 		txtReason.setColumns(10);
 
-		chkLocation = new JCheckBox("Local:");
+		chkLocation = new JCheckBox("");
+		chkLocation.setName("firma.dlg.add_appearance.local");
 		GridBagConstraints gbc_chkLocation = new GridBagConstraints();
 		gbc_chkLocation.fill = GridBagConstraints.VERTICAL;
 		gbc_chkLocation.anchor = GridBagConstraints.WEST;
@@ -257,7 +292,7 @@ public class AppearanceDialog extends JDialog {
 		txtLocation.setColumns(10);
 		panel_3.setLayout(gl_panel_3);
 
-		JXImageView imageView = new JXImageView();
+		imageView = new JXImageView();
 		imageView.setEditable(false);
 		imageView.setDragEnabled(false);
 		imageView.setBorder(new LineBorder(Color.LIGHT_GRAY));
@@ -296,8 +331,6 @@ public class AppearanceDialog extends JDialog {
 		setModal(true);
 		setBounds(100, 100, 380, 471);
 
-		context.getResourceMap().injectComponents(this);
-
 	}
 
 	private JPanel contentPanel;
@@ -312,59 +345,132 @@ public class AppearanceDialog extends JDialog {
 	private JCheckBox chkLocation;
 	private JRadioButton rdioRenderName;
 	private JRadioButton rdioRenderGraphic;
+	private JRadioButton rdioRenderNothing;
+	private JXImageView imageView;
 
 	public AppearanceOptions open(AppearanceOptions options) {
 		this.options = options;
-		initDataBindings();
+		context.getResourceMap().injectComponents(this);
 		setLocationRelativeTo(this.context.getMainFrame());
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		initDataBindings();
+		attachPreviewEvent();
 		setVisible(true);
 		return this.options;
 	}
+
+	private void attachPreviewEvent() {
+
+		final javax.swing.Action action = context.getAction(this, ACTION_PREVIEW);
+
+		chkName.addActionListener(action);
+		chkDate.addActionListener(action);
+		chkLabels.addActionListener(action);
+		chkReason.addActionListener(action);
+		chkLocation.addActionListener(action);
+		rdioRenderName.addActionListener(action);
+		rdioRenderGraphic.addActionListener(action);
+		rdioRenderNothing.addActionListener(action);
+
+		FocusListener blurEvent = new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				context.fireAction(action);
+			}
+			@Override
+			public void focusGained(FocusEvent e) {
+			}
+		};
+
+		txtReason.addFocusListener(blurEvent);
+		txtLocation.addFocusListener(blurEvent);
+
+	}
+
+	@Action(name = ACTION_PREVIEW)
+	public void preview() {
+		System.out.println(options.toText());
+	}
+
 	protected void initDataBindings() {
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty = BeanProperty.create("showReason");
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty = BeanProperty
+			.create("showReason");
 		BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty, chkReason, jCheckBoxBeanProperty, "showReason");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty,
+				chkReason, jCheckBoxBeanProperty, "showReason");
 		autoBinding.bind();
 		//
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_1 = BeanProperty.create("showName");
-		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_1, chkName, jCheckBoxBeanProperty, "showName");
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_1 = BeanProperty
+			.create("showName");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_1 = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_1,
+				chkName, jCheckBoxBeanProperty, "showName");
 		autoBinding_1.bind();
 		//
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_2 = BeanProperty.create("showDate");
-		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_2, chkDate, jCheckBoxBeanProperty, "showDate");
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_2 = BeanProperty
+			.create("showDate");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_2 = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_2,
+				chkDate, jCheckBoxBeanProperty, "showDate");
 		autoBinding_2.bind();
 		//
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_3 = BeanProperty.create("showLabels");
-		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_3, chkLabels, jCheckBoxBeanProperty, "showLabels");
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_3 = BeanProperty
+			.create("showLabels");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_3 = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_3,
+				chkLabels, jCheckBoxBeanProperty, "showLabels");
 		autoBinding_3.bind();
 		//
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_4 = BeanProperty.create("sbowLocal");
-		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_4, chkLocation, jCheckBoxBeanProperty, "showLocal");
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_4 = BeanProperty
+			.create("sbowLocal");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_4,
+				chkLocation, jCheckBoxBeanProperty, "showLocal");
 		autoBinding_4.bind();
 		//
-		BeanProperty<AppearanceOptions, String> appearanceOptionsBeanProperty_5 = BeanProperty.create("reason");
-		BeanProperty<JTextField, String> jTextFieldBeanProperty = BeanProperty.create("text");
-		AutoBinding<AppearanceOptions, String, JTextField, String> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_5, txtReason, jTextFieldBeanProperty, "reason");
+		BeanProperty<AppearanceOptions, String> appearanceOptionsBeanProperty_5 = BeanProperty
+			.create("reason");
+		BeanProperty<JTextField, String> jTextFieldBeanProperty = BeanProperty
+			.create("text_ON_FOCUS_LOST");
+		AutoBinding<AppearanceOptions, String, JTextField, String> autoBinding_5 = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_5,
+				txtReason, jTextFieldBeanProperty, "reason");
 		autoBinding_5.bind();
 		//
-		BeanProperty<AppearanceOptions, String> appearanceOptionsBeanProperty_6 = BeanProperty.create("local");
-		BeanProperty<JTextField, String> jTextFieldBeanProperty_1 = BeanProperty.create("text");
-		AutoBinding<AppearanceOptions, String, JTextField, String> autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_6, txtLocation, jTextFieldBeanProperty_1, "local");
+		BeanProperty<AppearanceOptions, String> appearanceOptionsBeanProperty_6 = BeanProperty
+			.create("local");
+		BeanProperty<JTextField, String> jTextFieldBeanProperty_1 = BeanProperty
+			.create("text_ON_FOCUS_LOST");
+		AutoBinding<AppearanceOptions, String, JTextField, String> autoBinding_6 = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_6,
+				txtLocation, jTextFieldBeanProperty_1, "local");
 		autoBinding_6.bind();
 		//
-		BeanProperty<AppearanceOptions, String> appearanceOptionsBeanProperty_7 = BeanProperty.create("name");
+		BeanProperty<AppearanceOptions, String> appearanceOptionsBeanProperty_7 = BeanProperty
+			.create("name");
 		BeanProperty<JTextField, String> jTextFieldBeanProperty_2 = BeanProperty.create("text");
-		AutoBinding<AppearanceOptions, String, JTextField, String> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_7, textField, jTextFieldBeanProperty_2, "name");
+		AutoBinding<AppearanceOptions, String, JTextField, String> autoBinding_7 = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_7,
+				textField, jTextFieldBeanProperty_2, "name");
 		autoBinding_7.bind();
 		//
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_8 = BeanProperty.create("renderName");
-		BeanProperty<JRadioButton, Boolean> jRadioButtonBeanProperty = BeanProperty.create("selected");
-		AutoBinding<AppearanceOptions, Boolean, JRadioButton, Boolean> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_8, rdioRenderName, jRadioButtonBeanProperty, "renderName");
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_8 = BeanProperty
+			.create("renderName");
+		BeanProperty<JRadioButton, Boolean> jRadioButtonBeanProperty = BeanProperty
+			.create("selected");
+		AutoBinding<AppearanceOptions, Boolean, JRadioButton, Boolean> autoBinding_8 = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_8,
+				rdioRenderName, jRadioButtonBeanProperty, "renderName");
 		autoBinding_8.bind();
 		//
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_9 = BeanProperty.create("renderGraphic");
-		AutoBinding<AppearanceOptions, Boolean, JRadioButton, Boolean> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_9, rdioRenderGraphic, jRadioButtonBeanProperty, "renderGraphic");
+		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_9 = BeanProperty
+			.create("renderGraphic");
+		AutoBinding<AppearanceOptions, Boolean, JRadioButton, Boolean> autoBinding_9 = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_9,
+				rdioRenderGraphic, jRadioButtonBeanProperty, "renderGraphic");
 		autoBinding_9.bind();
+		//
+
 	}
 }

@@ -8,6 +8,7 @@ import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 import java.util.List;
 
@@ -23,8 +24,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
-import javax.swing.WindowConstants;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
@@ -38,17 +39,17 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.ELProperty;
 import org.jdesktop.swingx.JXImageView;
 
-import com.google.inject.Provider;
-
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
 import tc.fab.firma.FirmaOptions;
+import tc.fab.firma.app.tasks.PreviewTask;
 import tc.fab.mechanisms.MechanismManager;
-import tc.fab.pdf.signer.SignaturePreview;
 import tc.fab.pdf.signer.application.ComponentsInputBlocker;
 import tc.fab.pdf.signer.options.AppearanceOptions;
 import tc.fab.pdf.signer.options.ReferencePosition;
+
+import com.google.inject.Provider;
 
 @Singleton
 public class SignDocumentDialog extends JDialog {
@@ -84,6 +85,7 @@ public class SignDocumentDialog extends JDialog {
 
 		initComponents();
 		fillProviders();
+		
 		// the action setup must be after initial fulfillment to avoid double
 		// fire
 		cbAlias.setAction(context.getAction(this, ACTION_PREVIEW_APPEARANCE));
@@ -144,47 +146,27 @@ public class SignDocumentDialog extends JDialog {
 	}
 
 	@Action(name = ACTION_PREVIEW_APPEARANCE)
-	public Task<BufferedImage, Void> preview() {
+	public Task<BufferedImage, Void> preview() throws KeyStoreException {
 
 		String selected = getAlias();
 		String waiting = context.getResReader().getString("firma.dlg.waiting");
 
 		if (selected != null && !selected.equals(waiting)) {
-			PreviewTask task = new PreviewTask(selected);
+
+			Certificate cert = providerManager.getCertificate(getProvider(), selected);
+
+			PreviewTask task = new PreviewTask(context.getAppContext().getApplication(), cert,
+				imagePane, options.getAppearance());
+
 			task.setInputBlocker(ComponentsInputBlocker.builder(task, btOk, cbProvider, cbAlias));
+
 			return task;
+
 		}
 
 		imagePane.setImage((BufferedImage) null);
 		return null;
-
-	}
-
-	class PreviewTask extends Task<BufferedImage, Void> {
-
-		private String alias;
-
-		public PreviewTask(String alias) {
-			super(context.getAppContext().getApplication());
-			this.alias = alias;
-		}
-
-		@Override
-		protected BufferedImage doInBackground() throws Exception {
-			Certificate cert = providerManager.getCertificate(getProvider(), alias);
-			return SignaturePreview.generate(cert, imagePane.getSize(), getAppearanceOptions());
-		}
-
-		@Override
-		protected void succeeded(BufferedImage result) {
-			imagePane.setImage(result);
-		}
-
-		@Override
-		protected void failed(Throwable cause) {
-			cause.printStackTrace();
-			imagePane.setImage((BufferedImage) null);
-		}
+		// context.getAppContext().getApplication()
 
 	}
 
