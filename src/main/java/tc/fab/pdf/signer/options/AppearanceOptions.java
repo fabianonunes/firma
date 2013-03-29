@@ -5,11 +5,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.security.cert.X509Certificate;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Map;
+import java.text.SimpleDateFormat;
 
 import tc.fab.firma.utils.PropertyObservable;
 
@@ -50,21 +46,15 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 	private boolean showDate = true;
 	private boolean showLocation = false;
 	private boolean showReason = false;
-	private boolean showLabels = false;
+	private boolean showLabels = true;
 
 	// Signature properties
 	private String location = null;
 	private String reason = null;
 	private String contact = null;
-	
-	public static void main(String[] args) {
-		System.out.println(System.getProperties());
-	}
 
 	public void apply(PdfSignatureAppearance appearance, Rectangle pCoords, String fieldName)
 		throws BadElementException, MalformedURLException, IOException {
-		
-		System.out.println(Locale.getDefault());
 
 		if (renderName) {
 
@@ -112,8 +102,6 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 		X509Certificate cert = (X509Certificate) appearance.getCertificate();
 		X500Name certInfo = CertificateInfo.getSubjectFields(cert);
 
-		Map<String, ArrayList<String>> values = certInfo.getFields();
-
 		StringBuffer buffer = new StringBuffer();
 
 		if (showName) {
@@ -128,13 +116,13 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 			buffer.append(cert.getSubjectDN());
 			buffer.append('\n');
 		}
-		if (showReason) {
+		if (showReason && reason != null) {
 			if (showLabels)
 				buffer.append("Motivo: ");
 			buffer.append(getReason());
 			buffer.append('\n');
 		}
-		if (showLocation) {
+		if (showLocation && location != null) {
 			if (showLabels)
 				buffer.append("Local: ");
 			buffer.append(getLocation());
@@ -142,16 +130,18 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 
 		}
 		if (showDate) {
+
 			if (showLabels)
 				buffer.append("Data: ");
-			String date = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault()).format(
-				appearance.getSignDate().getTime());
+
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss z");
+
+			String date = formatter.format(appearance.getSignDate().getTime());
 			buffer.append(date);
+
 		}
 
-		String layer2Text = buffer.toString();
-
-		appearance.setLayer2Text(layer2Text);
+		appearance.setLayer2Text(buffer.toString());
 
 		// background image - disabled for simplicity purpose
 		// if (getImage() != null) {
@@ -176,166 +166,6 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 	public AppearanceOptions() {
 	}
 
-	public File getImage() {
-		return image;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public int getPageToSign() {
-		return pageToSign;
-	}
-
-	public String getReason() {
-		return reason;
-	}
-
-	public float getReferenceDistance() {
-		return referenceDistance;
-	}
-
-	public String getReferenceText() {
-		return referenceText;
-	}
-
-	public RenderingMode getRenderMode() {
-		return renderMode;
-	}
-
-	public boolean getSbowLocal() {
-		return showLocation;
-	}
-
-	public boolean getShowDate() {
-		return showDate;
-	}
-
-	public boolean getShowLabels() {
-		return showLabels;
-	}
-
-	public boolean getShowName() {
-		return showName;
-	}
-
-	public boolean getShowReason() {
-		return showReason;
-	}
-
-	public float getSignatureHeight() {
-		return signatureHeight;
-	}
-
-	public float getSignatureWidth() {
-		return signatureWidth;
-	}
-
-	public void setImage(File image) {
-		this.image = image;
-	}
-
-	public void setLocal(String local) {
-		this.location = local;
-	}
-
-	public void setPageToSign(int pageToSign) {
-		this.pageToSign = pageToSign;
-	}
-
-	public void setReason(String reason) {
-		this.reason = reason;
-	}
-
-	public void setReferenceDistance(float referenceDistance) {
-		this.referenceDistance = referenceDistance;
-	}
-
-	public void setReferenceText(String referenceText) {
-		this.referenceText = referenceText;
-	}
-
-	public void setRenderMode(RenderingMode renderMode) {
-		this.renderMode = renderMode;
-	}
-
-	public void setSbowLocal(boolean sbowLocal) {
-		this.showLocation = sbowLocal;
-	}
-
-	public void setShowDate(boolean showDate) {
-		this.showDate = showDate;
-	}
-
-	public void setShowLabels(boolean showLabels) {
-		this.showLabels = showLabels;
-	}
-
-	public void setShowName(boolean showName) {
-		this.showName = showName;
-	}
-
-	public void setShowReason(boolean showReason) {
-		this.showReason = showReason;
-	}
-
-	public void setSignatureHeight(float signatureHeight) {
-		this.signatureHeight = signatureHeight;
-	}
-
-	public void setSignatureWidth(float signatureWidth) {
-		this.signatureWidth = signatureWidth;
-	}
-
-	public ReferencePosition getReferencePosition() {
-		return referencePosition;
-	}
-
-	public void setReferencePosition(ReferencePosition referencePosition) {
-		this.referencePosition = referencePosition;
-	}
-
-	public String getContact() {
-		return contact;
-	}
-
-	public void setContact(String contact) {
-		this.contact = contact;
-	}
-
-	public File getGraphic() {
-		return graphic;
-	}
-
-	public void setGraphic(File graphic) {
-		this.graphic = graphic;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public boolean isRenderName() {
-		return renderName;
-	}
-
-	public void setRenderName(boolean renderName) {
-		this.renderName = renderName;
-	}
-
-	public boolean isRenderGraphic() {
-		return renderGraphic;
-	}
-
-	public void setRenderGraphic(boolean renderGraphic) {
-		this.renderGraphic = renderGraphic;
-	}
-
 	public String toText() {
 		return String
 			.format(
@@ -351,12 +181,172 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 		return this.getName();
 	}
 
+	public RenderingMode getRenderMode() {
+		return renderMode;
+	}
+
+	public ReferencePosition getReferencePosition() {
+		return referencePosition;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public File getImage() {
+		return image;
+	}
+
+	public File getGraphic() {
+		return graphic;
+	}
+
+	public float getSignatureWidth() {
+		return signatureWidth;
+	}
+
+	public float getSignatureHeight() {
+		return signatureHeight;
+	}
+
+	public int getPageToSign() {
+		return pageToSign;
+	}
+
+	public float getReferenceDistance() {
+		return referenceDistance;
+	}
+
+	public String getReferenceText() {
+		return referenceText;
+	}
+
+	public boolean isRenderName() {
+		return renderName;
+	}
+
+	public boolean isRenderGraphic() {
+		return renderGraphic;
+	}
+
+	public boolean isShowName() {
+		return showName;
+	}
+
 	public boolean isShowDN() {
 		return showDN;
 	}
 
+	public boolean isShowDate() {
+		return showDate;
+	}
+
+	public boolean isShowLocation() {
+		return showLocation;
+	}
+
+	public boolean isShowReason() {
+		return showReason;
+	}
+
+	public boolean isShowLabels() {
+		return showLabels;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public String getContact() {
+		return contact;
+	}
+
+	public void setRenderMode(RenderingMode renderMode) {
+		this.renderMode = renderMode;
+	}
+
+	public void setReferencePosition(ReferencePosition referencePosition) {
+		this.referencePosition = referencePosition;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setImage(File image) {
+		this.image = image;
+	}
+
+	public void setGraphic(File graphic) {
+		this.graphic = graphic;
+	}
+
+	public void setSignatureWidth(float signatureWidth) {
+		this.signatureWidth = signatureWidth;
+	}
+
+	public void setSignatureHeight(float signatureHeight) {
+		this.signatureHeight = signatureHeight;
+	}
+
+	public void setPageToSign(int pageToSign) {
+		this.pageToSign = pageToSign;
+	}
+
+	public void setReferenceDistance(float referenceDistance) {
+		this.referenceDistance = referenceDistance;
+	}
+
+	public void setReferenceText(String referenceText) {
+		this.referenceText = referenceText;
+	}
+
+	public void setRenderName(boolean renderName) {
+		this.renderName = renderName;
+	}
+
+	public void setRenderGraphic(boolean renderGraphic) {
+		this.renderGraphic = renderGraphic;
+	}
+
+	public void setShowName(boolean showName) {
+		this.showName = showName;
+	}
+
 	public void setShowDN(boolean showDN) {
 		this.showDN = showDN;
+	}
+
+	public void setShowDate(boolean showDate) {
+		this.showDate = showDate;
+	}
+
+	public void setShowLocation(boolean showLocation) {
+		this.showLocation = showLocation;
+	}
+
+	public void setShowReason(boolean showReason) {
+		this.showReason = showReason;
+	}
+
+	public void setShowLabels(boolean showLabels) {
+		this.showLabels = showLabels;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+
+	public void setContact(String contact) {
+		this.contact = contact;
 	}
 
 }

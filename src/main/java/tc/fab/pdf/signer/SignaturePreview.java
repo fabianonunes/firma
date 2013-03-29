@@ -84,7 +84,7 @@ public class SignaturePreview implements AutoCloseable {
 			PdfSignatureAppearance appearance = stamper.getSignatureAppearance();
 			appearance.setCertificate(cert);
 
-			options.apply(appearance, new Rectangle(0, 0, width, height), "Signature1");
+			options.apply(appearance, new Rectangle(4, 4, width - 2, height - 2), "Signature1");
 
 			SteppedSigner.getSignableStream(appearance, new Certificate[] { cert });
 

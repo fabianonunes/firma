@@ -7,8 +7,11 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.inject.Inject;
 import javax.swing.ButtonGroup;
@@ -39,6 +42,7 @@ import org.jdesktop.swingx.JXImageView;
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
+import tc.fab.pdf.signer.SignaturePreview;
 import tc.fab.pdf.signer.options.AppearanceOptions;
 
 public class AppearanceDialog extends JDialog {
@@ -214,7 +218,7 @@ public class AppearanceDialog extends JDialog {
 		gbc_chkName.gridy = 0;
 		panel_4.add(chkName, gbc_chkName);
 
-		JCheckBox chkDN = new JCheckBox("");
+		chkDN = new JCheckBox("");
 		chkDN.setName("firma.dlg.add_appearance.dn");
 		GridBagConstraints gbc_chkDN = new GridBagConstraints();
 		gbc_chkDN.fill = GridBagConstraints.VERTICAL;
@@ -329,7 +333,7 @@ public class AppearanceDialog extends JDialog {
 		setResizable(false);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setModal(true);
-		setBounds(100, 100, 380, 471);
+		setBounds(100, 100, 450, 471);
 
 	}
 
@@ -343,6 +347,7 @@ public class AppearanceDialog extends JDialog {
 	private JCheckBox chkLabels;
 	private JCheckBox chkReason;
 	private JCheckBox chkLocation;
+	private JCheckBox chkDN;
 	private JRadioButton rdioRenderName;
 	private JRadioButton rdioRenderGraphic;
 	private JRadioButton rdioRenderNothing;
@@ -350,6 +355,13 @@ public class AppearanceDialog extends JDialog {
 
 	public AppearanceOptions open(AppearanceOptions options) {
 		this.options = options;
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowOpened(WindowEvent e) {
+				super.windowOpened(e);
+				context.fireAction(AppearanceDialog.this, ACTION_PREVIEW);
+			}
+		});
 		context.getResourceMap().injectComponents(this);
 		setLocationRelativeTo(this.context.getMainFrame());
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -368,17 +380,15 @@ public class AppearanceDialog extends JDialog {
 		chkLabels.addActionListener(action);
 		chkReason.addActionListener(action);
 		chkLocation.addActionListener(action);
+		chkDN.addActionListener(action);
 		rdioRenderName.addActionListener(action);
 		rdioRenderGraphic.addActionListener(action);
 		rdioRenderNothing.addActionListener(action);
 
-		FocusListener blurEvent = new FocusListener() {
+		FocusListener blurEvent = new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
 				context.fireAction(action);
-			}
-			@Override
-			public void focusGained(FocusEvent e) {
 			}
 		};
 
@@ -389,88 +399,84 @@ public class AppearanceDialog extends JDialog {
 
 	@Action(name = ACTION_PREVIEW)
 	public void preview() {
-		System.out.println(options.toText());
+		imageView.setImage(SignaturePreview.generate(null, imageView.getSize(), options));
 	}
 
 	protected void initDataBindings() {
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty = BeanProperty
-			.create("showReason");
-		BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding = Bindings
-			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty,
-				chkReason, jCheckBoxBeanProperty, "showReason");
-		autoBinding.bind();
-		//
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_1 = BeanProperty
-			.create("showName");
-		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_1 = Bindings
-			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_1,
-				chkName, jCheckBoxBeanProperty, "showName");
-		autoBinding_1.bind();
-		//
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_2 = BeanProperty
-			.create("showDate");
-		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_2 = Bindings
-			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_2,
-				chkDate, jCheckBoxBeanProperty, "showDate");
-		autoBinding_2.bind();
-		//
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_3 = BeanProperty
-			.create("showLabels");
-		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_3 = Bindings
-			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_3,
-				chkLabels, jCheckBoxBeanProperty, "showLabels");
-		autoBinding_3.bind();
-		//
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_4 = BeanProperty
-			.create("sbowLocal");
-		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings
-			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_4,
-				chkLocation, jCheckBoxBeanProperty, "showLocal");
-		autoBinding_4.bind();
-		//
-		BeanProperty<AppearanceOptions, String> appearanceOptionsBeanProperty_5 = BeanProperty
-			.create("reason");
-		BeanProperty<JTextField, String> jTextFieldBeanProperty = BeanProperty
-			.create("text_ON_FOCUS_LOST");
-		AutoBinding<AppearanceOptions, String, JTextField, String> autoBinding_5 = Bindings
-			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_5,
-				txtReason, jTextFieldBeanProperty, "reason");
-		autoBinding_5.bind();
-		//
-		BeanProperty<AppearanceOptions, String> appearanceOptionsBeanProperty_6 = BeanProperty
-			.create("local");
-		BeanProperty<JTextField, String> jTextFieldBeanProperty_1 = BeanProperty
-			.create("text_ON_FOCUS_LOST");
-		AutoBinding<AppearanceOptions, String, JTextField, String> autoBinding_6 = Bindings
-			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_6,
-				txtLocation, jTextFieldBeanProperty_1, "local");
-		autoBinding_6.bind();
-		//
-		BeanProperty<AppearanceOptions, String> appearanceOptionsBeanProperty_7 = BeanProperty
-			.create("name");
-		BeanProperty<JTextField, String> jTextFieldBeanProperty_2 = BeanProperty.create("text");
-		AutoBinding<AppearanceOptions, String, JTextField, String> autoBinding_7 = Bindings
-			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_7,
-				textField, jTextFieldBeanProperty_2, "name");
-		autoBinding_7.bind();
-		//
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_8 = BeanProperty
-			.create("renderName");
-		BeanProperty<JRadioButton, Boolean> jRadioButtonBeanProperty = BeanProperty
-			.create("selected");
-		AutoBinding<AppearanceOptions, Boolean, JRadioButton, Boolean> autoBinding_8 = Bindings
-			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_8,
-				rdioRenderName, jRadioButtonBeanProperty, "renderName");
-		autoBinding_8.bind();
-		//
-		BeanProperty<AppearanceOptions, Boolean> appearanceOptionsBeanProperty_9 = BeanProperty
-			.create("renderGraphic");
-		AutoBinding<AppearanceOptions, Boolean, JRadioButton, Boolean> autoBinding_9 = Bindings
-			.createAutoBinding(UpdateStrategy.READ_WRITE, options, appearanceOptionsBeanProperty_9,
-				rdioRenderGraphic, jRadioButtonBeanProperty, "renderGraphic");
-		autoBinding_9.bind();
-		//
 
+		BeanProperty<JCheckBox, Boolean> onChkSelecte = BeanProperty.create("selected");
+		BeanProperty<JRadioButton, Boolean> onRdoSelect = BeanProperty.create("selected");
+		BeanProperty<JTextField, String> onBlur = BeanProperty.create("text_ON_FOCUS_LOST");
+
+		BeanProperty<AppearanceOptions, Boolean> showReasonOption = BeanProperty
+			.create("showReason");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> showReasonBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, showReasonOption, chkReason,
+				onChkSelecte, "showReason");
+		showReasonBinding.bind();
+		// //
+		BeanProperty<AppearanceOptions, Boolean> showNameOption = BeanProperty.create("showName");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> showNameBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, showNameOption, chkName,
+				onChkSelecte, "showName");
+		showNameBinding.bind();
+		// //
+		BeanProperty<AppearanceOptions, Boolean> showDateOption = BeanProperty.create("showDate");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> showDateBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, showDateOption, chkDate,
+				onChkSelecte, "showDate");
+		showDateBinding.bind();
+		// //
+		BeanProperty<AppearanceOptions, Boolean> showLabelsOption = BeanProperty
+			.create("showLabels");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> showLabelsBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, showLabelsOption, chkLabels,
+				onChkSelecte, "showLabels");
+		showLabelsBinding.bind();
+		// //
+		BeanProperty<AppearanceOptions, Boolean> showLocationOption = BeanProperty
+			.create("showLocation");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> showLocalBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, showLocationOption, chkLocation,
+				onChkSelecte, "showLocation");
+		showLocalBinding.bind();
+		// //
+		BeanProperty<AppearanceOptions, String> reasonOption = BeanProperty.create("reason");
+		AutoBinding<AppearanceOptions, String, JTextField, String> reasonBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, reasonOption, txtReason, onBlur,
+				"reason");
+		reasonBinding.bind();
+		// //
+		BeanProperty<AppearanceOptions, String> locationOption = BeanProperty.create("location");
+		AutoBinding<AppearanceOptions, String, JTextField, String> locationBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, locationOption, txtLocation,
+				onBlur, "location");
+		locationBinding.bind();
+		// //
+		BeanProperty<AppearanceOptions, String> nameOption = BeanProperty.create("name");
+		AutoBinding<AppearanceOptions, String, JTextField, String> nameBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, nameOption, textField, onBlur,
+				"name");
+		nameBinding.bind();
+		// //
+		BeanProperty<AppearanceOptions, Boolean> renderNameOption = BeanProperty
+			.create("renderName");
+		AutoBinding<AppearanceOptions, Boolean, JRadioButton, Boolean> renderNameBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, renderNameOption,
+				rdioRenderName, onRdoSelect, "renderName");
+		renderNameBinding.bind();
+		// //
+		BeanProperty<AppearanceOptions, Boolean> renderGraphicOption = BeanProperty
+			.create("renderGraphic");
+		AutoBinding<AppearanceOptions, Boolean, JRadioButton, Boolean> renderGraphicBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, renderGraphicOption,
+				rdioRenderGraphic, onRdoSelect, "renderGraphic");
+		renderGraphicBinding.bind();
+		//
+		BeanProperty<AppearanceOptions, Boolean> showDnOption = BeanProperty.create("showDN");
+		AutoBinding<AppearanceOptions, Boolean, JCheckBox, Boolean> showDnBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, showDnOption, chkDN,
+				onChkSelecte);
+		showDnBinding.bind();
 	}
 }
