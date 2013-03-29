@@ -33,10 +33,16 @@ public class FirmaDocument implements AppDocument {
 		} catch (IOException e) {
 			LOGGER.log(Level.WARNING, "Failed to load application options from '" + FILE_OPTIONS
 				+ "', using default values ...", e);
+			try {
+				context.getAppContext().getLocalStorage().deleteFile(FILE_OPTIONS);
+			} catch (IOException e1) {
+				// quietly
+			}
 		}
 
 		if (options == null) {
-			options = FirmaOptions.createDefaultInstance();
+			options = FirmaOptions.createDefaultInstance(context.getResReader().getString(
+				"firma.msg.default_appearance"));
 		}
 
 	}

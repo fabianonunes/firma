@@ -34,12 +34,14 @@ public class FirmaOptions extends PropertyObservable implements Serializable {
 		this.alias = alias;
 	}
 
-	public static FirmaOptions createDefaultInstance() {
+	public static FirmaOptions createDefaultInstance(String name) {
 
 		FirmaOptions options = new FirmaOptions();
 
 		List<AppearanceOptions> appearances = new ArrayList<>();
 		AppearanceOptions appearanceOptions = new AppearanceOptions();
+		
+		appearanceOptions.setName(name);
 
 		appearances.add(appearanceOptions);
 		options.setAppearances(appearances);
