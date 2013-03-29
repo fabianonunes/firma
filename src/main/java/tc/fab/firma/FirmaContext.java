@@ -4,11 +4,11 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 
 import javax.inject.Singleton;
+import javax.swing.Action;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import org.jdesktop.application.ApplicationAction;
 import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
@@ -76,14 +76,14 @@ public class FirmaContext implements AppContext {
 	}
 
 	@Override
-	public ApplicationAction getAction(Object actionsObject, String actionName) {
-		return (ApplicationAction) appContext.getActionMap(actionsObject).get(actionName);
+	public Action getAction(Object actionsObject, String actionName) {
+		return appContext.getActionMap(actionsObject).get(actionName);
 	}
 
 	@Override
-	public void fireAction(ApplicationAction action) {
+	public void fireAction(Action action) {
 		action.actionPerformed(new ActionEvent(getMainFrame(), ActionEvent.ACTION_PERFORMED, action
-			.getName()));
+			.getValue(Action.NAME).toString()));
 
 	}
 
