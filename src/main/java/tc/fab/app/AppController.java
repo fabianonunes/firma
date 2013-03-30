@@ -20,6 +20,6 @@ public interface AppController {
 
 	void startActionManually(String actionName);
 
-	void signFiles(String provider, String alias, AppearanceOptions options) throws Exception;
-	
+	void signFiles(String provider, String alias, AppearanceOptions appearanceOptions) throws Exception;
+
 }

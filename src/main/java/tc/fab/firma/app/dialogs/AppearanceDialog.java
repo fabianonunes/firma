@@ -12,6 +12,9 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.text.DateFormat;
+import java.util.Calendar;
 
 import javax.inject.Inject;
 import javax.swing.ButtonGroup;
@@ -31,6 +34,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jdesktop.application.Action;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -45,24 +49,22 @@ import tc.fab.app.AppDocument;
 import tc.fab.pdf.signer.SignaturePreview;
 import tc.fab.pdf.signer.options.AppearanceOptions;
 
+import com.google.inject.Provider;
+
 public class AppearanceDialog extends JDialog {
 
 	private static final long serialVersionUID = -4115566787900700647L;
 
 	private static final String ACTION_PREVIEW = "firma.dlg.add_appearance.preview";
+	private static final String ACTION_SELECT_GRAPHIC = "firma.dlg.add_appearance.select_graphic";
+	private static final String ACTION_SAVE = "firma.dlg.add_appearance.save";
+
+	@Inject
+	private Provider<FileSelectorDialog> fileDialog;
 
 	private AppContext context;
-
-	// public static void main(String[] args) {
-	// AppearanceDialog dlg = new AppearanceDialog();
-	// dlg.options =new AppearanceOptions();
-	// dlg.initComponents();
-	// dlg.initDataBindings();
-	// dlg.setVisible(true);
-	// }
-	//
-	// public AppearanceDialog() {
-	// }
+	private AppearanceOptions options;
+	private boolean save = false;
 
 	@Inject
 	public AppearanceDialog(AppContext context, AppController controller, AppDocument document) {
@@ -71,8 +73,6 @@ public class AppearanceDialog extends JDialog {
 		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		initComponents();
 	}
-
-	private AppearanceOptions options;
 
 	public void initComponents() {
 
@@ -314,16 +314,21 @@ public class AppearanceDialog extends JDialog {
 		contentPanel.setLayout(gl_contentPanel);
 		{
 			JPanel buttonPane = new JPanel();
-			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
+			buttonPane.setPreferredSize(new Dimension(10, 50));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
+			FlowLayout fl_buttonPane = new FlowLayout(FlowLayout.RIGHT, 10, 10);
+			fl_buttonPane.setAlignOnBaseline(true);
+			buttonPane.setLayout(fl_buttonPane);
 			{
-				JButton okButton = new JButton("OK");
-				okButton.setActionCommand("OK");
-				buttonPane.add(okButton);
-				getRootPane().setDefaultButton(okButton);
+				btOk = new JButton("OK");
+				btOk.setPreferredSize(new Dimension(80, 27));
+				btOk.setAction(context.getAction(this, ACTION_SAVE));
+				buttonPane.add(btOk);
+				getRootPane().setDefaultButton(btOk);
 			}
 			{
 				JButton cancelButton = new JButton("Cancel");
+				cancelButton.setPreferredSize(new Dimension(80, 27));
 				cancelButton.setActionCommand("Cancel");
 				buttonPane.add(cancelButton);
 			}
@@ -334,27 +339,20 @@ public class AppearanceDialog extends JDialog {
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setModal(true);
 		setBounds(100, 100, 450, 471);
+		context.getResourceMap().injectComponents(this);
 
 	}
 
-	private JPanel contentPanel;
-	private JTextField textField;
-	private ButtonGroup buttonGroup;
-	private JTextField txtReason;
-	private JTextField txtLocation;
-	private JCheckBox chkName;
-	private JCheckBox chkDate;
-	private JCheckBox chkLabels;
-	private JCheckBox chkReason;
-	private JCheckBox chkLocation;
-	private JCheckBox chkDN;
-	private JRadioButton rdioRenderName;
-	private JRadioButton rdioRenderGraphic;
-	private JRadioButton rdioRenderNothing;
-	private JXImageView imageView;
-
 	public AppearanceOptions open(AppearanceOptions options) {
+
 		this.options = options;
+
+		if (options.getName() == null || options.getName().length() < 1) {
+			options.setName("Criado em "
+				+ DateFormat.getDateInstance(DateFormat.MEDIUM).format(
+					Calendar.getInstance().getTime()));
+		}
+
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowOpened(WindowEvent e) {
@@ -362,18 +360,19 @@ public class AppearanceDialog extends JDialog {
 				context.fireAction(AppearanceDialog.this, ACTION_PREVIEW);
 			}
 		});
-		context.getResourceMap().injectComponents(this);
+
 		setLocationRelativeTo(this.context.getMainFrame());
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		initDataBindings();
 		attachPreviewEvent();
 		setVisible(true);
-		return this.options;
+		return save ? this.options : null;
 	}
 
 	private void attachPreviewEvent() {
 
 		final javax.swing.Action action = context.getAction(this, ACTION_PREVIEW);
+		javax.swing.Action actionSelect = context.getAction(this, ACTION_SELECT_GRAPHIC);
 
 		chkName.addActionListener(action);
 		chkDate.addActionListener(action);
@@ -382,7 +381,7 @@ public class AppearanceDialog extends JDialog {
 		chkLocation.addActionListener(action);
 		chkDN.addActionListener(action);
 		rdioRenderName.addActionListener(action);
-		rdioRenderGraphic.addActionListener(action);
+		rdioRenderGraphic.addActionListener(actionSelect);
 		rdioRenderNothing.addActionListener(action);
 
 		FocusListener blurEvent = new FocusAdapter() {
@@ -400,6 +399,31 @@ public class AppearanceDialog extends JDialog {
 	@Action(name = ACTION_PREVIEW)
 	public void preview() {
 		imageView.setImage(SignaturePreview.generate(null, imageView.getSize(), options));
+	}
+
+	@Action(name = ACTION_SAVE)
+	public void save() {
+		this.save = true;
+		dispose();
+	}
+
+	@Action(name = ACTION_SELECT_GRAPHIC)
+	public void selectGraphic() {
+
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(context.getResReader()
+			.getString("firma.msg.images"), "gif", "png", "jpg", "bmp");
+
+		File image = fileDialog.get().selectFile(filter);
+
+		if (image != null) {
+			options.setRenderGraphic(true);
+			options.setGraphic(image.getAbsolutePath());
+		} else {
+			rdioRenderName.setSelected(true);
+		}
+
+		preview();
+
 	}
 
 	protected void initDataBindings() {
@@ -479,4 +503,25 @@ public class AppearanceDialog extends JDialog {
 				onChkSelecte);
 		showDnBinding.bind();
 	}
+
+	public AppearanceOptions getOptions() {
+		return options;
+	}
+
+	private JPanel contentPanel;
+	private JTextField textField;
+	private ButtonGroup buttonGroup;
+	private JTextField txtReason;
+	private JTextField txtLocation;
+	private JCheckBox chkName;
+	private JCheckBox chkDate;
+	private JCheckBox chkLabels;
+	private JCheckBox chkReason;
+	private JCheckBox chkLocation;
+	private JCheckBox chkDN;
+	private JRadioButton rdioRenderName;
+	private JRadioButton rdioRenderGraphic;
+	private JRadioButton rdioRenderNothing;
+	private JXImageView imageView;
+	private JButton btOk;
 }

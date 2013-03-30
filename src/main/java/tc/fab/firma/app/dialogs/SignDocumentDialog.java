@@ -37,6 +37,8 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.ELProperty;
+import org.jdesktop.swingbinding.JComboBoxBinding;
+import org.jdesktop.swingbinding.SwingBindings;
 import org.jdesktop.swingx.JXImageView;
 
 import tc.fab.app.AppContext;
@@ -85,10 +87,11 @@ public class SignDocumentDialog extends JDialog {
 
 		initComponents();
 		fillProviders();
-		
+
 		// the action setup must be after initial fulfillment to avoid double
 		// fire
 		cbAlias.setAction(context.getAction(this, ACTION_PREVIEW_APPEARANCE));
+		cbAppearance.setAction(context.getAction(this, ACTION_PREVIEW_APPEARANCE));
 
 	}
 
@@ -115,33 +118,7 @@ public class SignDocumentDialog extends JDialog {
 		options.setAlias(alias);
 		options.setProvider(provider);
 
-		controller.signFiles(provider, alias, options.getAppearance());
-
-		// try (Mechanism m = providerManager.getMechanism(provider, alias)) {
-		// try {
-		// m.login();
-		// } catch (UserCancelledException e) {
-		// return;
-		// }
-		//
-		// byte[] dataToSign = "fabiano nunes parente".getBytes();
-		//
-		// Signature signature = Signature.getInstance("SHA1withRSA");
-		// signature.initSign(m.getPrivateKey());
-		// signature.update(dataToSign);
-		//
-		// byte[] data_signed = signature.sign();
-		// System.out.println(Hex.encodeHex(data_signed));
-		//
-		// signature = Signature.getInstance("SHA1withRSA");
-		// signature.initVerify(m.getCertificate());
-		// signature.update(dataToSign);
-		//
-		// System.out.println(signature.verify(data_signed));
-		//
-		// setVisible(false);
-		//
-		// }
+		controller.signFiles(provider, alias, getAppearanceOptions());
 
 	}
 
@@ -149,6 +126,7 @@ public class SignDocumentDialog extends JDialog {
 	public Task<BufferedImage, Void> preview() throws KeyStoreException {
 
 		String selected = getAlias();
+		AppearanceOptions options = getAppearanceOptions();
 		String waiting = context.getResReader().getString("firma.dlg.waiting");
 
 		if (selected != null && !selected.equals(waiting)) {
@@ -156,9 +134,10 @@ public class SignDocumentDialog extends JDialog {
 			Certificate cert = providerManager.getCertificate(getProvider(), selected);
 
 			PreviewTask task = new PreviewTask(context.getAppContext().getApplication(), cert,
-				imagePane, options.getAppearance());
+				imagePane, options);
 
-			task.setInputBlocker(ComponentsInputBlocker.builder(task, btOk, cbProvider, cbAlias));
+			task.setInputBlocker(ComponentsInputBlocker.builder(task, btOk, cbProvider, cbAlias,
+				cbAppearance));
 
 			return task;
 
@@ -177,59 +156,6 @@ public class SignDocumentDialog extends JDialog {
 		task.setInputBlocker(ComponentsInputBlocker.builder(task, btOk, cbAlias));
 
 		return task;
-
-	}
-
-	class FillAliasesTask extends Task<Void, String> {
-
-		private String provider;
-		private List<String> aliases;
-
-		public FillAliasesTask(String provider) {
-			super(context.getAppContext().getApplication());
-			this.provider = provider;
-			cbAlias.removeAllItems();
-			cbAlias.addItem(context.getResReader().getString("firma.dlg.waiting"));
-		}
-
-		@Override
-		protected Void doInBackground() throws Exception {
-			aliases = providerManager.aliases(provider);
-			if (aliases.size() > 0) {
-				for (String alias : aliases) {
-					publish(alias);
-				}
-			}
-			return null;
-		}
-
-		@Override
-		protected void process(List<String> values) {
-			super.process(values);
-			for (String value : values) {
-				cbAlias.addItem(value);
-			}
-		}
-
-		@Override
-		protected void failed(Throwable cause) {
-			super.failed(cause);
-			cbAlias.removeAllItems();
-		}
-
-		@Override
-		protected void succeeded(Void result) {
-			if (options.getAlias() != null) {
-				cbAlias.setSelectedItem(options.getAlias());
-			}
-		}
-
-		@Override
-		protected void finished() {
-			if (cbAlias.getItemCount() > 0) {
-				cbAlias.removeItemAt(0);
-			}
-		}
 
 	}
 
@@ -253,7 +179,13 @@ public class SignDocumentDialog extends JDialog {
 	@Action(name = ACTION_ADD_APPEARANCE)
 	public void addAppearance() {
 		AppearanceOptions iOptions = new AppearanceOptions();
-		appearanceDialog.get().open(iOptions);
+		iOptions = appearanceDialog.get().open(iOptions);
+
+		if (iOptions != null) {
+			options.getAppearances().add(iOptions);
+			cbAppearance.setSelectedItem(iOptions);
+		}
+
 	}
 
 	public void open() {
@@ -294,8 +226,9 @@ public class SignDocumentDialog extends JDialog {
 
 		cbAppearance = new JComboBox<>();
 
-		cbAppearance.setModel(new DefaultComboBoxModel<AppearanceOptions>(options.getAppearances()
-			.toArray(new AppearanceOptions[] {})));
+		// cbAppearance.setModel(new
+		// DefaultComboBoxModel<AppearanceOptions>(options.getAppearances()
+		// .toArray(new AppearanceOptions[] {})));
 
 		cbAppearance.setPreferredSize(new Dimension(0, 24));
 
@@ -328,15 +261,15 @@ public class SignDocumentDialog extends JDialog {
 		gl_contentPanel
 			.setHorizontalGroup(gl_contentPanel
 				.createParallelGroup(Alignment.TRAILING)
-				.addComponent(separator_1, GroupLayout.PREFERRED_SIZE, 498, Short.MAX_VALUE)
+				.addComponent(separator_1, GroupLayout.PREFERRED_SIZE, 513, Short.MAX_VALUE)
 				.addGroup(
 					gl_contentPanel
 						.createSequentialGroup()
 						.addContainerGap()
 						.addComponent(btCertificateInfo, GroupLayout.PREFERRED_SIZE, 94,
 							GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED, 196, Short.MAX_VALUE)
-						.addComponent(cbAppearance, GroupLayout.PREFERRED_SIZE, 138,
+						.addPreferredGap(ComponentPlacement.RELATED, 128, Short.MAX_VALUE)
+						.addComponent(cbAppearance, GroupLayout.PREFERRED_SIZE, 219,
 							GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(btAddApearance, GroupLayout.PREFERRED_SIZE, 42,
@@ -348,7 +281,7 @@ public class SignDocumentDialog extends JDialog {
 						.addGroup(
 							gl_contentPanel
 								.createParallelGroup(Alignment.LEADING)
-								.addComponent(imagePane, GroupLayout.DEFAULT_SIZE, 474,
+								.addComponent(imagePane, GroupLayout.DEFAULT_SIZE, 489,
 									Short.MAX_VALUE)
 								.addGroup(
 									gl_contentPanel
@@ -361,10 +294,10 @@ public class SignDocumentDialog extends JDialog {
 										.addGroup(
 											gl_contentPanel
 												.createParallelGroup(Alignment.TRAILING)
-												.addComponent(cbAlias, Alignment.LEADING, 0, 415,
+												.addComponent(cbAlias, Alignment.LEADING, 0, 430,
 													Short.MAX_VALUE)
 												.addComponent(cbProvider, Alignment.LEADING, 0,
-													415, Short.MAX_VALUE))
+													430, Short.MAX_VALUE))
 										.addPreferredGap(ComponentPlacement.RELATED)
 										.addGroup(
 											gl_contentPanel
@@ -382,11 +315,11 @@ public class SignDocumentDialog extends JDialog {
 											GroupLayout.PREFERRED_SIZE, 138,
 											GroupLayout.PREFERRED_SIZE)
 										.addPreferredGap(ComponentPlacement.RELATED)
-										.addComponent(reference, GroupLayout.DEFAULT_SIZE, 330,
+										.addComponent(reference, GroupLayout.DEFAULT_SIZE, 345,
 											Short.MAX_VALUE))).addContainerGap())
 				.addGroup(
 					gl_contentPanel.createSequentialGroup().addContainerGap()
-						.addComponent(lblNewLabel).addContainerGap(474, Short.MAX_VALUE)));
+						.addComponent(lblNewLabel).addContainerGap(489, Short.MAX_VALUE)));
 		gl_contentPanel.setVerticalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
 			.addGroup(
 				gl_contentPanel
@@ -410,7 +343,7 @@ public class SignDocumentDialog extends JDialog {
 							.addComponent(btRefresh, GroupLayout.PREFERRED_SIZE, 25,
 								GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(imagePane, GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+					.addComponent(imagePane, GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(
 						gl_contentPanel
@@ -473,7 +406,19 @@ public class SignDocumentDialog extends JDialog {
 
 		context.getResourceMap().injectComponents(this);
 		initDataBindings();
+		initExternalDataBindings();
 
+	}
+
+	/**
+	 * Se essas bindings forem realizadas no método initDataBindings, o editor
+	 * de bindings as apaga
+	 */
+	private void initExternalDataBindings() {
+		@SuppressWarnings("rawtypes")
+		JComboBoxBinding<AppearanceOptions, List<AppearanceOptions>, JComboBox> cb = SwingBindings
+			.createJComboBoxBinding(UpdateStrategy.READ, options.getAppearances(), cbAppearance);
+		cb.bind();
 	}
 
 	private JPanel contentPanel;
@@ -498,7 +443,7 @@ public class SignDocumentDialog extends JDialog {
 
 		//
 		BeanProperty<FirmaOptions, String> firmaOptionsBeanProperty = BeanProperty
-			.create("appearance.referenceText");
+			.create("referenceText");
 		BeanProperty<JTextField, String> jTextFieldBeanProperty = BeanProperty
 			.create("text_ON_FOCUS_LOST");
 		AutoBinding<FirmaOptions, String, JTextField, String> autoBinding_1 = Bindings
@@ -508,7 +453,7 @@ public class SignDocumentDialog extends JDialog {
 
 		//
 		BeanProperty<FirmaOptions, ReferencePosition> firmaOptionsBeanProperty_1 = BeanProperty
-			.create("appearance.referencePosition");
+			.create("referencePosition");
 		BeanProperty<JComboBox<ReferencePosition>, Object> jComboBoxBeanProperty = BeanProperty
 			.create("selectedItem");
 		AutoBinding<FirmaOptions, ReferencePosition, JComboBox<ReferencePosition>, Object> autoBinding_2 = Bindings
@@ -517,4 +462,58 @@ public class SignDocumentDialog extends JDialog {
 		autoBinding_2.bind();
 
 	}
+
+	class FillAliasesTask extends Task<Void, String> {
+
+		private String provider;
+		private List<String> aliases;
+
+		public FillAliasesTask(String provider) {
+			super(context.getAppContext().getApplication());
+			this.provider = provider;
+			cbAlias.removeAllItems();
+			cbAlias.addItem(context.getResReader().getString("firma.dlg.waiting"));
+		}
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			aliases = providerManager.aliases(provider);
+			if (aliases.size() > 0) {
+				for (String alias : aliases) {
+					publish(alias);
+				}
+			}
+			return null;
+		}
+
+		@Override
+		protected void process(List<String> values) {
+			super.process(values);
+			for (String value : values) {
+				cbAlias.addItem(value);
+			}
+		}
+
+		@Override
+		protected void failed(Throwable cause) {
+			super.failed(cause);
+			cbAlias.removeAllItems();
+		}
+
+		@Override
+		protected void succeeded(Void result) {
+			if (options.getAlias() != null) {
+				cbAlias.setSelectedItem(options.getAlias());
+			}
+		}
+
+		@Override
+		protected void finished() {
+			if (cbAlias.getItemCount() > 0) {
+				cbAlias.removeItemAt(0);
+			}
+		}
+
+	}
+
 }

@@ -1,6 +1,5 @@
 package tc.fab.pdf.signer.options;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
@@ -12,7 +11,6 @@ import tc.fab.firma.utils.PropertyObservable;
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.PdfSignatureAppearance.RenderingMode;
 import com.itextpdf.text.pdf.security.CertificateInfo;
@@ -23,18 +21,15 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 	private static final long serialVersionUID = 5407956656681711303L;
 
 	private RenderingMode renderMode = RenderingMode.NAME_AND_DESCRIPTION;
-	private ReferencePosition referencePosition = ReferencePosition.BELOW;
 
 	private String name = "";
-	private File image = null; // background image
-	private File graphic = null; // graphic image
+	private String image = null; // background image
+	private String graphic = null; // graphic image
 
 	// Position
 	private float signatureWidth = 10f;
 	private float signatureHeight = 2f;
-	private int pageToSign = -1;
 	private float referenceDistance = 0.4f;
-	private String referenceText = null;
 
 	// Rendering
 	private boolean renderName = true;
@@ -53,8 +48,8 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 	private String reason = null;
 	private String contact = null;
 
-	public void apply(PdfSignatureAppearance appearance, Rectangle pCoords, String fieldName)
-		throws BadElementException, MalformedURLException, IOException {
+	public void apply(PdfSignatureAppearance appearance, Rectangle pCoords, Integer pageToSign,
+		String fieldName) throws BadElementException, MalformedURLException, IOException {
 
 		if (renderName) {
 
@@ -80,8 +75,6 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 
 		}
 
-		Integer pageToSign = calcPageToSign(appearance.getStamper().getReader());
-
 		appearance.setRenderingMode(getRenderMode());
 		appearance.setLocation(getLocation());
 		appearance.setReason(getReason());
@@ -91,7 +84,7 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 			switch (getRenderMode()) {
 				case GRAPHIC:
 				case GRAPHIC_AND_DESCRIPTION:
-					Image img = Image.getInstance(getGraphic().getAbsolutePath());
+					Image img = Image.getInstance(getGraphic());
 					appearance.setSignatureGraphic(img);
 					break;
 				default:
@@ -107,7 +100,10 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 		if (showName) {
 			if (showLabels)
 				buffer.append("Assinado digitalmente por ");
-			buffer.append(certInfo.getField("CN"));
+			String cname = certInfo.getField("CN");
+			if (cname == null)
+				cname = certInfo.getField("E");
+			buffer.append(cname);
 			buffer.append('\n');
 		}
 		if (showDN) {
@@ -153,27 +149,7 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 
 	}
 
-	private Integer calcPageToSign(PdfReader reader) {
-		Integer pageToSign = getPageToSign();
-		Integer totalPages = reader.getNumberOfPages();
-		if (pageToSign <= 0) {
-			return totalPages;
-		} else {
-			return (pageToSign > totalPages) ? totalPages : pageToSign;
-		}
-	}
-
 	public AppearanceOptions() {
-	}
-
-	public String toText() {
-		return String
-			.format(
-				"AppearanceOptions [renderMode=%s, referencePosition=%s, name=%s, image=%s, graphic=%s, signatureWidth=%s, signatureHeight=%s, pageToSign=%s, referenceDistance=%s, referenceText=%s, renderName=%s, renderGraphic=%s, showName=%s, showDate=%s, sbowLocal=%s, showReason=%s, showLabels=%s, local=%s, reason=%s, contact=%s]",
-				renderMode, referencePosition, name, image, graphic, signatureWidth,
-				signatureHeight, pageToSign, referenceDistance, referenceText, renderName,
-				renderGraphic, showName, showDate, showLocation, showReason, showLabels, location,
-				reason, contact);
 	}
 
 	@Override
@@ -185,19 +161,15 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 		return renderMode;
 	}
 
-	public ReferencePosition getReferencePosition() {
-		return referencePosition;
-	}
-
 	public String getName() {
 		return name;
 	}
 
-	public File getImage() {
+	public String getImage() {
 		return image;
 	}
 
-	public File getGraphic() {
+	public String getGraphic() {
 		return graphic;
 	}
 
@@ -209,16 +181,8 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 		return signatureHeight;
 	}
 
-	public int getPageToSign() {
-		return pageToSign;
-	}
-
 	public float getReferenceDistance() {
 		return referenceDistance;
-	}
-
-	public String getReferenceText() {
-		return referenceText;
 	}
 
 	public boolean isRenderName() {
@@ -269,19 +233,15 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 		this.renderMode = renderMode;
 	}
 
-	public void setReferencePosition(ReferencePosition referencePosition) {
-		this.referencePosition = referencePosition;
-	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	public void setImage(File image) {
+	public void setImage(String image) {
 		this.image = image;
 	}
 
-	public void setGraphic(File graphic) {
+	public void setGraphic(String graphic) {
 		this.graphic = graphic;
 	}
 
@@ -293,16 +253,8 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 		this.signatureHeight = signatureHeight;
 	}
 
-	public void setPageToSign(int pageToSign) {
-		this.pageToSign = pageToSign;
-	}
-
 	public void setReferenceDistance(float referenceDistance) {
 		this.referenceDistance = referenceDistance;
-	}
-
-	public void setReferenceText(String referenceText) {
-		this.referenceText = referenceText;
 	}
 
 	public void setRenderName(boolean renderName) {

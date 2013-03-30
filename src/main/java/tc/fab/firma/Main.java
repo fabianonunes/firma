@@ -64,9 +64,9 @@ public class Main extends Firma {
 
 				// app
 				bind(AppContext.class).toInstance(context);
+				bind(AppDocument.class).to(FirmaDocument.class);
 				bind(AppView.class).to(FirmaView.class);
 				bind(AppController.class).to(FirmaController.class);
-				bind(AppDocument.class).to(FirmaDocument.class);
 
 				// security
 				bind(CallbackHandler.class).to(PINCallback.class);

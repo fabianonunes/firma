@@ -32,7 +32,7 @@ public class FirmaController implements AppController {
 
 	private AppContext context;
 	private AppView view;
-	// private AppDocument document;
+	private AppDocument document;
 
 	private ActionMap actionMap;
 
@@ -49,7 +49,7 @@ public class FirmaController implements AppController {
 		MechanismManager providersManager) {
 		this.context = context;
 		this.view = view;
-		// this.document = document;
+		this.document = document;
 		this.providersManager = providersManager;
 	}
 
@@ -100,7 +100,7 @@ public class FirmaController implements AppController {
 
 		Map<Integer, FileModel> indexes;
 		private Mechanism m;
-		private AppearanceOptions options;
+		private AppearanceOptions appearanceOptions;
 
 		public PreviewTask(Mechanism m, AppearanceOptions options) throws Exception {
 			super(context.getAppContext().getApplication());
@@ -108,7 +108,7 @@ public class FirmaController implements AppController {
 			this.m = m;
 			m.login();
 
-			this.options = options;
+			this.appearanceOptions = options;
 
 			int rowCount = view.getFileTable().getModel().getRowCount();
 
@@ -125,6 +125,8 @@ public class FirmaController implements AppController {
 		@Override
 		protected Void doInBackground() throws Exception {
 
+			FirmaOptions firmaOptions = document.getOptions();
+
 			for (Integer modelRow : indexes.keySet()) {
 
 				FileModel fileModel = indexes.get(modelRow);
@@ -132,7 +134,8 @@ public class FirmaController implements AppController {
 
 				publish(new Pair<Status, Integer>(Status.LOADING, modelRow));
 
-				try (DocumentSigner signer = new DocumentSigner(options, file)) {
+				try (DocumentSigner signer = new DocumentSigner(appearanceOptions, file,
+					firmaOptions.getReferenceText(), firmaOptions.getReferencePosition())) {
 					signer.sign(m, " assinado");
 					publish(new Pair<Status, Integer>(Status.DONE, modelRow));
 				} catch (Exception e) {
