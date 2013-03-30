@@ -63,6 +63,7 @@ public class SignDocumentDialog extends JDialog {
 	private static final String ACTION_PREVIEW_APPEARANCE = "firma.dlg.sign_document.preview";
 	private static final String ACTION_SIGN = "firma.dlg.sign_document.sign";
 	private static final String ACTION_ADD_APPEARANCE = "firma.dlg.sign_document.add_appearance";
+	private static final String ACTION_DEL_APPEARANCE = "firma.dlg.sign_document.del_appearance";
 
 	@Inject
 	private Provider<AppearanceDialog> appearanceDialog;
@@ -176,6 +177,11 @@ public class SignDocumentDialog extends JDialog {
 	public void addProvider() {
 	}
 
+	@Action(name = ACTION_DEL_APPEARANCE)
+	public void delAppearance() {
+
+	}
+
 	@Action(name = ACTION_ADD_APPEARANCE)
 	public void addAppearance() {
 		AppearanceOptions iOptions = new AppearanceOptions();
@@ -257,22 +263,31 @@ public class SignDocumentDialog extends JDialog {
 		btAddApearance.setPreferredSize(new Dimension(0, 24));
 		btAddApearance.setAction(context.getAction(this, ACTION_ADD_APPEARANCE));
 
+		btDelAppearance = new JButton();
+		btDelAppearance.setAction(context.getAction(this, ACTION_DEL_APPEARANCE));
+		btDelAppearance.setPreferredSize(new Dimension(0, 24));
+		btDelAppearance.setMinimumSize(new Dimension(108, 22));
+
 		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
 		gl_contentPanel
 			.setHorizontalGroup(gl_contentPanel
 				.createParallelGroup(Alignment.TRAILING)
 				.addComponent(separator_1, GroupLayout.PREFERRED_SIZE, 513, Short.MAX_VALUE)
 				.addGroup(
+					Alignment.LEADING,
 					gl_contentPanel
 						.createSequentialGroup()
 						.addContainerGap()
 						.addComponent(btCertificateInfo, GroupLayout.PREFERRED_SIZE, 94,
 							GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED, 128, Short.MAX_VALUE)
+						.addPreferredGap(ComponentPlacement.RELATED, 80, Short.MAX_VALUE)
 						.addComponent(cbAppearance, GroupLayout.PREFERRED_SIZE, 219,
 							GroupLayout.PREFERRED_SIZE)
 						.addPreferredGap(ComponentPlacement.RELATED)
 						.addComponent(btAddApearance, GroupLayout.PREFERRED_SIZE, 42,
+							GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addComponent(btDelAppearance, GroupLayout.PREFERRED_SIZE, 42,
 							GroupLayout.PREFERRED_SIZE).addContainerGap())
 				.addGroup(
 					gl_contentPanel
@@ -343,13 +358,15 @@ public class SignDocumentDialog extends JDialog {
 							.addComponent(btRefresh, GroupLayout.PREFERRED_SIZE, 25,
 								GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(imagePane, GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
+					.addComponent(imagePane, GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(
 						gl_contentPanel
 							.createParallelGroup(Alignment.LEADING)
 							.addComponent(btCertificateInfo, GroupLayout.PREFERRED_SIZE,
 								GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(btDelAppearance, GroupLayout.PREFERRED_SIZE, 24,
+								GroupLayout.PREFERRED_SIZE)
 							.addComponent(btAddApearance, GroupLayout.PREFERRED_SIZE, 24,
 								GroupLayout.PREFERRED_SIZE)
 							.addComponent(cbAppearance, GroupLayout.PREFERRED_SIZE,
@@ -430,38 +447,7 @@ public class SignDocumentDialog extends JDialog {
 	private JXImageView imagePane;
 	private JTextField reference;
 	private JComboBox<ReferencePosition> referencePosition;
-
-	protected void initDataBindings() {
-		//
-		ELProperty<JComboBox<String>, Object> jComboBoxEvalutionProperty = ELProperty
-			.create("${selectedItem!=null}");
-		BeanProperty<JButton, Boolean> jButtonBeanProperty = BeanProperty.create("enabled");
-		AutoBinding<JComboBox<String>, Object, JButton, Boolean> autoBinding = Bindings
-			.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxEvalutionProperty, btOk,
-				jButtonBeanProperty);
-		autoBinding.bind();
-
-		//
-		BeanProperty<FirmaOptions, String> firmaOptionsBeanProperty = BeanProperty
-			.create("referenceText");
-		BeanProperty<JTextField, String> jTextFieldBeanProperty = BeanProperty
-			.create("text_ON_FOCUS_LOST");
-		AutoBinding<FirmaOptions, String, JTextField, String> autoBinding_1 = Bindings
-			.createAutoBinding(UpdateStrategy.READ_WRITE, options, firmaOptionsBeanProperty,
-				reference, jTextFieldBeanProperty);
-		autoBinding_1.bind();
-
-		//
-		BeanProperty<FirmaOptions, ReferencePosition> firmaOptionsBeanProperty_1 = BeanProperty
-			.create("referencePosition");
-		BeanProperty<JComboBox<ReferencePosition>, Object> jComboBoxBeanProperty = BeanProperty
-			.create("selectedItem");
-		AutoBinding<FirmaOptions, ReferencePosition, JComboBox<ReferencePosition>, Object> autoBinding_2 = Bindings
-			.createAutoBinding(UpdateStrategy.READ_WRITE, options, firmaOptionsBeanProperty_1,
-				referencePosition, jComboBoxBeanProperty);
-		autoBinding_2.bind();
-
-	}
+	private JButton btDelAppearance;
 
 	class FillAliasesTask extends Task<Void, String> {
 
@@ -516,4 +502,31 @@ public class SignDocumentDialog extends JDialog {
 
 	}
 
+	protected void initDataBindings() {
+		ELProperty<JComboBox<String>, Object> jComboBoxEvalutionProperty = ELProperty
+			.create("${selectedItem!=null}");
+		BeanProperty<JButton, Boolean> jButtonBeanProperty = BeanProperty.create("enabled");
+		AutoBinding<JComboBox<String>, Object, JButton, Boolean> autoBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ, cbAlias, jComboBoxEvalutionProperty, btOk,
+				jButtonBeanProperty);
+		autoBinding.bind();
+		//
+		BeanProperty<FirmaOptions, String> firmaOptionsBeanProperty = BeanProperty
+			.create("referenceText");
+		BeanProperty<JTextField, String> jTextFieldBeanProperty = BeanProperty
+			.create("text_ON_FOCUS_LOST");
+		AutoBinding<FirmaOptions, String, JTextField, String> autoBinding_1 = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, firmaOptionsBeanProperty,
+				reference, jTextFieldBeanProperty);
+		autoBinding_1.bind();
+		//
+		BeanProperty<FirmaOptions, ReferencePosition> firmaOptionsBeanProperty_1 = BeanProperty
+			.create("referencePosition");
+		BeanProperty<JComboBox<ReferencePosition>, Object> jComboBoxBeanProperty = BeanProperty
+			.create("selectedItem");
+		AutoBinding<FirmaOptions, ReferencePosition, JComboBox<ReferencePosition>, Object> autoBinding_2 = Bindings
+			.createAutoBinding(UpdateStrategy.READ_WRITE, options, firmaOptionsBeanProperty_1,
+				referencePosition, jComboBoxBeanProperty);
+		autoBinding_2.bind();
+	}
 }
