@@ -58,6 +58,7 @@ public class AppearanceDialog extends JDialog {
 	private static final String ACTION_PREVIEW = "firma.dlg.add_appearance.preview";
 	private static final String ACTION_SELECT_GRAPHIC = "firma.dlg.add_appearance.select_graphic";
 	private static final String ACTION_SAVE = "firma.dlg.add_appearance.save";
+	private static final String ACTION_CANCEL = "firma.dlg.add_appearance.cancel";
 
 	@Inject
 	private Provider<FileSelectorDialog> fileDialog;
@@ -320,17 +321,17 @@ public class AppearanceDialog extends JDialog {
 			fl_buttonPane.setAlignOnBaseline(true);
 			buttonPane.setLayout(fl_buttonPane);
 			{
-				btOk = new JButton("OK");
+				btOk = new JButton("");
 				btOk.setPreferredSize(new Dimension(80, 27));
 				btOk.setAction(context.getAction(this, ACTION_SAVE));
 				buttonPane.add(btOk);
 				getRootPane().setDefaultButton(btOk);
 			}
 			{
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.setPreferredSize(new Dimension(80, 27));
-				cancelButton.setActionCommand("Cancel");
-				buttonPane.add(cancelButton);
+				JButton btCancel = new JButton("");
+				btCancel.setPreferredSize(new Dimension(80, 27));
+				btCancel.setAction(context.getAction(this, ACTION_CANCEL));
+				buttonPane.add(btCancel);
 			}
 		}
 
@@ -404,6 +405,12 @@ public class AppearanceDialog extends JDialog {
 	@Action(name = ACTION_SAVE)
 	public void save() {
 		this.save = true;
+		dispose();
+	}
+
+	@Action(name = ACTION_CANCEL)
+	public void cancel() {
+		this.save = false;
 		dispose();
 	}
 

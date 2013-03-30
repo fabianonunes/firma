@@ -36,6 +36,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Converter;
 import org.jdesktop.beansbinding.ELProperty;
 import org.jdesktop.swingbinding.JComboBoxBinding;
 import org.jdesktop.swingbinding.SwingBindings;
@@ -179,7 +180,10 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_DEL_APPEARANCE)
 	public void delAppearance() {
-
+		AppearanceOptions selected = cbAppearance.getItemAt(cbAppearance.getSelectedIndex());
+		int index = options.getAppearances().indexOf(selected);
+		options.getAppearances().remove(index);
+		cbAppearance.setSelectedIndex(0);
 	}
 
 	@Action(name = ACTION_ADD_APPEARANCE)
@@ -231,10 +235,6 @@ public class SignDocumentDialog extends JDialog {
 		btRefresh.setMinimumSize(new Dimension(108, 22));
 
 		cbAppearance = new JComboBox<>();
-
-		// cbAppearance.setModel(new
-		// DefaultComboBoxModel<AppearanceOptions>(options.getAppearances()
-		// .toArray(new AppearanceOptions[] {})));
 
 		cbAppearance.setPreferredSize(new Dimension(0, 24));
 
@@ -423,7 +423,7 @@ public class SignDocumentDialog extends JDialog {
 
 		context.getResourceMap().injectComponents(this);
 		initDataBindings();
-		initExternalDataBindings();
+		initSecondaryDataBindings();
 
 	}
 
@@ -431,11 +431,34 @@ public class SignDocumentDialog extends JDialog {
 	 * Se essas bindings forem realizadas no método initDataBindings, o editor
 	 * de bindings as apaga
 	 */
-	private void initExternalDataBindings() {
+	private void initSecondaryDataBindings() {
 		@SuppressWarnings("rawtypes")
 		JComboBoxBinding<AppearanceOptions, List<AppearanceOptions>, JComboBox> cb = SwingBindings
 			.createJComboBoxBinding(UpdateStrategy.READ, options.getAppearances(), cbAppearance);
 		cb.bind();
+
+		BeanProperty<JComboBox<AppearanceOptions>, AppearanceOptions> selectedItem = BeanProperty
+			.create("selectedItem");
+
+		BeanProperty<JButton, Boolean> enabledProperty = BeanProperty.create("enabled");
+
+		AutoBinding<JComboBox<AppearanceOptions>, AppearanceOptions, JButton, Boolean> autoBinding_3 = Bindings
+			.createAutoBinding(UpdateStrategy.READ, cbAppearance, selectedItem, btDelAppearance,
+				enabledProperty);
+		autoBinding_3.setConverter(new Converter<AppearanceOptions, Boolean>() {
+
+			@Override
+			public AppearanceOptions convertReverse(Boolean value) {
+				return null;
+			}
+
+			@Override
+			public Boolean convertForward(AppearanceOptions value) {
+				boolean ret = cbAppearance.getItemAt(0) != value;
+				return ret;
+			}
+		});
+		autoBinding_3.bind();
 	}
 
 	private JPanel contentPanel;
@@ -528,5 +551,7 @@ public class SignDocumentDialog extends JDialog {
 			.createAutoBinding(UpdateStrategy.READ_WRITE, options, firmaOptionsBeanProperty_1,
 				referencePosition, jComboBoxBeanProperty);
 		autoBinding_2.bind();
+		//
+
 	}
 }
