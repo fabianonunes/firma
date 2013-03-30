@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -59,12 +60,12 @@ public class SignDocumentDialog extends JDialog {
 
 	private static final long serialVersionUID = 7850839445605448945L;
 
+	private static final String ACTION_SIGN = "firma.dlg.sign_document.sign";
 	private static final String ACTION_FILL_ALIASES = "firma.dlg.sign_document.fill_aliases";
 	private static final String ACTION_ADD_PROVIDER = "firma.dlg.sign_document.add_provider";
-	private static final String ACTION_PREVIEW_APPEARANCE = "firma.dlg.sign_document.preview";
-	private static final String ACTION_SIGN = "firma.dlg.sign_document.sign";
 	private static final String ACTION_ADD_APPEARANCE = "firma.dlg.sign_document.add_appearance";
 	private static final String ACTION_DEL_APPEARANCE = "firma.dlg.sign_document.del_appearance";
+	private static final String ACTION_PREVIEW_APPEARANCE = "firma.dlg.sign_document.preview";
 
 	@Inject
 	private Provider<AppearanceDialog> appearanceDialog;
@@ -188,13 +189,37 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_ADD_APPEARANCE)
 	public void addAppearance() {
+
+		List<String> names = new ArrayList<>();
+
+		for (AppearanceOptions opts : options.getAppearances()) {
+			names.add(opts.getName());
+		}
+
+		String baseName = context.getResReader().getString("firma.msg.new_appearance");
+
 		AppearanceOptions iOptions = new AppearanceOptions();
+		iOptions.setName(pickName(names, baseName));
 		iOptions = appearanceDialog.get().open(iOptions);
 
 		if (iOptions != null) {
+			iOptions.setName(pickName(names, iOptions.getName()));
 			options.getAppearances().add(iOptions);
 			cbAppearance.setSelectedItem(iOptions);
 		}
+
+	}
+
+	private String pickName(List<String> names, String baseName) {
+
+		String name = baseName;
+		int i = 1;
+		while (names.contains(name)) {
+			name = baseName + " (" + i + ")";
+			i = i + 1;
+		}
+
+		return name;
 
 	}
 
@@ -554,4 +579,5 @@ public class SignDocumentDialog extends JDialog {
 		//
 
 	}
+
 }

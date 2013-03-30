@@ -13,8 +13,6 @@ import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.text.DateFormat;
-import java.util.Calendar;
 
 import javax.inject.Inject;
 import javax.swing.ButtonGroup;
@@ -347,12 +345,6 @@ public class AppearanceDialog extends JDialog {
 	public AppearanceOptions open(AppearanceOptions options) {
 
 		this.options = options;
-
-		if (options.getName() == null || options.getName().length() < 1) {
-			options.setName("Criado em "
-				+ DateFormat.getDateInstance(DateFormat.MEDIUM).format(
-					Calendar.getInstance().getTime()));
-		}
 
 		addWindowListener(new WindowAdapter() {
 			@Override
