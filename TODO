@@ -6,7 +6,11 @@ TODO
 -- não exibir diálogo de assinatura se não houver arquivos para assinar
 -- esc key
 -- opção de assinatura acima do texto / abaixo do texto
+-- avisar a quantidade de erros na janela de pin
+-- informar se a última tentativa deu senha-inválida na tela de pin
+-- se deletar a imagem guardada, o q acontece?
 
 EXCEÇÕES
 -- certificados sem chave privada
--- fechar o aplicativo após remover o token dá erro
+-- fechar o aplicativo após remover o token
+-- cancelar a janela do pin 
