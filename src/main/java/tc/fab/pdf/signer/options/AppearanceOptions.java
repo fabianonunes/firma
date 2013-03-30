@@ -9,10 +9,13 @@ import java.text.SimpleDateFormat;
 import tc.fab.firma.utils.PropertyObservable;
 
 import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.PdfSignatureAppearance.RenderingMode;
+import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.security.CertificateInfo;
 import com.itextpdf.text.pdf.security.CertificateInfo.X500Name;
 
@@ -49,7 +52,7 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 	private String contact = null;
 
 	public void apply(PdfSignatureAppearance appearance, Rectangle pCoords, Integer pageToSign,
-		String fieldName) throws BadElementException, MalformedURLException, IOException {
+		String fieldName) throws MalformedURLException, IOException, BadElementException {
 
 		if (renderName) {
 
@@ -76,9 +79,6 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 		}
 
 		appearance.setRenderingMode(getRenderMode());
-		appearance.setLocation(getLocation());
-		appearance.setReason(getReason());
-		appearance.setContact(getContact());
 
 		if (getGraphic() != null) {
 			switch (getRenderMode()) {
@@ -94,15 +94,19 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 
 		X509Certificate cert = (X509Certificate) appearance.getCertificate();
 		X500Name certInfo = CertificateInfo.getSubjectFields(cert);
+		String cname = certInfo.getField("CN");
+		if (cname == null) {
+			cname = certInfo.getField("E");
+		}
+		if (cname == null) {
+			cname = "";
+		}
 
 		StringBuffer buffer = new StringBuffer();
 
 		if (showName) {
 			if (showLabels)
 				buffer.append("Assinado digitalmente por ");
-			String cname = certInfo.getField("CN");
-			if (cname == null)
-				cname = certInfo.getField("E");
 			buffer.append(cname);
 			buffer.append('\n');
 		}
@@ -113,12 +117,14 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 			buffer.append('\n');
 		}
 		if (showReason && reason != null) {
+			appearance.setReason(getReason());
 			if (showLabels)
 				buffer.append("Motivo: ");
 			buffer.append(getReason());
 			buffer.append('\n');
 		}
 		if (showLocation && location != null) {
+			appearance.setLocation(getLocation());
 			if (showLabels)
 				buffer.append("Local: ");
 			buffer.append(getLocation());
@@ -137,7 +143,13 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 
 		}
 
-		appearance.setLayer2Text(buffer.toString());
+		if (contact != null) {
+			appearance.setContact(getContact());
+		}
+
+		String description = buffer.toString();
+
+		appearance.setLayer2Text(description);
 
 		// background image - disabled for simplicity purpose
 		// if (getImage() != null) {
@@ -146,6 +158,58 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 		// }
 
 		appearance.setVisibleSignature(pCoords, pageToSign, fieldName);
+
+	}
+
+	protected void addImageToLayer(PdfTemplate n2, Image im) throws DocumentException,
+		MalformedURLException, IOException {
+
+		n2.beginText();
+
+		Float pSize = im.getWidth() / im.getHeight();
+
+		Float w = im.getWidth();
+		Float h = im.getHeight();
+
+		if (im.getWidth() > signatureWidth) {
+			w = signatureWidth;
+			h = w / pSize;
+		} else if (im.getHeight() > signatureHeight) {
+			h = signatureHeight;
+			w = h * pSize;
+		}
+
+		Float pbLeft = signatureWidth / 2 - w / 2;
+		Float pbTop = signatureHeight / 2 - h / 2;
+
+		n2.addImage(im, w, 0, 0, h, pbLeft, pbTop);
+
+		n2.endText();
+
+	}
+
+	protected void addTextToLayer(PdfTemplate n2, String text) throws IOException,
+		DocumentException {
+
+		Float fontSize = 10F;
+
+		BaseFont bf = BaseFont.createFont("Helvetica", BaseFont.WINANSI, false);
+		Float tWidth = bf.getWidthPoint(text, fontSize);
+
+		// TODO: Estudar altura de caracteres para melhor determinação da margem
+		// 1.2F = 20% de margem de segurança para caracteres fora de linha
+		signatureHeight = fontSize * 1.2F;
+		signatureWidth = tWidth + 2F;
+
+		if (n2 != null) {
+
+			n2.beginText();
+			n2.setFontAndSize(bf, fontSize);
+			n2.showTextAligned(PdfTemplate.ALIGN_CENTER, text, signatureWidth / 2, signatureHeight
+				- fontSize, 0);
+			n2.endText();
+
+		}
 
 	}
 

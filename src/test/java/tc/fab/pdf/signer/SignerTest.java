@@ -92,8 +92,7 @@ public class SignerTest extends TestCase {
 		GeneralSecurityException {
 
 		AppearanceOptions options = new AppearanceOptions();
-		options.setReferenceText("Page 1");
-		try (DocumentSigner signer = new DocumentSigner(options, file_to_sign)) {
+		try (DocumentSigner signer = new DocumentSigner(options, file_to_sign, "Page 1", null)) {
 			signer.sign(m, "signed");
 		}
 
