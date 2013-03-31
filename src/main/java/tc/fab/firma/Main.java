@@ -4,7 +4,6 @@ import iaik.pkcs.pkcs11.TokenException;
 
 import java.awt.AWTEvent;
 import java.awt.EventQueue;
-import java.awt.Toolkit;
 import java.util.EventObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,8 +95,8 @@ public class Main extends Firma {
 		view = injector.getInstance(AppView.class);
 		initLookAndFeel(SubstanceCremeLookAndFeel.class.toString());
 
-		EventQueue queue = Toolkit.getDefaultToolkit().getSystemEventQueue();
-		queue.push(new EventQueueProxy());
+		// EventQueue queue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+		// queue.push(new EventQueueProxy());
 
 		view.initView();
 
