@@ -176,10 +176,10 @@ public class JFileTable extends JTable {
 		return columns.indexOf(id);
 	}
 
-	public void setStatus(int rowIndex, Status status) {
-		FileModel row = model.get(rowIndex);
+	public void setStatus(int modelRowIndex, Status status) {
+		FileModel row = model.get(modelRowIndex);
 		row.setStatus(status);
-		model.set(rowIndex, row);
+		model.set(modelRowIndex, row);
 	}
 
 	public List<FileModel> getData() {

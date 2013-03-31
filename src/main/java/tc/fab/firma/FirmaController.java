@@ -84,7 +84,7 @@ public class FirmaController implements AppController {
 
 	class PreviewTask extends Task<Void, Pair<Status, Integer>> {
 
-		Map<Integer, FileModel> indexes;
+		Map<Integer, FileModel> modelRowIndexes;
 		private Mechanism m;
 		private AppearanceOptions appearanceOptions;
 
@@ -98,12 +98,12 @@ public class FirmaController implements AppController {
 
 			int rowCount = view.getFileTable().getModel().getRowCount();
 
-			indexes = new LinkedHashMap<>();
+			modelRowIndexes = new LinkedHashMap<>();
 
 			for (int viewRow = 0; viewRow < rowCount; viewRow++) {
-				view.getFileTable().setStatus(viewRow, Status.IDLE);
 				int modelRow = view.getFileTable().convertRowIndexToModel(viewRow);
-				indexes.put(modelRow, view.getFileTable().getData().get(modelRow));
+				view.getFileTable().setStatus(modelRow, Status.IDLE);
+				modelRowIndexes.put(modelRow, view.getFileTable().getData().get(modelRow));
 			}
 
 		}
@@ -113,20 +113,20 @@ public class FirmaController implements AppController {
 
 			FirmaOptions firmaOptions = document.getOptions();
 
-			for (Integer modelRow : indexes.keySet()) {
+			for (Integer modelIndexRow : modelRowIndexes.keySet()) {
 
-				FileModel fileModel = indexes.get(modelRow);
+				FileModel fileModel = modelRowIndexes.get(modelIndexRow);
 				File file = fileModel.getFile();
 
-				publish(new Pair<Status, Integer>(Status.LOADING, modelRow));
+				publish(new Pair<Status, Integer>(Status.LOADING, modelIndexRow));
 
 				try (DocumentSigner signer = new DocumentSigner(appearanceOptions, file,
 					firmaOptions.getReferenceText(), firmaOptions.getReferencePosition())) {
 					signer.sign(m, " assinado");
-					publish(new Pair<Status, Integer>(Status.DONE, modelRow));
+					publish(new Pair<Status, Integer>(Status.DONE, modelIndexRow));
 				} catch (Exception e) {
 					e.printStackTrace();
-					publish(new Pair<Status, Integer>(Status.FAILED, modelRow));
+					publish(new Pair<Status, Integer>(Status.FAILED, modelIndexRow));
 				}
 
 			}
@@ -139,8 +139,7 @@ public class FirmaController implements AppController {
 		protected void process(List<Pair<Status, Integer>> values) {
 			super.process(values);
 			for (Pair<Status, Integer> pair : values) {
-				int viewRow = view.getFileTable().convertRowIndexToView(pair.getSecond());
-				view.getFileTable().setStatus(viewRow, pair.getFirst());
+				view.getFileTable().setStatus(pair.getSecond(), pair.getFirst());
 			}
 		}
 
