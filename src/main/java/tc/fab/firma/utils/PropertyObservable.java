@@ -14,5 +14,9 @@ public abstract class PropertyObservable {
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		changeSupport.removePropertyChangeListener(listener);
 	}
+	
+	public void firePropertyChange(String propertyName, Object oldValue, Object newValue){
+		changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+	}
 
 }

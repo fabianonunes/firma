@@ -16,6 +16,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import tc.fab.pdf.signer.options.AppearanceOptions;
+
 public class SignaturePreviewTest {
 
 	SignaturePreview preview;
@@ -31,7 +33,7 @@ public class SignaturePreviewTest {
 
 		preview = new SignaturePreview(cert, new Dimension(400, 100));
 
-		BufferedImage img = preview.getImagePreview();
+		BufferedImage img = preview.getImagePreview(new AppearanceOptions());
 
 		ImageIO.write(img, "PNG", new File("/tmp/ram/signature.png"));
 	}

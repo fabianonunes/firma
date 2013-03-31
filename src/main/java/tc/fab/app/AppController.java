@@ -2,6 +2,8 @@ package tc.fab.app;
 
 import javax.swing.ActionMap;
 
+import tc.fab.pdf.signer.options.AppearanceOptions;
+
 public interface AppController {
 
 	static final String ACTION_FILES_ADD = "firma.view.files_add";
@@ -18,6 +20,6 @@ public interface AppController {
 
 	void startActionManually(String actionName);
 
-	void signFiles(String provider, String alias) throws Exception;
-	
+	void signFiles(String provider, String alias, AppearanceOptions appearanceOptions) throws Exception;
+
 }

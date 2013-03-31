@@ -6,7 +6,6 @@ import javax.swing.Action;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-import org.jdesktop.application.ApplicationAction;
 import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ResourceMap;
 
@@ -31,6 +30,6 @@ public interface AppContext {
 
 	void fireAction(Object actionsObject, String actionName);
 	
-	void fireAction(ApplicationAction action);
+	void fireAction(Action action);
 
 }

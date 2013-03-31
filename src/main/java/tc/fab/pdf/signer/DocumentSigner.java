@@ -29,18 +29,22 @@ import com.itextpdf.text.pdf.security.ProviderDigest;
 
 public class DocumentSigner implements AutoCloseable {
 
-	private AppearanceOptions options;
+	private AppearanceOptions appearanceOptions;
 
 	private PdfReader reader;
 	private PdfStamper stamper;
 	private PdfTextPosition textPosition;
 	private PdfSignatureAppearance appearance;
-
+	private Integer pageToSign = -1;
 	private File inputFile;
+	private String referenceText;
+	private ReferencePosition referencePosition;
 
-	public DocumentSigner(AppearanceOptions options, File inputFile) throws IOException,
-		DocumentException {
-		this.options = options;
+	public DocumentSigner(AppearanceOptions options, File inputFile, String referenceText,
+		ReferencePosition referencePosition) throws IOException, DocumentException {
+		this.referenceText = referenceText;
+		this.referencePosition = referencePosition;
+		this.appearanceOptions = options;
 		this.inputFile = inputFile;
 	}
 
@@ -49,7 +53,7 @@ public class DocumentSigner implements AutoCloseable {
 	 * 
 	 * @param mechanism
 	 * @param inputFile
-	 * @param options
+	 * @param appearanceOptions
 	 * 
 	 * @throws GeneralSecurityException
 	 * @throws IOException
@@ -63,11 +67,15 @@ public class DocumentSigner implements AutoCloseable {
 		File tmpFile = File.createTempFile("pdf", "sgn");
 
 		reader = new PdfReader(makeRaf(), null);
+		pageToSign = calcPageToSign(pageToSign);
 		stamper = PdfStamper.createSignature(reader, null, '\0', tmpFile, true);
-		textPosition = new PdfTextPosition(reader, getPageToSign());
+		textPosition = new PdfTextPosition(reader, pageToSign);
 		appearance = stamper.getSignatureAppearance();
+		appearance.setCertificate(mechanism.getCertificate());
 
-		applyOptions(options);
+		Rectangle rect = getSize(appearanceOptions, pageToSign);
+
+		appearanceOptions.apply(appearance, rect, pageToSign, null);
 
 		ExternalSignature external = new PrivateKeySignature(mechanism.getPrivateKey(), "SHA-1",
 			null);
@@ -107,10 +115,7 @@ public class DocumentSigner implements AutoCloseable {
 		return new RandomAccessFileOrArray(factory);
 	}
 
-	private void applyOptions(AppearanceOptions options) throws IOException {
-
-		String reference = options.getReferenceText();
-		Integer pageToSign = getPageToSign();
+	private Rectangle getSize(AppearanceOptions options, Integer pageToSign) throws IOException {
 
 		float signatureWidth = cmToPoint(options.getSignatureWidth());
 		float signatureHeight = cmToPoint(options.getSignatureHeight());
@@ -118,27 +123,22 @@ public class DocumentSigner implements AutoCloseable {
 		Rectangle pageSize = reader.getPageSize(pageToSign);
 		float pageWidth = pageSize.getWidth();
 
-		float yOffset = (reference != null) ? textPosition.getCharacterPosition(reference)
+		float yOffset = (referenceText != null) ? textPosition.getCharacterPosition(referenceText)
 			: textPosition.getLastLinePosition();
 
 		float pLeft = pageWidth / 2 - signatureWidth / 2;
 		float pRight = pLeft + signatureWidth;
 		float pTop;
 
-		if (options.getReferencePosition().equals(ReferencePosition.ABOVE)) {
+		if (referencePosition.equals(ReferencePosition.ABOVE)) {
 			pTop = yOffset + cmToPoint(options.getReferenceDistance()) + signatureHeight;
 		} else {
 			pTop = yOffset - cmToPoint(options.getReferenceDistance());
 		}
-		
+
 		float pBottom = pTop - signatureHeight;
 
-		Rectangle pCoords = new Rectangle(pLeft, pBottom, pRight, pTop);
-
-		appearance.setRenderingMode(options.getRenderMode());
-		appearance.setLocation(options.getLocation());
-		appearance.setReason(options.getReason());
-		appearance.setVisibleSignature(pCoords, pageToSign, null);
+		return new Rectangle(pLeft, pBottom, pRight, pTop);
 
 	}
 
@@ -152,8 +152,7 @@ public class DocumentSigner implements AutoCloseable {
 		return (cm.floatValue() / 2.54F) * 72;
 	}
 
-	private Integer getPageToSign() {
-		Integer pageToSign = options.getPageToSign();
+	private Integer calcPageToSign(Integer pageToSign) {
 		Integer totalPages = reader.getNumberOfPages();
 		if (pageToSign <= 0) {
 			return totalPages;

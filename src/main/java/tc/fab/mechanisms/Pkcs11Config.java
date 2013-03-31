@@ -89,7 +89,7 @@ public class Pkcs11Config {
 		File wrapperDir = new File(SystemUtils.JAVA_IO_TMPDIR,
 			RandomStringUtils.randomAlphanumeric(10));
 		wrapperDir.mkdir();
-		wrapperDir.getParentFile().deleteOnExit();
+		wrapperDir.deleteOnExit();
 
 		wrapperFile = new File(wrapperDir, libName);
 		wrapperFile.deleteOnExit();

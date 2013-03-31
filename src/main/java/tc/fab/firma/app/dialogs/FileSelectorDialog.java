@@ -6,7 +6,7 @@ import javax.inject.Inject;
 import javax.swing.GroupLayout;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileFilter;
 
 import tc.fab.app.AppContext;
 
@@ -29,7 +29,7 @@ public class FileSelectorDialog extends JDialog {
 	private void initComponents() {
 
 		fileChooser = new JFileChooser();
-		fileChooser.setMultiSelectionEnabled(true);
+		fileChooser.setAcceptAllFileFilterUsed(false);
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -51,15 +51,31 @@ public class FileSelectorDialog extends JDialog {
 
 	private JFileChooser fileChooser;
 
-	public File[] selectFile() {
+	public File selectFile(FileFilter filter) {
 
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
-		fileChooser.setFileFilter(new FileNameExtensionFilter("pdf", "pdf"));
+		fileChooser.setMultiSelectionEnabled(false);
+		fileChooser.setFileFilter(filter);
 
 		int rv = fileChooser.showOpenDialog(context.getMainFrame());
 
 		if (rv == JFileChooser.APPROVE_OPTION) {
+			return fileChooser.getSelectedFile();
+		}
+
+		return null;
+
+	}
+	public File[] selectFiles(FileFilter filter) {
+
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fileChooser.setMultiSelectionEnabled(true);
+		fileChooser.setFileFilter(filter);
+
+		int rv = fileChooser.showOpenDialog(context.getMainFrame());
+
+		if (rv == JFileChooser.APPROVE_OPTION) {
+			System.out.println("asfd");
 			return fileChooser.getSelectedFiles();
 		}
 
