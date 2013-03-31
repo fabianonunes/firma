@@ -8,13 +8,14 @@ TODO
 -- avisar a quantidade de erros na janela de pin
 -- informar se a última tentativa deu senha-inválida na tela de pin
 -- criar mensagem "drop here"
--- ativar botão de remover arquivos
 -- barra de progresso do TaskService
 -- botão para mesclar assinaturas existentes (free-them)
 -- i18n nome das colunas
+-- avisar em algum lugar pq deu erro naquele arquivo (?)
 
 
 EXCEÇÕES
 -- certificados sem chave privada
 -- fechar o aplicativo após remover o token
--- cancelar a janela do pin 
+-- cancelar a janela do pin
+-- fechar aplicativo no meio de uma Task de assinatura
