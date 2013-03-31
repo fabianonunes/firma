@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyStoreException;
@@ -30,6 +31,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.wb.swing.FocusTraversalOnArray;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.Task;
@@ -182,6 +184,7 @@ public class SignDocumentDialog extends JDialog {
 	@Action(name = ACTION_DEL_APPEARANCE)
 	public void delAppearance() {
 		AppearanceOptions selected = cbAppearance.getItemAt(cbAppearance.getSelectedIndex());
+		FileUtils.deleteQuietly(new File(selected.getGraphic()));
 		int index = options.getAppearances().indexOf(selected);
 		options.getAppearances().remove(index);
 		cbAppearance.setSelectedIndex(0);
