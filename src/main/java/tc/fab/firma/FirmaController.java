@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -16,8 +17,8 @@ import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
 import tc.fab.app.AppView;
-import tc.fab.firma.app.components.JFileTable.FileModel;
-import tc.fab.firma.app.components.JFileTable.FileModel.Status;
+import tc.fab.firma.app.components.FileModel;
+import tc.fab.firma.app.components.FileModel.Status;
 import tc.fab.firma.app.dialogs.FileSelectorDialog;
 import tc.fab.firma.app.dialogs.SignDocumentDialog;
 import tc.fab.mechanisms.Mechanism;
@@ -72,6 +73,19 @@ public class FirmaController implements AppController {
 
 	@Action(name = AppController.ACTION_FILES_REMOVE)
 	public void removeFile() {
+
+		int[] rows = view.getFileTable().getSelectedRows();
+		List<FileModel> model = view.getFileTable().getData();
+
+		List<FileModel> fileModels = new Vector<>();
+
+		for (int viewRowIndex : rows) {
+			int modelRowIndex = view.getFileTable().convertRowIndexToModel(viewRowIndex);
+			fileModels.add(model.get(modelRowIndex));
+		}
+
+		model.removeAll(fileModels);
+
 	}
 
 	@Override
@@ -84,7 +98,7 @@ public class FirmaController implements AppController {
 
 	class PreviewTask extends Task<Void, Pair<Status, Integer>> {
 
-		Map<Integer, FileModel> indexes;
+		Map<Integer, FileModel> modelRowIndexes;
 		private Mechanism m;
 		private AppearanceOptions appearanceOptions;
 
@@ -98,12 +112,12 @@ public class FirmaController implements AppController {
 
 			int rowCount = view.getFileTable().getModel().getRowCount();
 
-			indexes = new LinkedHashMap<>();
+			modelRowIndexes = new LinkedHashMap<>();
 
 			for (int viewRow = 0; viewRow < rowCount; viewRow++) {
-				view.getFileTable().setStatus(viewRow, Status.IDLE);
 				int modelRow = view.getFileTable().convertRowIndexToModel(viewRow);
-				indexes.put(modelRow, view.getFileTable().getData().get(modelRow));
+				view.getFileTable().setStatus(modelRow, Status.IDLE);
+				modelRowIndexes.put(modelRow, view.getFileTable().getData().get(modelRow));
 			}
 
 		}
@@ -113,20 +127,20 @@ public class FirmaController implements AppController {
 
 			FirmaOptions firmaOptions = document.getOptions();
 
-			for (Integer modelRow : indexes.keySet()) {
+			for (Integer modelIndexRow : modelRowIndexes.keySet()) {
 
-				FileModel fileModel = indexes.get(modelRow);
+				FileModel fileModel = modelRowIndexes.get(modelIndexRow);
 				File file = fileModel.getFile();
 
-				publish(new Pair<Status, Integer>(Status.LOADING, modelRow));
+				publish(new Pair<Status, Integer>(Status.LOADING, modelIndexRow));
 
 				try (DocumentSigner signer = new DocumentSigner(appearanceOptions, file,
 					firmaOptions.getReferenceText(), firmaOptions.getReferencePosition())) {
 					signer.sign(m, " assinado");
-					publish(new Pair<Status, Integer>(Status.DONE, modelRow));
+					publish(new Pair<Status, Integer>(Status.DONE, modelIndexRow));
 				} catch (Exception e) {
 					e.printStackTrace();
-					publish(new Pair<Status, Integer>(Status.FAILED, modelRow));
+					publish(new Pair<Status, Integer>(Status.FAILED, modelIndexRow));
 				}
 
 			}
@@ -139,8 +153,7 @@ public class FirmaController implements AppController {
 		protected void process(List<Pair<Status, Integer>> values) {
 			super.process(values);
 			for (Pair<Status, Integer> pair : values) {
-				int viewRow = view.getFileTable().convertRowIndexToView(pair.getSecond());
-				view.getFileTable().setStatus(viewRow, pair.getFirst());
+				view.getFileTable().setStatus(pair.getSecond(), pair.getFirst());
 			}
 		}
 
