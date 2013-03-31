@@ -91,18 +91,23 @@ public class FirmaController implements AppController {
 	@Override
 	public void signFiles(String provider, String alias, AppearanceOptions options)
 		throws Exception {
+
+		// context.getAppContext().getTaskMonitor().
+
 		Mechanism m = providersManager.getMechanism(provider, alias);
-		PreviewTask p = new PreviewTask(m, options);
-		p.execute();
+		SignTask p = new SignTask(m, options);
+		context.getAppContext().getTaskService().execute(p);
+		
 	}
 
-	class PreviewTask extends Task<Void, Pair<Status, Integer>> {
+	class SignTask extends Task<Void, Pair<Status, Integer>> {
 
 		Map<Integer, FileModel> modelRowIndexes;
 		private Mechanism m;
 		private AppearanceOptions appearanceOptions;
+		private int fails = 0;
 
-		public PreviewTask(Mechanism m, AppearanceOptions options) throws Exception {
+		public SignTask(Mechanism m, AppearanceOptions options) throws Exception {
 			super(context.getAppContext().getApplication());
 
 			this.m = m;
@@ -119,13 +124,19 @@ public class FirmaController implements AppController {
 				view.getFileTable().setStatus(modelRow, Status.IDLE);
 				modelRowIndexes.put(modelRow, view.getFileTable().getData().get(modelRow));
 			}
-
+			
 		}
 
 		@Override
 		protected Void doInBackground() throws Exception {
 
+			setMessage(context.getResReader().getString("firma.msg.signing"));
+
 			FirmaOptions firmaOptions = document.getOptions();
+			float i = 1;
+
+			// TODO: this var should be moved from here to a outer contextf
+			String suffix = context.getResReader().getString("firma.msg.signed_file_suffix");
 
 			for (Integer modelIndexRow : modelRowIndexes.keySet()) {
 
@@ -134,13 +145,28 @@ public class FirmaController implements AppController {
 
 				publish(new Pair<Status, Integer>(Status.LOADING, modelIndexRow));
 
-				try (DocumentSigner signer = new DocumentSigner(appearanceOptions, file,
-					firmaOptions.getReferenceText(), firmaOptions.getReferencePosition())) {
-					signer.sign(m, " assinado");
+				try (
+					DocumentSigner signer = new DocumentSigner(
+						appearanceOptions,
+						file,
+						firmaOptions.getReferenceText(),
+						firmaOptions.getReferencePosition()
+					)
+				) {
+
+					signer.sign(m, " " + suffix);
 					publish(new Pair<Status, Integer>(Status.DONE, modelIndexRow));
+
 				} catch (Exception e) {
-					e.printStackTrace();
+					
+					// e.printStackTrace();
+					
+					fails++;
+					
 					publish(new Pair<Status, Integer>(Status.FAILED, modelIndexRow));
+					
+				} finally {
+					setProgress(i++ / (float) modelRowIndexes.size());
 				}
 
 			}
@@ -159,10 +185,17 @@ public class FirmaController implements AppController {
 
 		@Override
 		protected void finished() {
+			setMessage(
+				fails == 0 
+				? context.getResReader().getString("firma.msg.all_signed")
+				: context.getResReader().getString("firma.msg.some_not_signed")
+			);
+			setDescription(fails == 0 ? "0" : "1");
+			view.getFileTable().flush(); // call flush on animated gif avoids cpu cycles when not visible
 			try {
 				m.close();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
+				// quietly
 			}
 		}
 

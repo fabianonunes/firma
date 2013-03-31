@@ -169,8 +169,9 @@ public class JFileTable extends JTable {
 		doneIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_green.png"));
 		failedIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_error.png"));
 		pdfIcon = new ImageIcon(FirmaView.class.getResource("/icons/page_white_acrobat.png"));
-
 	}
+	
+	
 
 	protected int idToColumn(Columns id) {
 		return columns.indexOf(id);
@@ -184,6 +185,14 @@ public class JFileTable extends JTable {
 
 	public List<FileModel> getData() {
 		return this.model;
+	}
+	
+	/**
+	 * avoids CPU eating by animated gif when not visible
+	 * @see {@link http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4302818}
+	 */
+	public void flush () {
+		loadingIcon.getImage().flush();
 	}
 
 }

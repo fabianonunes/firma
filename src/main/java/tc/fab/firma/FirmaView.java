@@ -3,7 +3,13 @@
  */
 package tc.fab.firma;
 
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Insets;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -16,8 +22,9 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
@@ -27,11 +34,13 @@ import net.sf.jmimemagic.MagicMatchNotFoundException;
 import net.sf.jmimemagic.MagicParseException;
 
 import org.jdesktop.application.FrameView;
+import org.jdesktop.application.TaskMonitor;
 import org.jdesktop.observablecollections.ObservableCollections;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppView;
+import tc.fab.firma.FirmaController.SignTask;
 import tc.fab.firma.app.components.FileModel;
 import tc.fab.firma.app.components.JFileTable;
 import tc.fab.firma.utils.FileDrop;
@@ -40,10 +49,13 @@ import tc.fab.firma.utils.FileDrop.Listener;
 @Singleton
 public class FirmaView extends FrameView implements AppView {
 
-	@SuppressWarnings("unused")
 	private AppContext context;
 	private AppController controller;
 	private List<FileModel> model;
+	
+	ImageIcon doneIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_green.png"));
+	ImageIcon failedIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_error.png"));
+
 
 	@Inject
 	public FirmaView(AppContext context, AppController controller) {
@@ -57,18 +69,58 @@ public class FirmaView extends FrameView implements AppView {
 
 	}
 
-	/**
-	 * @wbp.parser.entryPoint
-	 */
 	@Override
 	public void initView() {
 		initComponents();
+		setupTaskMonitor();
 		postInitComponents();
 	}
 
-	private void initComponents() {
+	private void setupTaskMonitor() {
 
-		setStatusBar(new JPanel());
+		progressBar.setVisible(false);
+
+		TaskMonitor taskMonitor = context.getAppContext().getTaskMonitor();
+		
+		taskMonitor.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+				
+				if (!(evt.getSource() instanceof SignTask)) {
+					return;
+				}
+
+				String propertyName = evt.getPropertyName();
+				if ("started".equals(propertyName)) {
+					// TODO: start-icon
+					progressBar.setVisible(true);
+					progressBar.setIndeterminate(true);
+					statusMessageLabel.setText("");
+					statusLabel.setIcon(null);
+				} else if ("done".equals(propertyName)) {
+					// TODO: stop-icon
+					progressBar.setVisible(false);
+					progressBar.setValue(0);
+				} else if ("message".equals(propertyName)) {
+					String text = (String) (evt.getNewValue());
+					statusMessageLabel.setText((text == null) ? "" : text);
+				} else if ("progress".equals(propertyName)) {
+					int value = (Integer) (evt.getNewValue());
+					progressBar.setVisible(true);
+					progressBar.setIndeterminate(false);
+					progressBar.setValue(value);
+				} else if ("description".equals(propertyName)) {
+					String text = (String) (evt.getNewValue());
+					statusLabel.setIcon(text.equals("0") ? doneIcon : failedIcon);
+				}
+			}
+		});
+
+	}
+
+	/**
+	 * @wbp.parser.entryPoint
+	 */
+	private void initComponents() {
 
 		ActionMap actionMap = controller.getActionMap();
 
@@ -83,6 +135,8 @@ public class FirmaView extends FrameView implements AppView {
 		removeFile.setAction(actionMap.get(AppController.ACTION_FILES_REMOVE));
 
 		scrollPane.setViewportView(fileTable);
+
+		JPanel panel = new JPanel();
 
 		GroupLayout gl_mainPanel = new GroupLayout(mainPanel);
 		gl_mainPanel.setHorizontalGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING)
@@ -101,25 +155,61 @@ public class FirmaView extends FrameView implements AppView {
 									.addComponent(signFiles)
 									.addPreferredGap(ComponentPlacement.RELATED)
 									.addComponent(showDropArea)
-									.addPreferredGap(ComponentPlacement.RELATED, 318,
-										Short.MAX_VALUE).addComponent(removeFile)))
+									.addPreferredGap(ComponentPlacement.UNRELATED)
+									.addComponent(panel, GroupLayout.DEFAULT_SIZE, 294,
+										Short.MAX_VALUE)
+									.addPreferredGap(ComponentPlacement.UNRELATED)
+									.addComponent(removeFile))).addContainerGap()));
+		gl_mainPanel.setVerticalGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING)
+			.addGroup(
+				gl_mainPanel
+					.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(
+						gl_mainPanel
+							.createParallelGroup(Alignment.LEADING)
+							.addGroup(
+								gl_mainPanel
+									.createParallelGroup(Alignment.TRAILING)
+									.addComponent(removeFile, GroupLayout.PREFERRED_SIZE, 28,
+										GroupLayout.PREFERRED_SIZE)
+									.addComponent(signFiles, GroupLayout.PREFERRED_SIZE, 28,
+										GroupLayout.PREFERRED_SIZE)
+									.addComponent(showDropArea, GroupLayout.PREFERRED_SIZE, 28,
+										GroupLayout.PREFERRED_SIZE))
+							.addComponent(panel, GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE))
 					.addContainerGap()));
-		gl_mainPanel.setVerticalGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING).addGroup(
-			Alignment.TRAILING,
-			gl_mainPanel
-				.createSequentialGroup()
-				.addContainerGap()
-				.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
-				.addPreferredGap(ComponentPlacement.RELATED)
-				.addGroup(
-					gl_mainPanel
-						.createParallelGroup(Alignment.TRAILING)
-						.addComponent(removeFile, GroupLayout.PREFERRED_SIZE, 28,
-							GroupLayout.PREFERRED_SIZE)
-						.addComponent(signFiles, GroupLayout.PREFERRED_SIZE, 28,
-							GroupLayout.PREFERRED_SIZE)
-						.addComponent(showDropArea, GroupLayout.PREFERRED_SIZE, 28,
-							GroupLayout.PREFERRED_SIZE)).addContainerGap()));
+		GridBagLayout gbl_panel = new GridBagLayout();
+		gbl_panel.columnWidths = new int[] {20, 40, 0};
+		gbl_panel.rowHeights = new int[] { 14, 0 };
+		gbl_panel.columnWeights = new double[] { 0.0, 0.0, 1.0 };
+		gbl_panel.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
+		panel.setLayout(gbl_panel);
+		
+		statusLabel = new JLabel("");
+		GridBagConstraints gbc_statusLabel = new GridBagConstraints();
+		gbc_statusLabel.insets = new Insets(0, 0, 0, 5);
+		gbc_statusLabel.gridx = 0;
+		gbc_statusLabel.gridy = 0;
+		panel.add(statusLabel, gbc_statusLabel);
+
+		statusMessageLabel = new JLabel((String) null);
+		statusMessageLabel.setName("firma.dlg.appearances.status_message");
+		statusMessageLabel.setForeground(Color.GRAY);
+		GridBagConstraints gbc_statusMessageLabel = new GridBagConstraints();
+		gbc_statusMessageLabel.insets = new Insets(0, 0, 0, 5);
+		gbc_statusMessageLabel.gridx = 1;
+		gbc_statusMessageLabel.gridy = 0;
+		panel.add(statusMessageLabel, gbc_statusMessageLabel);
+
+		progressBar = new JProgressBar();
+		GridBagConstraints gbc_progressBar = new GridBagConstraints();
+		gbc_progressBar.fill = GridBagConstraints.HORIZONTAL;
+		gbc_progressBar.gridx = 2;
+		gbc_progressBar.gridy = 0;
+		panel.add(progressBar, gbc_progressBar);
 		mainPanel.setLayout(gl_mainPanel);
 
 		setComponent(mainPanel);
@@ -127,6 +217,9 @@ public class FirmaView extends FrameView implements AppView {
 
 	private JScrollPane scrollPane;
 	private JFileTable fileTable;
+	private JProgressBar progressBar;
+	private JLabel statusMessageLabel;
+	private JLabel statusLabel;
 
 	private void setupWindowIcons() {
 
@@ -164,11 +257,6 @@ public class FirmaView extends FrameView implements AppView {
 			}
 		});
 
-	}
-
-	@Override
-	public JComponent getStatusBar() {
-		return super.getStatusBar();
 	}
 
 	@Override
