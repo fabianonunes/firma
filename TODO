@@ -2,11 +2,11 @@ TODO
 -- usar pkcs11Module.waitForSlotEvent para detectar a presença de token e atualizar a lista de provider/aliases
 -- detectar tamanho do arquivo na hora de assinar: se não for muito grande, não usa arquivo temporário.
 -- criar alguma forma de escolher posições absolutas: topleft, topright, center, etc...
--- não exibir diálogo de assinatura se não houver arquivos para assinar
 -- avisar a quantidade de erros na janela de pin
 -- informar se a última tentativa deu senha-inválida na tela de pin
 -- avisar em algum lugar pq deu erro naquele arquivo (?)
 
+-- não exibir diálogo de assinatura se não houver arquivos para assinar
 -- esc key
 -- i18n nome das colunas
 -- botão para mesclar assinaturas existentes (free-them)
