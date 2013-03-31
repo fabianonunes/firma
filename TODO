@@ -5,7 +5,6 @@ TODO
 -- criar alguma forma de escolher posições absolutas: topleft, topright, center, etc...
 -- não exibir diálogo de assinatura se não houver arquivos para assinar
 -- esc key
--- opção de assinatura acima do texto / abaixo do texto
 -- avisar a quantidade de erros na janela de pin
 -- informar se a última tentativa deu senha-inválida na tela de pin
 -- se deletar a imagem guardada, o q acontece?
