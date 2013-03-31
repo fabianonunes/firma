@@ -11,6 +11,8 @@ TODO
 -- esc key
 -- i18n nome das colunas
 -- botão para mesclar assinaturas existentes (free-them)
+-- min-size da janela principal
+-- não permitir arquivos duplicados
 
 EXCEÇÕES
 -- certificados sem chave privada
