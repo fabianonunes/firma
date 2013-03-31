@@ -1,5 +1,6 @@
 package tc.fab.pdf.signer.options;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
@@ -60,7 +61,7 @@ public class AppearanceOptions extends PropertyObservable implements Serializabl
 
 		} else if (renderGraphic) {
 
-			if (graphic != null) {
+			if (graphic != null && new File(getGraphic()).exists()) {
 
 				if (showName || showDate || showLocation || showReason) {
 					setRenderMode(RenderingMode.GRAPHIC_AND_DESCRIPTION);
