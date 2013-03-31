@@ -7,12 +7,11 @@ TODO
 -- informar se a última tentativa deu senha-inválida na tela de pin
 -- avisar em algum lugar pq deu erro naquele arquivo (?)
 
--- criar mensagem "drop here"
 -- esc key
 -- i18n nome das colunas
 -- botão para mesclar assinaturas existentes (free-them)
--- min-size da janela principal
 -- não permitir arquivos duplicados
+-- criar seletor de última/primeira página
 
 EXCEÇÕES
 -- certificados sem chave privada
