@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -72,6 +73,19 @@ public class FirmaController implements AppController {
 
 	@Action(name = AppController.ACTION_FILES_REMOVE)
 	public void removeFile() {
+
+		int[] rows = view.getFileTable().getSelectedRows();
+		List<FileModel> model = view.getFileTable().getData();
+
+		List<FileModel> fileModels = new Vector<>();
+
+		for (int viewRowIndex : rows) {
+			int modelRowIndex = view.getFileTable().convertRowIndexToModel(viewRowIndex);
+			fileModels.add(model.get(modelRowIndex));
+		}
+
+		model.removeAll(fileModels);
+
 	}
 
 	@Override
