@@ -108,46 +108,34 @@ public class AppearanceDialog extends JDialog {
 		textBorder.setTitle(context.getResReader().getString("firma.msg.add_appearance.image"));
 		panel_3.setBorder(textBorder);
 		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
-		gl_contentPanel.setHorizontalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
-			.addGroup(
-				gl_contentPanel
-					.createSequentialGroup()
+		gl_contentPanel.setHorizontalGroup(
+			gl_contentPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_contentPanel.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(
-						gl_contentPanel
-							.createParallelGroup(Alignment.LEADING)
-							.addComponent(panel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 416,
-								Short.MAX_VALUE)
-							.addGroup(
-								Alignment.TRAILING,
-								gl_contentPanel
-									.createSequentialGroup()
-									.addComponent(lblNewLabel)
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(textField, GroupLayout.DEFAULT_SIZE, 370,
-										Short.MAX_VALUE))
-							.addComponent(panel_3, GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE)
-							.addComponent(panel_1, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE,
-								416, Short.MAX_VALUE)).addContainerGap()));
-		gl_contentPanel.setVerticalGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
-			.addGroup(
-				gl_contentPanel
-					.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(
-						gl_contentPanel
-							.createParallelGroup(Alignment.BASELINE)
+					.addGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+						.addGroup(Alignment.TRAILING, gl_contentPanel.createSequentialGroup()
 							.addComponent(lblNewLabel)
-							.addComponent(textField, GroupLayout.PREFERRED_SIZE,
-								GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(textField, GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE))
+						.addComponent(panel_3, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+						.addComponent(panel_1, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE))
+					.addContainerGap())
+		);
+		gl_contentPanel.setVerticalGroup(
+			gl_contentPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_contentPanel.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_contentPanel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblNewLabel)
+						.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(panel, GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
+					.addComponent(panel, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-						GroupLayout.PREFERRED_SIZE)
+					.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(panel_3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-						GroupLayout.PREFERRED_SIZE).addContainerGap()));
+					.addComponent(panel_3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+		);
 
 		JPanel panel_2 = new JPanel();
 		GridBagLayout gbl_panel_2 = new GridBagLayout();
@@ -201,98 +189,104 @@ public class AppearanceDialog extends JDialog {
 		JPanel panel_4 = new JPanel();
 		panel_4.setBorder(null);
 		GridBagLayout gbl_panel_4 = new GridBagLayout();
-		gbl_panel_4.columnWidths = new int[] { 80, 0, 0 };
-		gbl_panel_4.rowHeights = new int[] { 0, 0, 24, 24 };
-		gbl_panel_4.columnWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
-		gbl_panel_4.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0 };
+		gbl_panel_4.columnWidths = new int[] {0};
+		gbl_panel_4.rowHeights = new int[] {24, 24};
+		gbl_panel_4.columnWeights = new double[] { 0.0, 0.0, 0.0, 1.0 };
+		gbl_panel_4.rowWeights = new double[] { 0.0, 0.0 };
 		panel_4.setLayout(gbl_panel_4);
-
-		chkName = new JCheckBox("");
-		chkName.setName("firma.dlg.add_appearance.name");
-		GridBagConstraints gbc_chkName = new GridBagConstraints();
-		gbc_chkName.fill = GridBagConstraints.VERTICAL;
-		gbc_chkName.anchor = GridBagConstraints.WEST;
-		gbc_chkName.insets = new Insets(0, 0, 5, 5);
-		gbc_chkName.gridx = 0;
-		gbc_chkName.gridy = 0;
-		panel_4.add(chkName, gbc_chkName);
-
-		chkDN = new JCheckBox("");
-		chkDN.setName("firma.dlg.add_appearance.dn");
-		GridBagConstraints gbc_chkDN = new GridBagConstraints();
-		gbc_chkDN.fill = GridBagConstraints.VERTICAL;
-		gbc_chkDN.anchor = GridBagConstraints.WEST;
-		gbc_chkDN.insets = new Insets(0, 0, 5, 0);
-		gbc_chkDN.gridx = 1;
-		gbc_chkDN.gridy = 0;
-		panel_4.add(chkDN, gbc_chkDN);
-
-		chkDate = new JCheckBox("");
-		chkDate.setName("firma.dlg.add_appearance.date");
-		GridBagConstraints gbc_chkDate = new GridBagConstraints();
-		gbc_chkDate.fill = GridBagConstraints.VERTICAL;
-		gbc_chkDate.anchor = GridBagConstraints.WEST;
-		gbc_chkDate.insets = new Insets(0, 0, 5, 5);
-		gbc_chkDate.gridx = 0;
-		gbc_chkDate.gridy = 1;
-		panel_4.add(chkDate, gbc_chkDate);
-
-		chkLabels = new JCheckBox("");
-		chkLabels.setName("firma.dlg.add_appearance.labels");
-		GridBagConstraints gbc_chkLabels = new GridBagConstraints();
-		gbc_chkLabels.fill = GridBagConstraints.VERTICAL;
-		gbc_chkLabels.anchor = GridBagConstraints.WEST;
-		gbc_chkLabels.insets = new Insets(0, 0, 5, 0);
-		gbc_chkLabels.gridx = 1;
-		gbc_chkLabels.gridy = 1;
-		panel_4.add(chkLabels, gbc_chkLabels);
-
-		chkReason = new JCheckBox("");
-		chkReason.setName("firma.dlg.add_appearance.reason");
-		chkReason.setVerticalAlignment(SwingConstants.BOTTOM);
-		GridBagConstraints gbc_chkReason = new GridBagConstraints();
-		gbc_chkReason.fill = GridBagConstraints.VERTICAL;
-		gbc_chkReason.anchor = GridBagConstraints.WEST;
-		gbc_chkReason.insets = new Insets(0, 0, 5, 5);
-		gbc_chkReason.gridx = 0;
-		gbc_chkReason.gridy = 2;
-		panel_4.add(chkReason, gbc_chkReason);
-
-		txtReason = new JTextField();
-		GridBagConstraints gbc_txtReason = new GridBagConstraints();
-		gbc_txtReason.insets = new Insets(0, 0, 5, 0);
-		gbc_txtReason.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtReason.gridx = 1;
-		gbc_txtReason.gridy = 2;
-		panel_4.add(txtReason, gbc_txtReason);
-		txtReason.setColumns(10);
-
-		chkLocation = new JCheckBox("");
-		chkLocation.setName("firma.dlg.add_appearance.local");
-		GridBagConstraints gbc_chkLocation = new GridBagConstraints();
-		gbc_chkLocation.fill = GridBagConstraints.VERTICAL;
-		gbc_chkLocation.anchor = GridBagConstraints.WEST;
-		gbc_chkLocation.insets = new Insets(0, 0, 0, 5);
-		gbc_chkLocation.gridx = 0;
-		gbc_chkLocation.gridy = 3;
-		panel_4.add(chkLocation, gbc_chkLocation);
+						
+								chkName = new JCheckBox("");
+								chkName.setName("firma.dlg.add_appearance.name");
+								GridBagConstraints gbc_chkName = new GridBagConstraints();
+								gbc_chkName.gridx = 0;
+								gbc_chkName.fill = GridBagConstraints.HORIZONTAL;
+								gbc_chkName.anchor = GridBagConstraints.CENTER;
+								gbc_chkName.insets = new Insets(0, 0, 5, 5);
+								panel_4.add(chkName, gbc_chkName);
+				
+						chkDN = new JCheckBox("");
+						chkDN.setName("firma.dlg.add_appearance.dn");
+						GridBagConstraints gbc_chkDN = new GridBagConstraints();
+						gbc_chkDN.gridx = 1;
+						gbc_chkDN.fill = GridBagConstraints.NONE;
+						gbc_chkDN.anchor = GridBagConstraints.WEST;
+						gbc_chkDN.insets = new Insets(0, 0, 5, 5);
+						gbc_chkDN.gridy = 0;
+						panel_4.add(chkDN, gbc_chkDN);
+				
+						chkReason = new JCheckBox("");
+						chkReason.setName("firma.dlg.add_appearance.reason");
+						chkReason.setVerticalAlignment(SwingConstants.BOTTOM);
+						GridBagConstraints gbc_chkReason = new GridBagConstraints();
+						gbc_chkReason.gridx = 2;
+						gbc_chkReason.gridy = 0;
+						gbc_chkReason.fill = GridBagConstraints.HORIZONTAL;
+						gbc_chkReason.anchor = GridBagConstraints.CENTER;
+						gbc_chkReason.insets = new Insets(0, 0, 5, 5);
+						panel_4.add(chkReason, gbc_chkReason);
+		
+				txtReason = new JTextField();
+				GridBagConstraints gbc_txtReason = new GridBagConstraints();
+				gbc_txtReason.gridx = 3;
+				gbc_txtReason.insets = new Insets(0, 0, 5, 0);
+				gbc_txtReason.fill = GridBagConstraints.HORIZONTAL;
+				gbc_txtReason.gridy = 0;
+				panel_4.add(txtReason, gbc_txtReason);
+				txtReason.setColumns(10);
+		
+				chkDate = new JCheckBox("");
+				chkDate.setName("firma.dlg.add_appearance.date");
+				GridBagConstraints gbc_chkDate = new GridBagConstraints();
+				gbc_chkDate.gridx = 0;
+				gbc_chkDate.fill = GridBagConstraints.HORIZONTAL;
+				gbc_chkDate.anchor = GridBagConstraints.CENTER;
+				gbc_chkDate.insets = new Insets(0, 0, 0, 5);
+				gbc_chkDate.gridy = 1;
+				panel_4.add(chkDate, gbc_chkDate);
+				
+						chkLabels = new JCheckBox("");
+						chkLabels.setName("firma.dlg.add_appearance.labels");
+						GridBagConstraints gbc_chkLabels = new GridBagConstraints();
+						gbc_chkLabels.gridx = 1;
+						gbc_chkLabels.fill = GridBagConstraints.NONE;
+						gbc_chkLabels.anchor = GridBagConstraints.WEST;
+						gbc_chkLabels.insets = new Insets(0, 0, 0, 5);
+						gbc_chkLabels.gridy = 1;
+						panel_4.add(chkLabels, gbc_chkLabels);
+				
+						chkLocation = new JCheckBox("");
+						chkLocation.setName("firma.dlg.add_appearance.local");
+						GridBagConstraints gbc_chkLocation = new GridBagConstraints();
+						gbc_chkLocation.gridx = 2;
+						gbc_chkLocation.fill = GridBagConstraints.HORIZONTAL;
+						gbc_chkLocation.anchor = GridBagConstraints.CENTER;
+						gbc_chkLocation.insets = new Insets(0, 0, 0, 5);
+						gbc_chkLocation.gridy = 1;
+						panel_4.add(chkLocation, gbc_chkLocation);
+		
+				txtLocation = new JTextField();
+				GridBagConstraints gbc_txtLocation = new GridBagConstraints();
+				gbc_txtLocation.gridx = 3;
+				gbc_txtLocation.insets = new Insets(0, 0, 0, 0);
+				gbc_txtLocation.fill = GridBagConstraints.HORIZONTAL;
+				gbc_txtLocation.gridy = 1;
+				panel_4.add(txtLocation, gbc_txtLocation);
+				txtLocation.setColumns(10);
 		GroupLayout gl_panel_3 = new GroupLayout(panel_3);
-		gl_panel_3.setHorizontalGroup(gl_panel_3.createParallelGroup(Alignment.LEADING).addGroup(
-			gl_panel_3.createSequentialGroup().addContainerGap()
-				.addComponent(panel_4, GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
-				.addContainerGap()));
-		gl_panel_3.setVerticalGroup(gl_panel_3.createParallelGroup(Alignment.LEADING).addGroup(
-			gl_panel_3.createSequentialGroup().addContainerGap()
-				.addComponent(panel_4, GroupLayout.PREFERRED_SIZE, 107, GroupLayout.PREFERRED_SIZE)
-				.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
-
-		txtLocation = new JTextField();
-		GridBagConstraints gbc_txtLocation = new GridBagConstraints();
-		gbc_txtLocation.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtLocation.gridx = 1;
-		gbc_txtLocation.gridy = 3;
-		panel_4.add(txtLocation, gbc_txtLocation);
-		txtLocation.setColumns(10);
+		gl_panel_3.setHorizontalGroup(
+			gl_panel_3.createParallelGroup(Alignment.LEADING)
+				.addGroup(Alignment.TRAILING, gl_panel_3.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(panel_4, GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
+					.addContainerGap())
+		);
+		gl_panel_3.setVerticalGroup(
+			gl_panel_3.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_3.createSequentialGroup()
+					.addGap(5)
+					.addComponent(panel_4, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+		);
 		panel_3.setLayout(gl_panel_3);
 
 		imageView = new JXImageView();
@@ -337,7 +331,7 @@ public class AppearanceDialog extends JDialog {
 		setResizable(false);
 		setModalityType(ModalityType.APPLICATION_MODAL);
 		setModal(true);
-		setBounds(100, 100, 450, 471);
+		setBounds(100, 100, 450, 430);
 		context.getResourceMap().injectComponents(this);
 
 	}
