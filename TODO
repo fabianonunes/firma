@@ -7,7 +7,6 @@ TODO
 -- esc key
 -- avisar a quantidade de erros na janela de pin
 -- informar se a última tentativa deu senha-inválida na tela de pin
--- remover botões de adicionar pasta/arquivo
 -- criar mensagem "drop here"
 -- ativar botão de remover arquivos
 -- barra de progresso do TaskService

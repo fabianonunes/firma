@@ -537,4 +537,5 @@ public class AppearanceDialog extends JDialog {
 	private JRadioButton rdioRenderNothing;
 	private JXImageView imageView;
 	private JButton btOk;
+	
 }

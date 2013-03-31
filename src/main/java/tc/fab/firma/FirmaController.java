@@ -33,7 +33,6 @@ public class FirmaController implements AppController {
 	private AppContext context;
 	private AppView view;
 	private AppDocument document;
-
 	private ActionMap actionMap;
 
 	// dialogs
@@ -64,19 +63,6 @@ public class FirmaController implements AppController {
 	@Override
 	public boolean saveBeforeExit() {
 		return true;
-	}
-
-	@Override
-	public void startActionManually(String actionName) {
-
-	}
-
-	@Action(name = AppController.ACTION_FILES_ADD)
-	public void addFile() {
-	}
-
-	@Action(name = AppController.ACTION_FOLDER_ADD)
-	public void addFolder(File folder) {
 	}
 
 	@Action(name = AppController.ACTION_FILES_SIGN)
@@ -190,10 +176,6 @@ public class FirmaController implements AppController {
 
 	@Action(name = AppController.ACTION_DROPAREA_SHOW)
 	public void showDropArea() {
-	}
-
-	@Action(name = AppController.ACTION_SETTINGS)
-	public void settings() {
 	}
 
 }
