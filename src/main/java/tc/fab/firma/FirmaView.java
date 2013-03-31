@@ -18,6 +18,7 @@ import java.util.Vector;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.swing.ActionMap;
+import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
@@ -45,6 +46,7 @@ import tc.fab.firma.app.components.FileModel;
 import tc.fab.firma.app.components.JFileTable;
 import tc.fab.firma.utils.FileDrop;
 import tc.fab.firma.utils.FileDrop.Listener;
+import java.awt.Dimension;
 
 @Singleton
 public class FirmaView extends FrameView implements AppView {
@@ -125,62 +127,56 @@ public class FirmaView extends FrameView implements AppView {
 		ActionMap actionMap = controller.getActionMap();
 
 		JPanel mainPanel = new JPanel();
+		
 		JButton signFiles = new JButton();
 		JButton removeFile = new JButton();
-		scrollPane = new JScrollPane();
-		fileTable = new JFileTable(model);
 		JButton showDropArea = new JButton();
+		
 		showDropArea.setAction(actionMap.get(AppController.ACTION_DROPAREA_SHOW));
 		signFiles.setAction(actionMap.get(AppController.ACTION_FILES_SIGN));
 		removeFile.setAction(actionMap.get(AppController.ACTION_FILES_REMOVE));
 
-		scrollPane.setViewportView(fileTable);
-
 		JPanel panel = new JPanel();
+		
+		panel_1 = new JPanel();
+		panel_1.setMinimumSize(new Dimension(550, 10));
 
 		GroupLayout gl_mainPanel = new GroupLayout(mainPanel);
-		gl_mainPanel.setHorizontalGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING)
-			.addGroup(
-				gl_mainPanel
-					.createSequentialGroup()
+		gl_mainPanel.setHorizontalGroup(
+			gl_mainPanel.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_mainPanel.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(
-						gl_mainPanel
-							.createParallelGroup(Alignment.TRAILING)
-							.addComponent(scrollPane, Alignment.LEADING, GroupLayout.DEFAULT_SIZE,
-								426, Short.MAX_VALUE)
-							.addGroup(
-								gl_mainPanel
-									.createSequentialGroup()
-									.addComponent(signFiles)
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(showDropArea)
-									.addPreferredGap(ComponentPlacement.UNRELATED)
-									.addComponent(panel, GroupLayout.DEFAULT_SIZE, 294,
-										Short.MAX_VALUE)
-									.addPreferredGap(ComponentPlacement.UNRELATED)
-									.addComponent(removeFile))).addContainerGap()));
-		gl_mainPanel.setVerticalGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING)
-			.addGroup(
-				gl_mainPanel
-					.createSequentialGroup()
+					.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
+						.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 571, Short.MAX_VALUE)
+						.addGroup(gl_mainPanel.createSequentialGroup()
+							.addComponent(signFiles, GroupLayout.PREFERRED_SIZE, 76, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(showDropArea, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(panel, GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(removeFile, GroupLayout.PREFERRED_SIZE, 134, GroupLayout.PREFERRED_SIZE)))
+					.addContainerGap())
+		);
+		gl_mainPanel.setVerticalGroup(
+			gl_mainPanel.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_mainPanel.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE)
+					.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(
-						gl_mainPanel
-							.createParallelGroup(Alignment.LEADING)
-							.addGroup(
-								gl_mainPanel
-									.createParallelGroup(Alignment.TRAILING)
-									.addComponent(removeFile, GroupLayout.PREFERRED_SIZE, 28,
-										GroupLayout.PREFERRED_SIZE)
-									.addComponent(signFiles, GroupLayout.PREFERRED_SIZE, 28,
-										GroupLayout.PREFERRED_SIZE)
-									.addComponent(showDropArea, GroupLayout.PREFERRED_SIZE, 28,
-										GroupLayout.PREFERRED_SIZE))
-							.addComponent(panel, GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE))
-					.addContainerGap()));
+					.addGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING, false)
+						.addComponent(panel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(signFiles, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(removeFile, GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)
+						.addComponent(showDropArea, GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE))
+					.addContainerGap())
+		);
+		panel_1.setLayout(new BoxLayout(panel_1, BoxLayout.X_AXIS));
+		scrollPane = new JScrollPane();
+		panel_1.add(scrollPane);
+		fileTable = new JFileTable(model);
+		
+				scrollPane.setViewportView(fileTable);
 		GridBagLayout gbl_panel = new GridBagLayout();
 		gbl_panel.columnWidths = new int[] {20, 40, 0};
 		gbl_panel.rowHeights = new int[] { 14, 0 };
@@ -220,6 +216,7 @@ public class FirmaView extends FrameView implements AppView {
 	private JProgressBar progressBar;
 	private JLabel statusMessageLabel;
 	private JLabel statusLabel;
+	private JPanel panel_1;
 
 	private void setupWindowIcons() {
 
