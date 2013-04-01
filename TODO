@@ -6,12 +6,12 @@ TODO
 -- informar se a última tentativa deu senha-inválida na tela de pin
 -- avisar em algum lugar pq deu erro naquele arquivo (?)
 
--- não exibir diálogo de assinatura se não houver arquivos para assinar
 -- esc key
 -- i18n nome das colunas
 -- botão para mesclar assinaturas existentes (free-them)
 -- não permitir arquivos duplicados
 -- criar seletor de última/primeira página
+-- ativar drop-area
 
 EXCEÇÕES
 -- certificados sem chave privada

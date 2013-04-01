@@ -3,7 +3,6 @@ package tc.fab.firma.app.components;
 import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
@@ -12,7 +11,6 @@ import javax.swing.table.TableColumnModel;
 
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.ELProperty;
-import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.observablecollections.ObservableList;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
@@ -37,11 +35,11 @@ public class JFileTable extends JTable {
 	private List<Columns> columns = Arrays.asList(Columns.values());
 	private ObservableList<FileModel> model;
 
-	public JFileTable(List<FileModel> model) {
+	public JFileTable(ObservableList<FileModel> model) {
 
 		super();
 
-		this.model = ObservableCollections.observableList(new Vector<FileModel>());
+		this.model = model;
 
 		setAutoCreateRowSorter(true);
 		setShowGrid(false);
@@ -55,7 +53,7 @@ public class JFileTable extends JTable {
 
 		loadIcons();
 
-		getTableHeader().setPreferredSize(new Dimension(getTableHeader().getWidth(), 21));
+		getTableHeader().setPreferredSize(new Dimension(getTableHeader().getWidth(), 22));
 		setRowHeight(24);
 
 		initBindings();

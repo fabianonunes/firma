@@ -34,6 +34,9 @@ import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableModel;
 
 import net.sf.jmimemagic.Magic;
 import net.sf.jmimemagic.MagicException;
@@ -42,12 +45,20 @@ import net.sf.jmimemagic.MagicParseException;
 
 import org.jdesktop.application.FrameView;
 import org.jdesktop.application.TaskMonitor;
+import org.jdesktop.beansbinding.AutoBinding;
+import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
+import org.jdesktop.beansbinding.BeanProperty;
+import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Converter;
+import org.jdesktop.beansbinding.ELProperty;
 import org.jdesktop.observablecollections.ObservableCollections;
+import org.jdesktop.observablecollections.ObservableList;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppView;
 import tc.fab.firma.FirmaController.SignTask;
+import tc.fab.firma.app.components.ConverterAdapter;
 import tc.fab.firma.app.components.FileModel;
 import tc.fab.firma.app.components.JFileTable;
 import tc.fab.firma.utils.FileDrop;
@@ -58,7 +69,7 @@ public class FirmaView extends FrameView implements AppView {
 
 	private AppContext context;
 	private AppController controller;
-	private List<FileModel> model;
+	private ObservableList<FileModel> model;
 	
 	ImageIcon doneIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_green.png"));
 	ImageIcon failedIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_error.png"));
@@ -133,12 +144,14 @@ public class FirmaView extends FrameView implements AppView {
 
 		JPanel mainPanel = new JPanel();
 		
-		JButton signFiles = new JButton();
-		JButton removeFile = new JButton();
+		signFiles = new JButton();
+		
+		removeFile = new JButton();
 		JButton showDropArea = new JButton();
 		
 		showDropArea.setAction(actionMap.get(AppController.ACTION_DROPAREA_SHOW));
 		signFiles.setAction(actionMap.get(AppController.ACTION_FILES_SIGN));
+		signFiles.setEnabled(false);
 		removeFile.setAction(actionMap.get(AppController.ACTION_FILES_REMOVE));
 
 		JPanel messagePanel = new JPanel();
@@ -178,9 +191,10 @@ public class FirmaView extends FrameView implements AppView {
 					.addContainerGap())
 		);
 		dropPanel.setLayout(new CardLayout(0, 0));
+		
 		scrollPane = new JScrollPane();
 		scrollPane.setVisible(false);
-		
+
 		Border dropBorder = BorderFactory.createLineBorder(Color.WHITE, 2);
 		iconPanel = new JPanel();
 		iconPanel.setBorder(dropBorder);
@@ -238,6 +252,7 @@ public class FirmaView extends FrameView implements AppView {
 		mainPanel.setLayout(gl_mainPanel);
 
 		setComponent(mainPanel);
+		initBindings();
 	}
 
 	private JScrollPane scrollPane;
@@ -249,6 +264,8 @@ public class FirmaView extends FrameView implements AppView {
 	private JPanel iconPanel;
 	private JLabel lblDropHere;
 	private JLabel lblDropIcon;
+	private JButton signFiles;
+	private JButton removeFile;
 
 	private void setupWindowIcons() {
 
@@ -289,11 +306,45 @@ public class FirmaView extends FrameView implements AppView {
 				}
 			}
 		});
-
+		
+		
 	}
 
 	@Override
 	public JFileTable getFileTable() {
 		return fileTable;
+	}
+	
+	protected void initBindings() {
+		
+		ELProperty<JFileTable, List<Object>> selectedElements = ELProperty
+			.create("${selectedElements_IGNORE_ADJUSTING}");
+		
+		BeanProperty<JButton, Boolean> enabled = BeanProperty.create("enabled");
+		
+		Converter<List<Object>, Boolean> converter = new ConverterAdapter<List<Object>, Boolean>() {
+			@Override
+			public Boolean convertForward(List<Object> value) {
+				return value.size() > 0;
+			}
+		};
+
+		AutoBinding<JFileTable, List<Object>, JButton, Boolean> removeBinding = Bindings
+			.createAutoBinding(UpdateStrategy.READ, fileTable, selectedElements, removeFile,
+				enabled);
+		
+		removeBinding.setConverter(converter);
+		removeBinding.bind();
+		
+		fileTable.getModel().addTableModelListener(new TableModelListener() {
+			
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				TableModel model = (TableModel) e.getSource();
+				signFiles.setEnabled(model.getRowCount() > 0);
+			}
+		});
+		
+		
 	}
 }
