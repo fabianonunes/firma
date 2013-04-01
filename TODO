@@ -11,6 +11,12 @@ TODO
 -- botão para mesclar assinaturas existentes (free-them)
 -- criar seletor de última/primeira página
 -- não depender do jmagicmime pra ver o tipo do arquivo
+-- mscapi não atualiza sozinho ao abrir
+-- botão cancelar da janela sign
+-- descrição do botão assinar da janela sign
+-- se a primeira renderização do preview da assinatura é feita na add-apearance, ela fica travada (branca) antes de abrir
+    -- a task preview deve ser background pra não travar a edt
+--
 
 EXCEÇÕES
 -- certificados sem chave privada
