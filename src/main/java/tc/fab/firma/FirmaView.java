@@ -50,6 +50,7 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Converter;
 import org.jdesktop.beansbinding.ELProperty;
+import org.jdesktop.observablecollections.ObservableList;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
@@ -281,14 +282,26 @@ public class FirmaView extends FrameView implements AppView {
 		new FileDrop(dropPanel, new Listener() {
 			@Override
 			public void filesDropped(File[] files) {
+				
+				ObservableList<FileModel> data = fileTable.getData();
+				
 				for (File file : files) {
+					
 					String mimeType;
+					
 					try {
+						
 						mimeType = Magic.getMagicMatch(file, true).getMimeType();
+
 						if (mimeType.equals("application/pdf")) {
+							
 							FileModel row = new FileModel(FileModel.Status.IDLE, file,
 								file.length());
-							fileTable.getData().add(row);
+							
+							if (!data.contains(row)) {
+								fileTable.getData().add(row);
+							}
+							
 						}
 						
 						CardLayout layout = (CardLayout) dropPanel.getLayout();
@@ -296,7 +309,9 @@ public class FirmaView extends FrameView implements AppView {
 						
 					} catch (MagicParseException | MagicMatchNotFoundException | MagicException e) {
 					}
+					
 				}
+				
 			}
 		});
 		
