@@ -17,7 +17,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -51,8 +50,6 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Converter;
 import org.jdesktop.beansbinding.ELProperty;
-import org.jdesktop.observablecollections.ObservableCollections;
-import org.jdesktop.observablecollections.ObservableList;
 
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
@@ -64,15 +61,19 @@ import tc.fab.firma.app.components.JFileTable;
 import tc.fab.firma.utils.FileDrop;
 import tc.fab.firma.utils.FileDrop.Listener;
 
+import com.google.inject.Provider;
+
 @Singleton
 public class FirmaView extends FrameView implements AppView {
 
 	private AppContext context;
 	private AppController controller;
-	private ObservableList<FileModel> model;
 	
 	ImageIcon doneIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_green.png"));
 	ImageIcon failedIcon = new ImageIcon(FirmaView.class.getResource("/icons/bullet_error.png"));
+	
+	@Inject
+	Provider<JFileTable> fileTableProvider;
 
 
 	@Inject
@@ -82,8 +83,6 @@ public class FirmaView extends FrameView implements AppView {
 
 		this.context = context;
 		this.controller = controller;
-
-		model = ObservableCollections.observableList(new Vector<FileModel>());
 
 	}
 
@@ -212,9 +211,8 @@ public class FirmaView extends FrameView implements AppView {
 		iconPanel.add(lblDropIcon);
 		iconPanel.add(lblDropHere);
 		dropPanel.add(scrollPane, "name_41052103490079");
-		fileTable = new JFileTable(model);
-		
-				scrollPane.setViewportView(fileTable);
+		fileTable = fileTableProvider.get();
+		scrollPane.setViewportView(fileTable);
 		GridBagLayout gbl_messagePanel = new GridBagLayout();
 		gbl_messagePanel.columnWidths = new int[] {20, 40, 0};
 		gbl_messagePanel.rowHeights = new int[] { 14, 0 };

@@ -3,7 +3,9 @@ package tc.fab.firma.app.components;
 import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
+import javax.inject.Inject;
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -11,10 +13,12 @@ import javax.swing.table.TableColumnModel;
 
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.ELProperty;
+import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.observablecollections.ObservableList;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 
+import tc.fab.app.AppContext;
 import tc.fab.firma.FirmaView;
 import tc.fab.firma.app.components.FileModel.Status;
 import tc.fab.firma.utils.FormatUtils;
@@ -33,13 +37,17 @@ public class JFileTable extends JTable {
 	private ImageIcon loadingIcon;
 
 	private List<Columns> columns = Arrays.asList(Columns.values());
-	private ObservableList<FileModel> model;
-
-	public JFileTable(ObservableList<FileModel> model) {
+	private ObservableList<FileModel> observableModel;
+	private AppContext context;
+	
+	@Inject
+	public JFileTable(AppContext context) {
 
 		super();
+		
+		this.context = context;
 
-		this.model = model;
+		this.observableModel = ObservableCollections.observableList(new Vector<FileModel>());
 
 		setAutoCreateRowSorter(true);
 		setShowGrid(false);
@@ -69,7 +77,7 @@ public class JFileTable extends JTable {
 	private void initBindings() {
 
 		JTableBinding<FileModel, List<FileModel>, JTable> tableBinding = SwingBindings
-			.createJTableBinding(UpdateStrategy.READ, model, this);
+			.createJTableBinding(UpdateStrategy.READ, observableModel, this);
 
 		ELProperty<FileModel, Status> status = ELProperty.create("${status}");
 		ELProperty<FileModel, Status> fileType = ELProperty.create("${fileType}");
@@ -138,9 +146,9 @@ public class JFileTable extends JTable {
 			case FILE_TYPE:
 				return "";
 			case FILE_NAME:
-				return "Arquivo";
+				return context.getResReader().getString("firma.msg.column_file_name");
 			case FILE_SIZE:
-				return "Tamanho";
+				return context.getResReader().getString("firma.msg.column_file_size");
 			default:
 				return colId.toString();
 		}
@@ -176,21 +184,21 @@ public class JFileTable extends JTable {
 	}
 
 	public void setStatus(int modelRowIndex, Status status) {
-		FileModel row = model.get(modelRowIndex);
+		FileModel row = observableModel.get(modelRowIndex);
 		row.setStatus(status);
-		model.set(modelRowIndex, row);
+		observableModel.set(modelRowIndex, row);
 	}
 
-	public List<FileModel> getData() {
-		return this.model;
-	}
-	
 	/**
 	 * avoids CPU eating by animated gif when not visible
 	 * @see {@link http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4302818}
 	 */
 	public void flush () {
 		loadingIcon.getImage().flush();
+	}
+	
+	public ObservableList<FileModel> getData() {
+		return observableModel;
 	}
 
 }
