@@ -158,7 +158,7 @@ public class FirmaView extends FrameView implements AppView {
 		
 		dropPanel = new JPanel();
 		dropPanel.setBorder(BorderFactory.createEmptyBorder());
-		dropPanel.setMinimumSize(new Dimension(550, 300));
+		dropPanel.setMinimumSize(new Dimension(550, 250));
 
 		GroupLayout gl_mainPanel = new GroupLayout(mainPanel);
 		gl_mainPanel.setHorizontalGroup(
@@ -197,7 +197,7 @@ public class FirmaView extends FrameView implements AppView {
 
 		Border dropBorder = BorderFactory.createLineBorder(Color.WHITE, 2);
 		iconPanel = new JPanel();
-		iconPanel.setBorder(dropBorder);
+		dropPanel.setBorder(dropBorder);
 		iconPanel.setBackground(new Color(200, 200, 200));
 		
 		dropPanel.add(iconPanel, "name_41064197351004");
