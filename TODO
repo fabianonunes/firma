@@ -4,13 +4,13 @@ TODO
 -- criar alguma forma de escolher posições absolutas: topleft, topright, center, etc...
 -- avisar a quantidade de erros na janela de pin
 -- informar se a última tentativa deu senha-inválida na tela de pin
+-- procurar algum seriço de análise de exceções (enviar para algum lugar as exceções)
 -- avisar em algum lugar pq deu erro naquele arquivo (?)
 
 -- esc key
--- i18n nome das colunas
 -- botão para mesclar assinaturas existentes (free-them)
--- não permitir arquivos duplicados
 -- criar seletor de última/primeira página
+-- não depender do jmagicmime pra ver o tipo do arquivo
 
 EXCEÇÕES
 -- certificados sem chave privada
