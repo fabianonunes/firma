@@ -147,9 +147,6 @@ public class FirmaView extends FrameView implements AppView {
 		signFiles = new JButton();
 		
 		removeFile = new JButton();
-		JButton showDropArea = new JButton();
-		
-		showDropArea.setAction(actionMap.get(AppController.ACTION_DROPAREA_SHOW));
 		signFiles.setAction(actionMap.get(AppController.ACTION_FILES_SIGN));
 		signFiles.setEnabled(false);
 		removeFile.setAction(actionMap.get(AppController.ACTION_FILES_REMOVE));
@@ -158,7 +155,7 @@ public class FirmaView extends FrameView implements AppView {
 		
 		dropPanel = new JPanel();
 		dropPanel.setBorder(BorderFactory.createEmptyBorder());
-		dropPanel.setMinimumSize(new Dimension(550, 250));
+		dropPanel.setMinimumSize(new Dimension(500, 250));
 
 		GroupLayout gl_mainPanel = new GroupLayout(mainPanel);
 		gl_mainPanel.setHorizontalGroup(
@@ -170,9 +167,7 @@ public class FirmaView extends FrameView implements AppView {
 						.addGroup(gl_mainPanel.createSequentialGroup()
 							.addComponent(signFiles, GroupLayout.PREFERRED_SIZE, 76, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(showDropArea, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(messagePanel, GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE)
+							.addComponent(messagePanel, GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(removeFile, GroupLayout.PREFERRED_SIZE, 120, GroupLayout.PREFERRED_SIZE)))
 					.addContainerGap())
@@ -181,13 +176,13 @@ public class FirmaView extends FrameView implements AppView {
 			gl_mainPanel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_mainPanel.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(dropPanel, GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE)
+					.addComponent(dropPanel, GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING, false)
-						.addComponent(messagePanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(signFiles, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(removeFile, GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)
-						.addComponent(showDropArea, GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE))
+						.addComponent(messagePanel, GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE)
+						.addGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING, false)
+							.addComponent(signFiles, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(removeFile, GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)))
 					.addContainerGap())
 		);
 		dropPanel.setLayout(new CardLayout(0, 0));
