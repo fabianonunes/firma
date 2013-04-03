@@ -6,14 +6,12 @@ TODO
 -- informar se a última tentativa deu senha-inválida na tela de pin
 -- procurar algum seriço de análise de exceções (enviar para algum lugar as exceções)
 -- avisar em algum lugar pq deu erro naquele arquivo (?)
+-- não depender do jmagicmime pra ver o tipo do arquivo (?)
 
 -- esc key
 -- botão para mesclar assinaturas existentes (free-them)
 -- criar seletor de última/primeira página
--- não depender do jmagicmime pra ver o tipo do arquivo
 -- mscapi não atualiza sozinho ao abrir
--- botão cancelar da janela sign
--- descrição do botão assinar da janela sign
 
 EXCEÇÕES
 -- certificados sem chave privada
