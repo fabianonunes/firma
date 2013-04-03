@@ -38,11 +38,10 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
 import net.sf.jmimemagic.Magic;
-import net.sf.jmimemagic.MagicException;
-import net.sf.jmimemagic.MagicMatchNotFoundException;
-import net.sf.jmimemagic.MagicParseException;
 
+import org.jdesktop.application.Application;
 import org.jdesktop.application.FrameView;
+import org.jdesktop.application.Task;
 import org.jdesktop.application.TaskMonitor;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -278,43 +277,70 @@ public class FirmaView extends FrameView implements AppView {
 	public void postInitComponents() {
 
 		setupWindowIcons();
-
+		
 		new FileDrop(dropPanel, new Listener() {
 			@Override
 			public void filesDropped(File[] files) {
-				
-				ObservableList<FileModel> data = fileTable.getData();
-				
-				for (File file : files) {
-					
-					String mimeType;
-					
-					try {
-						
-						mimeType = Magic.getMagicMatch(file, true).getMimeType();
-
-						if (mimeType.equals("application/pdf")) {
-							
-							FileModel row = new FileModel(FileModel.Status.IDLE, file,
-								file.length());
-							
-							if (!data.contains(row)) {
-								fileTable.getData().add(row);
-							}
-							
-						}
-						
-						CardLayout layout = (CardLayout) dropPanel.getLayout();
-						layout.last(dropPanel);
-						
-					} catch (MagicParseException | MagicMatchNotFoundException | MagicException e) {
-					}
-					
-				}
-				
+				DropTask task = new DropTask(getApplication(), files);
+				context.getAppContext().getTaskService().execute(task);
 			}
 		});
 		
+		
+	}
+	
+	class DropTask extends Task<Void, FileModel> {
+		
+		private File[] files;
+		ObservableList<FileModel> data = fileTable.getData();
+
+		public DropTask (Application app, File[] files) {
+			super(app);
+			this.files = files;
+		}
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			
+			for (File file : files) {
+				
+				String mimeType;
+				
+				try {
+					
+					mimeType = Magic.getMagicMatch(file, true).getMimeType();
+
+					if (mimeType.equals("application/pdf")) {
+						
+						FileModel row = new FileModel(FileModel.Status.IDLE, file,
+							file.length());
+						
+						if (!data.contains(row)) {
+							publish(row);
+						}
+						
+					}
+					
+				} catch (Exception e) {
+				}
+				
+			}
+			
+			return null;
+			
+		}
+		
+		@Override
+		protected void process(List<FileModel> values) {
+			fileTable.getData().addAll(values);
+		}
+	
+		
+		@Override
+		protected void succeeded(Void result) {
+			CardLayout layout = (CardLayout) dropPanel.getLayout();
+			layout.last(dropPanel);
+		}
 		
 	}
 
