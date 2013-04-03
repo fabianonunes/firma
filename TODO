@@ -14,9 +14,6 @@ TODO
 -- mscapi não atualiza sozinho ao abrir
 -- botão cancelar da janela sign
 -- descrição do botão assinar da janela sign
--- se a primeira renderização do preview da assinatura é feita na add-apearance, ela fica travada (branca) antes de abrir
-    -- a task preview deve ser background pra não travar a edt
---
 
 EXCEÇÕES
 -- certificados sem chave privada

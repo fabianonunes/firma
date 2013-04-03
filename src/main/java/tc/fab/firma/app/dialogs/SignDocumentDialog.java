@@ -63,6 +63,7 @@ public class SignDocumentDialog extends JDialog {
 	private static final long serialVersionUID = 7850839445605448945L;
 
 	private static final String ACTION_SIGN = "firma.dlg.sign_document.sign";
+	private static final String ACTION_CANCEL = "firma.dlg.sign_document.cancel";
 	private static final String ACTION_FILL_ALIASES = "firma.dlg.sign_document.fill_aliases";
 	private static final String ACTION_ADD_PROVIDER = "firma.dlg.sign_document.add_provider";
 	private static final String ACTION_ADD_APPEARANCE = "firma.dlg.sign_document.add_appearance";
@@ -126,6 +127,11 @@ public class SignDocumentDialog extends JDialog {
 		controller.signFiles(provider, alias, getAppearanceOptions());
 
 	}
+	
+	@Action(name = ACTION_CANCEL)
+	public void cancel(){
+		this.dispose();
+	}
 
 	@Action(name = ACTION_PREVIEW_APPEARANCE)
 	public Task<BufferedImage, Void> preview() throws KeyStoreException {
@@ -150,7 +156,6 @@ public class SignDocumentDialog extends JDialog {
 
 		imagePane.setImage((BufferedImage) null);
 		return null;
-		// context.getAppContext().getApplication()
 
 	}
 
@@ -246,7 +251,7 @@ public class SignDocumentDialog extends JDialog {
 		btAddProvider.setAction(context.getAction(this, ACTION_ADD_PROVIDER));
 
 		JButton btCancel = new JButton();
-		btCancel.setName("firma.dlg.sign_document.cancel");
+		btCancel.setAction(context.getAction(this, "firma.dlg.sign_document.cancel"));
 
 		JLabel lblTipoDoCertificado = new JLabel();
 		lblTipoDoCertificado.setName("firma.dlg.sign_document.provider");

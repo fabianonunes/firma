@@ -47,7 +47,7 @@ import org.jdesktop.swingx.JXImageView;
 import tc.fab.app.AppContext;
 import tc.fab.app.AppController;
 import tc.fab.app.AppDocument;
-import tc.fab.pdf.signer.SignaturePreview;
+import tc.fab.firma.app.tasks.PreviewTask;
 import tc.fab.pdf.signer.options.AppearanceOptions;
 
 import com.google.inject.Provider;
@@ -398,8 +398,8 @@ public class AppearanceDialog extends JDialog {
 	}
 
 	@Action(name = ACTION_PREVIEW)
-	public void preview() {
-		imageView.setImage(SignaturePreview.generate(null, imageView.getSize(), options));
+	public PreviewTask preview() {
+		return new PreviewTask(context.getAppContext().getApplication(), null, imageView, options);
 	}
 
 	@Action(name = ACTION_SAVE)
