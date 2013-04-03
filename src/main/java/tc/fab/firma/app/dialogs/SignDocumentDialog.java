@@ -188,11 +188,17 @@ public class SignDocumentDialog extends JDialog {
 
 	@Action(name = ACTION_DEL_APPEARANCE)
 	public void delAppearance() {
+		
 		AppearanceOptions selected = cbAppearance.getItemAt(cbAppearance.getSelectedIndex());
-		FileUtils.deleteQuietly(new File(selected.getGraphic()));
+		
+		if (selected.getGraphic() != null)
+			FileUtils.deleteQuietly(new File(selected.getGraphic()));
+		
 		int index = options.getAppearances().indexOf(selected);
 		options.getAppearances().remove(index);
+		
 		cbAppearance.setSelectedIndex(0);
+		
 	}
 
 	@Action(name = ACTION_ADD_APPEARANCE)
