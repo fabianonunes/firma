@@ -163,15 +163,15 @@ public class DocumentSigner implements AutoCloseable {
 
 	@Override
 	public void close() {
-		if (reader != null) {
-			try {
-				reader.close();
-			} catch (Exception e) {
-			}
-		}
 		if (stamper != null) {
 			try {
 				stamper.close();
+			} catch (Exception e) {
+			}
+		}
+		if (reader != null) {
+			try {
+				reader.close();
 			} catch (Exception e) {
 			}
 		}

@@ -23,6 +23,7 @@ import tc.fab.firma.app.dialogs.FileSelectorDialog;
 import tc.fab.firma.app.dialogs.SignDocumentDialog;
 import tc.fab.mechanisms.Mechanism;
 import tc.fab.mechanisms.MechanismManager;
+import tc.fab.pdf.flatten.Flatter;
 import tc.fab.pdf.signer.DocumentSigner;
 import tc.fab.pdf.signer.options.AppearanceOptions;
 
@@ -35,14 +36,11 @@ public class FirmaController implements AppController {
 	private AppView view;
 	private AppDocument document;
 	private ActionMap actionMap;
+	private MechanismManager providersManager;
 
 	// dialogs
-	@Inject
-	private Provider<FileSelectorDialog> fileDialog;
-	@Inject
-	private Provider<SignDocumentDialog> optionsDialog;
-
-	private MechanismManager providersManager;
+	@Inject private Provider<FileSelectorDialog> fileDialog;
+	@Inject private Provider<SignDocumentDialog> optionsDialog;
 
 	@Inject
 	public FirmaController(AppContext context, AppDocument document, AppView view,
@@ -64,6 +62,98 @@ public class FirmaController implements AppController {
 	@Override
 	public boolean saveBeforeExit() {
 		return true;
+	}
+
+
+	@Action(name = AppController.ACTION_FILES_FLAT)
+	public FlatTask flat() {
+		return new FlatTask();
+	}
+	
+	class FlatTask extends Task<Void, Pair<Status, Integer>> {
+
+		private Map<Integer, FileModel> modelRowIndexes;
+		private int fails = 0;
+
+		public FlatTask() {
+			
+			super(context.getAppContext().getApplication());
+
+			this.modelRowIndexes = new LinkedHashMap<>();
+			
+			int rowCount = view.getFileTable().getModel().getRowCount();
+
+			for (int viewRow = 0; viewRow < rowCount; viewRow++) {
+				
+				int modelRow = view.getFileTable().convertRowIndexToModel(viewRow);
+				view.getFileTable().setStatus(modelRow, Status.IDLE);
+				modelRowIndexes.put(modelRow, view.getFileTable().getData().get(modelRow));
+				
+			}
+			
+		}
+
+		@Override
+		protected Void doInBackground() throws Exception {
+
+			setMessage(context.getResReader().getString("firma.msg.signing"));
+
+			float i = 1;
+
+			for (Integer modelIndexRow : modelRowIndexes.keySet()) {
+
+				FileModel fileModel = modelRowIndexes.get(modelIndexRow);
+				File file = fileModel.getFile();
+
+				publish(new Pair<Status, Integer>(Status.LOADING, modelIndexRow));
+
+				try (
+					Flatter flatter = new Flatter()
+				) {
+
+					flatter.flat(file);
+					publish(new Pair<Status, Integer>(Status.DONE, modelIndexRow));
+
+				} catch (Exception e) {
+					
+					fails++;
+					publish(new Pair<Status, Integer>(Status.FAILED, modelIndexRow));
+					
+				} finally {
+					
+					setProgress(i++ / (float) modelRowIndexes.size());
+					
+				}
+
+			}
+
+			return null;
+
+		}
+
+		@Override
+		protected void process(List<Pair<Status, Integer>> values) {
+			super.process(values);
+			for (Pair<Status, Integer> pair : values) {
+				view.getFileTable().setStatus(pair.getSecond(), pair.getFirst());
+			}
+		}
+
+		@Override
+		protected void finished() {
+			
+			setMessage(
+				fails == 0 
+				? context.getResReader().getString("firma.msg.all_signed")
+				: context.getResReader().getString("firma.msg.some_not_signed")
+			);
+			
+			setDescription(fails == 0 ? "0" : "1");
+			
+			view.getFileTable().flush(); // call flush on animated gif avoids cpu cycles when not visible
+			
+		}
+
 	}
 
 	@Action(name = AppController.ACTION_FILES_SIGN)
@@ -92,8 +182,6 @@ public class FirmaController implements AppController {
 	public void signFiles(String provider, String alias, AppearanceOptions options)
 		throws Exception {
 
-		// context.getAppContext().getTaskMonitor().
-
 		Mechanism m = providersManager.getMechanism(provider, alias);
 		SignTask p = new SignTask(m, options);
 		context.getAppContext().getTaskService().execute(p);
@@ -102,27 +190,29 @@ public class FirmaController implements AppController {
 
 	class SignTask extends Task<Void, Pair<Status, Integer>> {
 
-		Map<Integer, FileModel> modelRowIndexes;
+		private Map<Integer, FileModel> modelRowIndexes;
 		private Mechanism m;
 		private AppearanceOptions appearanceOptions;
 		private int fails = 0;
 
 		public SignTask(Mechanism m, AppearanceOptions options) throws Exception {
+			
 			super(context.getAppContext().getApplication());
 
 			this.m = m;
-			m.login();
-
 			this.appearanceOptions = options;
+			this.modelRowIndexes = new LinkedHashMap<>();
+			
+			m.login();
 
 			int rowCount = view.getFileTable().getModel().getRowCount();
 
-			modelRowIndexes = new LinkedHashMap<>();
-
 			for (int viewRow = 0; viewRow < rowCount; viewRow++) {
+				
 				int modelRow = view.getFileTable().convertRowIndexToModel(viewRow);
 				view.getFileTable().setStatus(modelRow, Status.IDLE);
 				modelRowIndexes.put(modelRow, view.getFileTable().getData().get(modelRow));
+				
 			}
 			
 		}
@@ -135,7 +225,7 @@ public class FirmaController implements AppController {
 			FirmaOptions firmaOptions = document.getOptions();
 			float i = 1;
 
-			// TODO: this var should be moved from here to a outer contextf
+			// TODO: this var should be moved from here to a outer context
 			String suffix = context.getResReader().getString("firma.msg.signed_file_suffix");
 
 			for (Integer modelIndexRow : modelRowIndexes.keySet()) {
@@ -159,14 +249,13 @@ public class FirmaController implements AppController {
 
 				} catch (Exception e) {
 					
-					// e.printStackTrace();
-					
 					fails++;
-					
 					publish(new Pair<Status, Integer>(Status.FAILED, modelIndexRow));
 					
 				} finally {
+					
 					setProgress(i++ / (float) modelRowIndexes.size());
+					
 				}
 
 			}
@@ -185,18 +274,23 @@ public class FirmaController implements AppController {
 
 		@Override
 		protected void finished() {
+			
 			setMessage(
 				fails == 0 
 				? context.getResReader().getString("firma.msg.all_signed")
 				: context.getResReader().getString("firma.msg.some_not_signed")
 			);
+			
 			setDescription(fails == 0 ? "0" : "1");
+			
 			view.getFileTable().flush(); // call flush on animated gif avoids cpu cycles when not visible
+			
 			try {
 				m.close();
 			} catch (Exception e) {
 				// quietly
 			}
+			
 		}
 
 	}

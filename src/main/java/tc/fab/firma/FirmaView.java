@@ -155,6 +155,10 @@ public class FirmaView extends FrameView implements AppView {
 		dropPanel = new JPanel();
 		dropPanel.setBorder(BorderFactory.createEmptyBorder());
 		dropPanel.setMinimumSize(new Dimension(500, 250));
+		
+		flatFiles = new JButton();
+		flatFiles.setAction(actionMap.get(AppController.ACTION_FILES_FLAT));
+		flatFiles.setEnabled(false);
 
 		GroupLayout gl_mainPanel = new GroupLayout(mainPanel);
 		gl_mainPanel.setHorizontalGroup(
@@ -165,8 +169,10 @@ public class FirmaView extends FrameView implements AppView {
 						.addComponent(dropPanel, GroupLayout.DEFAULT_SIZE, 571, Short.MAX_VALUE)
 						.addGroup(gl_mainPanel.createSequentialGroup()
 							.addComponent(signFiles, GroupLayout.PREFERRED_SIZE, 76, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(messagePanel, GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE)
+							.addGap(7)
+							.addComponent(flatFiles, GroupLayout.PREFERRED_SIZE, 76, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(messagePanel, GroupLayout.DEFAULT_SIZE, 274, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(removeFile, GroupLayout.PREFERRED_SIZE, 120, GroupLayout.PREFERRED_SIZE)))
 					.addContainerGap())
@@ -175,13 +181,14 @@ public class FirmaView extends FrameView implements AppView {
 			gl_mainPanel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_mainPanel.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(dropPanel, GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE)
+					.addComponent(dropPanel, GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING, false)
-						.addComponent(messagePanel, GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE)
+					.addGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING)
 						.addGroup(gl_mainPanel.createParallelGroup(Alignment.TRAILING, false)
 							.addComponent(signFiles, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-							.addComponent(removeFile, GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)))
+							.addComponent(removeFile, GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE))
+						.addComponent(flatFiles, GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE)
+						.addComponent(messagePanel, GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap())
 		);
 		dropPanel.setLayout(new CardLayout(0, 0));
@@ -259,6 +266,7 @@ public class FirmaView extends FrameView implements AppView {
 	private JLabel lblDropIcon;
 	private JButton signFiles;
 	private JButton removeFile;
+	private JButton flatFiles;
 
 	private void setupWindowIcons() {
 
@@ -376,6 +384,7 @@ public class FirmaView extends FrameView implements AppView {
 			public void tableChanged(TableModelEvent e) {
 				TableModel model = (TableModel) e.getSource();
 				signFiles.setEnabled(model.getRowCount() > 0);
+				flatFiles.setEnabled(model.getRowCount() > 0);
 			}
 		});
 		

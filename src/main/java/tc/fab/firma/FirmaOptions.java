@@ -21,7 +21,7 @@ public class FirmaOptions extends PropertyObservable implements Serializable {
 	private ReferencePosition referencePosition = ReferencePosition.BELOW;
 	private int pageToSign = -1;
 	private String referenceText = null;
-
+	
 	public static FirmaOptions createDefaultInstance(String name) {
 
 		FirmaOptions options = new FirmaOptions();
