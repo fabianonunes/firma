@@ -15,29 +15,21 @@ public class Flatter implements AutoCloseable {
 	
 	private PdfReader reader;
 	private PdfStamper stamper;
-	private File tempFile;
 
 	public Flatter() {
 	}
 	
 	public void flat(File input) throws IOException, DocumentException  {
 
-		File output = new File(input.getAbsolutePath());
-		tempFile = new File(input.getAbsolutePath() + "_" + RandomStringUtils.randomAlphanumeric(10));
-		FileUtils.moveFile(input, tempFile);
-		input = tempFile;
-		
-		try (FileOutputStream fos = new FileOutputStream(output)) {
+		File tempFile = new File(input.getParentFile(), RandomStringUtils.randomAlphanumeric(10));
+
+		try (FileOutputStream fos = new FileOutputStream(tempFile)) {
 			
 			reader = new PdfReader(input.getAbsolutePath());
 			stamper = new PdfStamper(reader, fos);
 			stamper.setFormFlattening(true);
 			stamper.close();
-			
-		} catch (Exception e) {
-
-			FileUtils.moveFile(tempFile, output);
-			throw e;
+			tempFile.renameTo(input);
 			
 		} finally {
 			
